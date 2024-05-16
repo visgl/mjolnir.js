@@ -26,7 +26,8 @@ test('EventUtils#whichButtons', t => {
     {
       srcEvent: {
         type: 'mouseup',
-        which: 1
+        button: 0,
+        buttons: 0
       },
       leftButton: true,
       middleButton: false,
@@ -35,7 +36,8 @@ test('EventUtils#whichButtons', t => {
     {
       srcEvent: {
         type: 'mousemove',
-        which: 3
+        button: 0,
+        buttons: 2
       },
       leftButton: false,
       middleButton: false,

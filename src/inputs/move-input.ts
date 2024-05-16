@@ -124,8 +124,8 @@ export default class MoveInput extends Input<MjolnirPointerEventRaw, InputOption
           }
           break;
         case 'mousemove':
-          // Move events use `which` to track the button being pressed
-          if (event.which === 0) {
+          // Move events use `bottons` to track the button being pressed
+          if (event.buttons === 0) {
             // Button is not down
             this.pressed = false;
           }
