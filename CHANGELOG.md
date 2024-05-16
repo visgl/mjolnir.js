@@ -1,5 +1,9 @@
 # Change Log
 
+#### [2.7.2] - May 16, 2024
+
+- Remove use of deprecated MouseEvent.which property (#1)
+
 #### [2.7.1] - Jul 21, 2022
 
 - Fix hammerjs import (#103)
