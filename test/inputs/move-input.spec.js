@@ -64,12 +64,14 @@ test('moveInput#handleEvent', t => {
   };
   const mouseDragMock = {
     type: 'mousemove',
-    which: 1,
+    button: 0,
+    buttons: 1,
     target: eventRegistrar
   };
   const mouseHoverMock = {
     type: 'mousemove',
-    which: 0,
+    button: 0,
+    buttons: 0,
     target: eventRegistrar
   };
   const mouseUpMock = {
@@ -108,7 +110,8 @@ test('moveInput#enableEventType', t => {
   t.test('pointermove', assert => {
     const mouseHoverMock = {
       type: 'mousemove',
-      which: 0,
+      button: 0,
+      buttons: 0,
       target: eventRegistrar
     };
 

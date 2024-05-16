@@ -58,7 +58,7 @@ export function enhanceMouseInput(MouseInput) {
       this.pressed = true;
     }
 
-    if (eventType & INPUT_MOVE && ev.which === 0) {
+    if (eventType & INPUT_MOVE && ev.buttons === 0) {
       eventType = INPUT_END;
     }
 

@@ -13,10 +13,6 @@ const MOUSE_EVENTS = {
   mouseup: UP_EVENT
 };
 
-// MouseEvent.which https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/which
-const MOUSE_EVENT_WHICH_LEFT = 1;
-const MOUSE_EVENT_WHICH_MIDDLE = 2;
-const MOUSE_EVENT_WHICH_RIGHT = 3;
 // MouseEvent.button https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
 const MOUSE_EVENT_BUTTON_LEFT = 0;
 const MOUSE_EVENT_BUTTON_MIDDLE = 1;
@@ -40,25 +36,16 @@ export function whichButtons(event: MjolnirEventRaw): {
     return null;
   }
 
-  const {buttons, button, which} = event.srcEvent as PointerEvent;
+  const {buttons, button} = event.srcEvent as PointerEvent;
   let leftButton = false;
   let middleButton = false;
   let rightButton = false;
 
-  if (
-    // button is up, need to find out which one was pressed before
-    eventType === UP_EVENT ||
-    // moving but does not support `buttons` API
-    (eventType === MOVE_EVENT && !Number.isFinite(buttons))
-  ) {
-    leftButton = which === MOUSE_EVENT_WHICH_LEFT;
-    middleButton = which === MOUSE_EVENT_WHICH_MIDDLE;
-    rightButton = which === MOUSE_EVENT_WHICH_RIGHT;
-  } else if (eventType === MOVE_EVENT) {
+  if (eventType === MOVE_EVENT) {
     leftButton = Boolean(buttons & MOUSE_EVENT_BUTTONS_LEFT_MASK);
     middleButton = Boolean(buttons & MOUSE_EVENT_BUTTONS_MIDDLE_MASK);
     rightButton = Boolean(buttons & MOUSE_EVENT_BUTTONS_RIGHT_MASK);
-  } else if (eventType === DOWN_EVENT) {
+  } else {
     leftButton = button === MOUSE_EVENT_BUTTON_LEFT;
     middleButton = button === MOUSE_EVENT_BUTTON_MIDDLE;
     rightButton = button === MOUSE_EVENT_BUTTON_RIGHT;
