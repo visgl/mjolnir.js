@@ -1,6 +1,6 @@
 /* global window */
-const test = require('tape');
-const {_enableDOMLogging: enableDOMLogging} = require('@probe.gl/test-utils');
+import test from 'tape';
+import {_enableDOMLogging as enableDOMLogging} from '@probe.gl/test-utils';
 
 let failed = false;
 test.onFinish(window.browserTestDriver_finish);
@@ -19,4 +19,4 @@ enableDOMLogging({
   })
 });
 
-require('./index');
+import './index';
