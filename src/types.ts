@@ -267,7 +267,6 @@ export type MjolnirEvent =
 
 export type MjolnirEventHandlers = {
   [type in MjolnirGestureEvent['type']]?: (event: MjolnirGestureEvent) => void;
-} &
-  {[type in MjolnirPointerEvent['type']]?: (event: MjolnirPointerEvent) => void} &
-  {[type in MjolnirWheelEvent['type']]?: (event: MjolnirWheelEvent) => void} &
-  {[type in MjolnirKeyEvent['type']]?: (event: MjolnirKeyEvent) => void};
+} & {[type in MjolnirPointerEvent['type']]?: (event: MjolnirPointerEvent) => void} & {
+  [type in MjolnirWheelEvent['type']]?: (event: MjolnirWheelEvent) => void;
+} & {[type in MjolnirKeyEvent['type']]?: (event: MjolnirKeyEvent) => void};
