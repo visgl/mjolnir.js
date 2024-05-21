@@ -8,6 +8,16 @@
     "sourceMap": true,
     "outDir": "./dist"
   },
+  "plugins": [
+    {
+      "transform": "ocular-dev-tools/ts-transform-append-extension",
+      "after": true
+    },
+    {
+      "transform": "ocular-dev-tools/ts-transform-append-extension",
+      "afterDeclarations": true
+    }
+  ],
   "include":[
     "src/**/*"
   ]

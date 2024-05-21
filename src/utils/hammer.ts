@@ -1,13 +1,9 @@
-// Hammer.Manager mock for use in environments without `document` / `window`.
-class HammerManagerMock {
-  get = () => null;
-  set = () => this;
-  on = () => this;
-  off = () => this;
-  destroy = () => this;
-  emit = () => this;
-}
+import * as hammerjs from '../hammerjs/index';
+import {enhancePointerEventInput, enhanceMouseInput} from './hammer-overrides';
 
-export const Manager = HammerManagerMock;
+enhancePointerEventInput(hammerjs.PointerEventInput);
+enhanceMouseInput(hammerjs.MouseInput);
 
-export default null;
+export const Manager = hammerjs.Manager;
+
+export default hammerjs;
