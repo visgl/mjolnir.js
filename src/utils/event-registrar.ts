@@ -1,9 +1,21 @@
-import type EventManager from '../event-manager';
+import type {EventManager} from '../event-manager';
 import {whichButtons, getOffsetPosition} from './event-utils';
-import type {MjolnirEventRaw, MjolnirEventWrapper, MjolnirEvent} from '../types';
+import type {
+  MjolnirEventRaw,
+  MjolnirEventWrapper,
+  MjolnirEvent,
+  MjolnirEventHandler
+} from '../types';
 
 export type HandlerOptions = {
+  /** Optional element from which the event is originated from.
+   * @default 'root'
+   */
   srcElement?: 'root' | HTMLElement;
+  /** Handler with higher priority will be called first.
+   * Handler with the same priority will be called in the order of registration.
+   * @default 0
+   */
   priority?: number;
 };
 
@@ -12,22 +24,25 @@ type EventHandler = {
   handler: (event: MjolnirEvent) => void;
   once?: boolean;
   passive?: boolean;
-} & HandlerOptions;
+  srcElement: 'root' | HTMLElement;
+  priority: number;
+};
 
-const DEFAULT_OPTIONS: HandlerOptions = {
+const DEFAULT_OPTIONS: Required<HandlerOptions> = {
   srcElement: 'root',
   priority: 0
 };
 
-export default class EventRegistrar {
+export class EventRegistrar {
   eventManager: EventManager;
   recognizerName: string;
   handlers: EventHandler[];
   handlersByElement: Map<'root' | HTMLElement, EventHandler[]>;
   _active: boolean;
 
-  constructor(eventManager: EventManager) {
+  constructor(eventManager: EventManager, recognizerName: string) {
     this.eventManager = eventManager;
+    this.recognizerName = recognizerName;
     this.handlers = [];
     // Element -> handler map
     this.handlersByElement = new Map();
@@ -42,21 +57,13 @@ export default class EventRegistrar {
 
   add(
     type: string,
-    handler: (event: MjolnirEvent) => void,
-    options: HTMLElement | HandlerOptions,
+    handler: MjolnirEventHandler,
+    options?: HandlerOptions,
     once: boolean = false,
     passive: boolean = false
   ) {
     const {handlers, handlersByElement} = this;
-    let opts: HandlerOptions = DEFAULT_OPTIONS;
-
-    if (typeof options === 'string' || (options && (options as HTMLElement).addEventListener)) {
-      // is DOM element, backward compatibility
-      // @ts-ignore
-      opts = {...DEFAULT_OPTIONS, srcElement: options};
-    } else if (options) {
-      opts = {...DEFAULT_OPTIONS, ...options};
-    }
+    const opts: Required<HandlerOptions> = {...DEFAULT_OPTIONS, ...options};
 
     let entries = handlersByElement.get(opts.srcElement);
     if (!entries) {
@@ -90,7 +97,7 @@ export default class EventRegistrar {
     entries.splice(insertPosition + 1, 0, entry);
   }
 
-  remove(type: string, handler: (event: MjolnirEvent) => void) {
+  remove(type: string, handler: MjolnirEventHandler) {
     const {handlers, handlersByElement} = this;
 
     for (let i = handlers.length - 1; i >= 0; i--) {
@@ -98,7 +105,7 @@ export default class EventRegistrar {
 
       if (entry.type === type && entry.handler === handler) {
         handlers.splice(i, 1);
-        const entries = handlersByElement.get(entry.srcElement);
+        const entries = handlersByElement.get(entry.srcElement)!;
         entries.splice(entries.indexOf(entry), 1);
         if (entries.length === 0) {
           handlersByElement.delete(entry.srcElement);
@@ -154,9 +161,9 @@ export default class EventRegistrar {
 
       for (let i = 0; i < entries.length; i++) {
         const {type, handler, once} = entries[i];
+        // @ts-ignore
         handler({
           ...event,
-          // @ts-ignore
           type,
           stopPropagation,
           stopImmediatePropagation
@@ -182,10 +189,11 @@ export default class EventRegistrar {
   _normalizeEvent<T extends MjolnirEventRaw>(event: T): MjolnirEventWrapper<T> {
     const rootElement = this.eventManager.getElement();
 
+    // @ts-ignore
     return {
       ...event,
       ...whichButtons(event),
-      ...getOffsetPosition(event, rootElement),
+      ...getOffsetPosition(event, rootElement!),
       preventDefault: () => {
         event.srcEvent.preventDefault();
       },

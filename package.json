@@ -26,20 +26,17 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "browser": {
-    "./src/utils/hammer.js": "./src/utils/hammer.browser.js",
-    "./dist/es5/utils/hammer.js": "./dist/es5/utils/hammer.browser.js",
-    "./dist/esm/utils/hammer.js": "./dist/esm/utils/hammer.browser.js"
-  },
   "files": [
     "src",
-    "dist"
+    "dist",
+    "dist.min.js"
   ],
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "bootstrap": "yarn && ocular-bootstrap",
     "start": "(cd examples/main && (path-exists node_modules || npm i) && npm run start-local)",
     "build": "ocular-clean && ocular-build",
+    "build-bundle": "ocular-bundle ./src/index.ts",
     "lint": "ocular-lint",
     "cover": "ocular-test cover",
     "publish-prod": "ocular-publish prod",
@@ -50,8 +47,6 @@
     "test"
   ],
   "dependencies": {
-    "@types/hammerjs": "^2.0.41",
-    "hammerjs": "^2.0.8"
   },
   "devDependencies": {
     "jsdom": "^16.0.0",

@@ -2,12 +2,23 @@
   "compilerOptions": {
     "target": "es2020",
     "moduleResolution": "node",
+    "strictNullChecks": true,
     "allowSyntheticDefaultImports": true,
     "module": "ES2020",
     "declaration": true,
     "sourceMap": true,
     "outDir": "./dist"
   },
+  "plugins": [
+    {
+      "transform": "ocular-dev-tools/ts-transform-append-extension",
+      "after": true
+    },
+    {
+      "transform": "ocular-dev-tools/ts-transform-append-extension",
+      "afterDeclarations": true
+    }
+  ],
   "include":[
     "src/**/*"
   ]

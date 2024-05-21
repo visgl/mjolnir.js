@@ -1,42 +1,33 @@
 import type {MjolnirKeyEventRaw} from '../types';
-import Input, {InputOptions} from './input';
+import {Input, InputOptions} from './input';
 
-import {INPUT_EVENT_TYPES} from '../constants';
-
-const {KEY_EVENTS} = INPUT_EVENT_TYPES;
-const DOWN_EVENT_TYPE = 'keydown';
-const UP_EVENT_TYPE = 'keyup';
+const KEY_EVENTS = ['keydown', 'keyup'] as const;
 
 type KeyInputOptions = InputOptions & {
-  events?: string[];
   tabIndex?: number;
 };
 
-export default class KeyInput extends Input<MjolnirKeyEventRaw, KeyInputOptions> {
+export class KeyInput extends Input<MjolnirKeyEventRaw, Required<KeyInputOptions>> {
   enableDownEvent: boolean;
   enableUpEvent: boolean;
-
-  events: string[];
 
   constructor(
     element: HTMLElement,
     callback: (event: MjolnirKeyEventRaw) => void,
     options: KeyInputOptions
   ) {
-    super(element, callback, options);
+    super(element, callback, {enable: true, tabIndex: 0, ...options});
 
     this.enableDownEvent = this.options.enable;
     this.enableUpEvent = this.options.enable;
 
-    this.events = (this.options.events || []).concat(KEY_EVENTS);
-
-    element.tabIndex = this.options.tabIndex || 0;
+    element.tabIndex = this.options.tabIndex;
     element.style.outline = 'none';
-    this.events.forEach(event => element.addEventListener(event, this.handleEvent));
+    KEY_EVENTS.forEach(event => element.addEventListener(event, this.handleEvent));
   }
 
   destroy() {
-    this.events.forEach(event => this.element.removeEventListener(event, this.handleEvent));
+    KEY_EVENTS.forEach(event => this.element.removeEventListener(event, this.handleEvent));
   }
 
   /**
@@ -44,10 +35,10 @@ export default class KeyInput extends Input<MjolnirKeyEventRaw, KeyInputOptions>
    * if the specified event type is among those handled by this input.
    */
   enableEventType(eventType: string, enabled: boolean) {
-    if (eventType === DOWN_EVENT_TYPE) {
+    if (eventType === 'keydown') {
       this.enableDownEvent = enabled;
     }
-    if (eventType === UP_EVENT_TYPE) {
+    if (eventType === 'keyup') {
       this.enableUpEvent = enabled;
     }
   }
@@ -64,7 +55,7 @@ export default class KeyInput extends Input<MjolnirKeyEventRaw, KeyInputOptions>
 
     if (this.enableDownEvent && event.type === 'keydown') {
       this.callback({
-        type: DOWN_EVENT_TYPE,
+        type: 'keydown',
         srcEvent: event,
         key: event.key,
         target: event.target as HTMLElement
@@ -73,7 +64,7 @@ export default class KeyInput extends Input<MjolnirKeyEventRaw, KeyInputOptions>
 
     if (this.enableUpEvent && event.type === 'keyup') {
       this.callback({
-        type: UP_EVENT_TYPE,
+        type: 'keyup',
         srcEvent: event,
         key: event.key,
         target: event.target as HTMLElement

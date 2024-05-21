@@ -1,13 +1,16 @@
 import type {MjolnirPointerEventRaw} from '../types';
-import Input, {InputOptions} from './input';
-import {INPUT_EVENT_TYPES} from '../constants';
+import {Input, InputOptions} from './input';
 
-const {MOUSE_EVENTS} = INPUT_EVENT_TYPES;
-const MOVE_EVENT_TYPE = 'pointermove';
-const OVER_EVENT_TYPE = 'pointerover';
-const OUT_EVENT_TYPE = 'pointerout';
-const ENTER_EVENT_TYPE = 'pointerenter';
-const LEAVE_EVENT_TYPE = 'pointerleave';
+const MOUSE_EVENTS = [
+  'mousedown',
+  'mousemove',
+  'mouseup',
+  'mouseover',
+  'mouseout',
+  'mouseleave'
+] as const;
+
+type MoveEventType = 'pointermove' | 'pointerover' | 'pointerout' | 'pointerenter' | 'pointerleave';
 
 /**
  * Hammer.js swallows 'move' events (for pointer/touch/mouse)
@@ -17,7 +20,7 @@ const LEAVE_EVENT_TYPE = 'pointerleave';
  * move events across input types, e.g. storing multiple simultaneous
  * pointer/touch events, calculating speed/direction, etc.
  */
-export default class MoveInput extends Input<MjolnirPointerEventRaw, InputOptions> {
+export class MoveInput extends Input<MjolnirPointerEventRaw, Required<InputOptions>> {
   pressed: boolean;
   enableMoveEvent: boolean;
   enableEnterEvent: boolean;
@@ -25,14 +28,12 @@ export default class MoveInput extends Input<MjolnirPointerEventRaw, InputOption
   enableOutEvent: boolean;
   enableOverEvent: boolean;
 
-  events: string[];
-
   constructor(
     element: HTMLElement,
     callback: (event: MjolnirPointerEventRaw) => void,
     options: InputOptions
   ) {
-    super(element, callback, options);
+    super(element, callback, {enable: true, ...options});
 
     this.pressed = false;
     const {enable} = this.options;
@@ -43,13 +44,11 @@ export default class MoveInput extends Input<MjolnirPointerEventRaw, InputOption
     this.enableOutEvent = enable;
     this.enableOverEvent = enable;
 
-    this.events = (this.options.events || []).concat(MOUSE_EVENTS);
-
-    this.events.forEach(event => element.addEventListener(event, this.handleEvent));
+    MOUSE_EVENTS.forEach(event => element.addEventListener(event, this.handleEvent));
   }
 
   destroy() {
-    this.events.forEach(event => this.element.removeEventListener(event, this.handleEvent));
+    MOUSE_EVENTS.forEach(event => this.element.removeEventListener(event, this.handleEvent));
   }
 
   /**
@@ -57,24 +56,28 @@ export default class MoveInput extends Input<MjolnirPointerEventRaw, InputOption
    * if the specified event type is among those handled by this input.
    */
   enableEventType(eventType: string, enabled: boolean) {
-    if (eventType === MOVE_EVENT_TYPE) {
-      this.enableMoveEvent = enabled;
-    }
-    if (eventType === OVER_EVENT_TYPE) {
-      this.enableOverEvent = enabled;
-    }
-    if (eventType === OUT_EVENT_TYPE) {
-      this.enableOutEvent = enabled;
-    }
-    if (eventType === ENTER_EVENT_TYPE) {
-      this.enableEnterEvent = enabled;
-    }
-    if (eventType === LEAVE_EVENT_TYPE) {
-      this.enableLeaveEvent = enabled;
+    switch (eventType) {
+      case 'pointermove':
+        this.enableMoveEvent = enabled;
+        break;
+      case 'pointerover':
+        this.enableOverEvent = enabled;
+        break;
+      case 'pointerout':
+        this.enableOutEvent = enabled;
+        break;
+      case 'pointerenter':
+        this.enableEnterEvent = enabled;
+        break;
+      case 'pointerleave':
+        this.enableLeaveEvent = enabled;
+        break;
+      default:
+      // ignore
     }
   }
 
-  handleEvent = (event: PointerEvent) => {
+  handleEvent = (event: MouseEvent) => {
     this.handleOverEvent(event);
     this.handleOutEvent(event);
     this.handleEnterEvent(event);
@@ -82,39 +85,31 @@ export default class MoveInput extends Input<MjolnirPointerEventRaw, InputOption
     this.handleMoveEvent(event);
   };
 
-  handleOverEvent(event: PointerEvent) {
-    if (this.enableOverEvent) {
-      if (event.type === 'mouseover') {
-        this._emit(OVER_EVENT_TYPE, event);
-      }
+  handleOverEvent(event: MouseEvent) {
+    if (this.enableOverEvent && event.type === 'mouseover') {
+      this._emit('pointerover', event);
     }
   }
 
-  handleOutEvent(event: PointerEvent) {
-    if (this.enableOutEvent) {
-      if (event.type === 'mouseout') {
-        this._emit(OUT_EVENT_TYPE, event);
-      }
+  handleOutEvent(event: MouseEvent) {
+    if (this.enableOutEvent && event.type === 'mouseout') {
+      this._emit('pointerout', event);
     }
   }
 
-  handleEnterEvent(event: PointerEvent) {
-    if (this.enableEnterEvent) {
-      if (event.type === 'mouseenter') {
-        this._emit(ENTER_EVENT_TYPE, event);
-      }
+  handleEnterEvent(event: MouseEvent) {
+    if (this.enableEnterEvent && event.type === 'mouseenter') {
+      this._emit('pointerenter', event);
     }
   }
 
-  handleLeaveEvent(event: PointerEvent) {
-    if (this.enableLeaveEvent) {
-      if (event.type === 'mouseleave') {
-        this._emit(LEAVE_EVENT_TYPE, event);
-      }
+  handleLeaveEvent(event: MouseEvent) {
+    if (this.enableLeaveEvent && event.type === 'mouseleave') {
+      this._emit('pointerleave', event);
     }
   }
 
-  handleMoveEvent(event: PointerEvent) {
+  handleMoveEvent(event: MouseEvent) {
     if (this.enableMoveEvent) {
       switch (event.type) {
         case 'mousedown':
@@ -132,7 +127,7 @@ export default class MoveInput extends Input<MjolnirPointerEventRaw, InputOption
           if (!this.pressed) {
             // Drag events are emitted by hammer already
             // we just need to emit the move event on hover
-            this._emit(MOVE_EVENT_TYPE, event);
+            this._emit('pointermove', event);
           }
           break;
         case 'mouseup':
@@ -143,10 +138,7 @@ export default class MoveInput extends Input<MjolnirPointerEventRaw, InputOption
     }
   }
 
-  _emit(
-    type: 'pointermove' | 'pointerover' | 'pointerout' | 'pointerenter' | 'pointerleave',
-    event: PointerEvent
-  ) {
+  _emit(type: MoveEventType, event: MouseEvent) {
     this.callback({
       type,
       center: {

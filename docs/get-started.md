@@ -6,73 +6,76 @@
 npm install mjolnir.js
 ```
 
-# Usage
+or
 
-```js
-import {EventManager} from 'mjolnir.js';
+```html
+<script src="https://unpkg.com/mjolnir.js@3/dist.min.js"></script>
+```
 
-const eventManager = new EventManager(document.getElementById('container'));
-function onClick(event) {}
-function onPinch(event) {}
+# Using with NPM
 
-eventManager.on({
-  click: onClick,
-  pinch: onPinch
+```ts
+import {EventManager, Pinch, Pan} from 'mjolnir.js';
+
+const eventManager = new EventManager(document.getElementById('container'), {
+  recognizers: [new Pinch(), new Pan()],
+  events: {
+    pinch: (event) => {
+      // do something
+    }
+  }
 });
 
-// ...
+// when done
 eventManager.destroy();
 ```
 
+## Using with Script Tag
+
+```js
+const {EventManager, Pinch, Pan} = mjolnir;
+
+const eventManager = new EventManager(document.getElementById('container'), {
+  recognizers: [new Pinch(), new Pan()],
+  events: {
+    pinch: (event) => {
+      // do something
+    }
+  }
+});
+
+// when done
+eventManager.destroy();
+```
+
+
 ## Using with React
 
-The `EventManager` can be initialized with an empty root:
 
-```js
-import {EventManager} from 'mjolnir.js';
-
-const eventManager = new EventManager();
-// Events can be registered now, but they will have no effect until
-// the event manager is attached to a DOM element
-eventManager.on('dblclick', onDblClick);
-```
-
-We may set the root element later to a DOM node that's rendered by React:
-
-```jsx
+```tsx
 import React, {useRef, useEffect} from 'react';
+import {EventManager, Pinch, Pan} from 'mjolnir.js';
 
 function App() {
-  const ref = useRef(null);
+  const ref = useRef();
+
   useEffect(() => {
     // did mount
-    eventManager.setElement(ref.current);
-    // unmount
-    return () => eventManager.setElement(null);
+    const eventManager = new EventManager(ref.current, {
+      recognizers: [new Pinch(), new Pan()],
+      events: {
+        pinch: (event) => {
+          // do something
+        }
+      }
+    });
+
+    // unmounting
+    return () => eventManager.destroy();
   }, []);
 
-  return (
-    <div ref={ref}>
-      <Child />
-    </div>
-  );
+  return <div id="container" ref={ref} />;
 }
 ```
 
-Or add/remove event listeners when a React component is rendered:
-
-```js
-function Child() {
-  const ref = useRef(null);
-  useEffect(() => {
-    // did mount
-    eventManager.on('panstart', onDragChild, ref.current);
-    // unmount
-    return () => eventManager.off('panstart', onDragChild);
-  }, []);
-
-  return <div ref={ref}>Child node</div>;
-}
-```
-
-Note that React's event chain is independent from that of mjolnir.js'. Therefore, a `click` event handler registered with mjolnir.js cannot be blocked by calling `stopPropagation` on a React `onClick` event.
+*Note that React's event chain is independent from that of mjolnir.js'. Therefore, a `click` event handler registered with mjolnir.js cannot be blocked by calling `stopPropagation` on a React `onClick` event.*

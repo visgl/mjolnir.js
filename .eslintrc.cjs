@@ -26,6 +26,8 @@ module.exports = getESLintConfig({
         files: ['**/*.ts', '**/*.tsx', '**/*.d.ts'],
         rules: {
           indent: 0,
+          'max-statements': 1,
+          complexity: 1,
           '@typescript-eslint/ban-ts-comment': 0,
           '@typescript-eslint/explicit-module-boundary-types': 0,
           '@typescript-eslint/no-unsafe-assignment': 0,

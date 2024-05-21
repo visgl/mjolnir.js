@@ -3,16 +3,15 @@
   <head>
     <meta charset='UTF-8' />
     <title>mjolnir.js</title>
-    <link rel="stylesheet" type="text/css" href="style.css" />
-    <style type="text/css">
-      #app {position: fixed; width: 100vw; height: 100vh;}
+    <style>
+      #app {width: 100vw; height: 100vh;}
     </style>
   </head>
   <body>
     <div id="app"></div>
-    <script src='./app.js'></script>
   </body>
-  <script type="text/javascript">
-    App.renderToDOM(document.getElementById('app'));
+  <script type="module">
+    import {renderToDOM} from './app.tsx';
+    renderToDOM(document.getElementById('app'));
   </script>
 </html>

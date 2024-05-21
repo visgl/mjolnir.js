@@ -1,61 +1,45 @@
-import {Manager} from './utils/hammer';
+import {Manager as HammerManager, RecognizerTuple} from './hammerjs';
 import type {
-  HammerManager,
-  HammerManagerConstructor,
   MjolnirEventRaw,
   MjolnirEvent,
-  RecognizerOptions,
-  RecognizerTuple,
+  MjolnirEventHandler,
   MjolnirEventHandlers
 } from './types';
 
-import WheelInput from './inputs/wheel-input';
-import MoveInput from './inputs/move-input';
-import KeyInput from './inputs/key-input';
-import ContextmenuInput from './inputs/contextmenu-input';
+import {WheelInput} from './inputs/wheel-input';
+import {MoveInput} from './inputs/move-input';
+import {KeyInput} from './inputs/key-input';
+import {ContextmenuInput} from './inputs/contextmenu-input';
 
-import EventRegistrar, {HandlerOptions} from './utils/event-registrar';
-
-import {
-  BASIC_EVENT_ALIASES,
-  EVENT_RECOGNIZER_MAP,
-  GESTURE_EVENT_ALIASES,
-  RECOGNIZERS,
-  RECOGNIZER_COMPATIBLE_MAP,
-  RECOGNIZER_FALLBACK_MAP
-} from './constants';
+import {EventRegistrar, HandlerOptions} from './utils/event-registrar';
 
 export type EventManagerOptions = {
+  /** Event listeners */
   events?: MjolnirEventHandlers;
+  /** Gesture recognizers */
   recognizers?: RecognizerTuple[];
-  recognizerOptions?: {[type: string]: RecognizerOptions};
-  Manager?: HammerManagerConstructor;
-  touchAction?: string;
+  /** Touch action to set on the target element.
+   * Use 'compute' to automatically set as the least restrictive value to support the recognizers.
+   * https://developer.mozilla.org/en-US/docs/Web/CSS/touch-action
+   * @default 'compute'
+   */
+  touchAction?: 'none' | 'compute' | 'manipulation' | 'pan-x' | 'pan-y' | 'pan-x pan-y';
+  /** Tab index of the target element */
   tabIndex?: number;
-};
-
-const DEFAULT_OPTIONS: EventManagerOptions = {
-  // event handlers
-  events: null,
-  // custom recognizers
-  recognizers: null,
-  recognizerOptions: {},
-  // Manager class
-  Manager,
-  // allow browser default touch action
-  // https://github.com/uber/react-map-gl/issues/506
-  touchAction: 'none',
-  tabIndex: 0
+  /**
+   * Optional CSS properties to be applied to the target element.
+   */
+  cssProps?: Partial<CSSStyleDeclaration>;
 };
 
 // Unified API for subscribing to events about both
 // basic input events (e.g. 'mousemove', 'touchstart', 'wheel')
 // and gestural input (e.g. 'click', 'tap', 'panstart').
 // Delegates gesture related event registration and handling to Hammer.js.
-export default class EventManager {
+export class EventManager {
+  private element: HTMLElement | null;
   private manager: HammerManager;
-  private element: HTMLElement;
-  private options: EventManagerOptions;
+  private options: Required<EventManagerOptions>;
   private events: Map<string, EventRegistrar>;
 
   // Custom handlers
@@ -64,64 +48,23 @@ export default class EventManager {
   private contextmenuInput: ContextmenuInput;
   private keyInput: KeyInput;
 
-  constructor(element: HTMLElement = null, options: EventManagerOptions) {
-    this.options = {...DEFAULT_OPTIONS, ...options};
+  constructor(element: HTMLElement | null = null, options: EventManagerOptions = {}) {
+    this.options = {
+      recognizers: [],
+      events: {},
+      touchAction: 'compute',
+      tabIndex: 0,
+      cssProps: {},
+      ...options
+    };
     this.events = new Map();
-
-    this.setElement(element);
-
-    // Register all passed events.
-    const {events} = this.options;
-    if (events) {
-      this.on(events);
-    }
-  }
-
-  getElement(): HTMLElement {
-    return this.element;
-  }
-
-  setElement(element: HTMLElement): void {
-    if (this.element) {
-      // unregister all events
-      this.destroy();
-    }
     this.element = element;
-    if (!element) {
-      return;
-    }
 
-    const {options} = this;
-    const ManagerClass = options.Manager;
+    if (!element) return;
 
-    this.manager = new ManagerClass(element, {
-      touchAction: options.touchAction,
-      recognizers: options.recognizers || RECOGNIZERS
-    }).on('hammer.input', this._onBasicInput);
+    this.manager = new HammerManager(element, this.options);
 
-    if (!options.recognizers) {
-      // Set default recognize withs
-      // http://hammerjs.github.io/recognize-with/
-      Object.keys(RECOGNIZER_COMPATIBLE_MAP).forEach(name => {
-        const recognizer = this.manager.get(name);
-        if (recognizer) {
-          RECOGNIZER_COMPATIBLE_MAP[name].forEach(otherName => {
-            recognizer.recognizeWith(otherName);
-          });
-        }
-      });
-    }
-
-    // Set recognizer options
-    for (const recognizerName in options.recognizerOptions) {
-      const recognizer = this.manager.get(recognizerName);
-      if (recognizer) {
-        const recognizerOption = options.recognizerOptions[recognizerName];
-        // `enable` is managed by the event registrations
-        delete recognizerOption.enable;
-        recognizer.set(recognizerOption);
-      }
-    }
+    this.manager.on('hammer.input', this._onBasicInput);
 
     // Handle events not handled by Hammer.js:
     // - mouse wheel
@@ -140,34 +83,24 @@ export default class EventManager {
       enable: false
     });
 
-    // Register all existing events
-    for (const [eventAlias, eventRegistrar] of this.events) {
-      if (!eventRegistrar.isEmpty()) {
-        // Enable recognizer for this event.
-        this._toggleRecognizer(eventRegistrar.recognizerName, true);
-        this.manager.on(eventAlias, eventRegistrar.handleEvent);
-      }
-    }
+    // Register all passed events.
+    this.on(this.options.events);
+  }
+
+  getElement(): HTMLElement | null {
+    return this.element;
   }
 
   // Tear down internal event management implementations.
   destroy(): void {
-    if (this.element) {
-      // wheelInput etc. are created in setElement() and therefore
-      // cannot exist if there is no element
-      this.wheelInput.destroy();
-      this.moveInput.destroy();
-      this.keyInput.destroy();
-      this.contextmenuInput.destroy();
-      this.manager.destroy();
+    // manager etc. cannot exist if there is no element
+    if (!this.element) return;
 
-      this.wheelInput = null;
-      this.moveInput = null;
-      this.keyInput = null;
-      this.contextmenuInput = null;
-      this.manager = null;
-      this.element = null;
-    }
+    this.wheelInput.destroy();
+    this.moveInput.destroy();
+    this.keyInput.destroy();
+    this.contextmenuInput.destroy();
+    this.manager.destroy();
   }
 
   /** Register multiple event handlers */
@@ -179,7 +112,7 @@ export default class EventManager {
   ): void;
 
   /** Register an event handler function to be called on `event` */
-  on(event, handler, opts?: any) {
+  on(event: any, handler: any, opts?: any) {
     this._addEventHandler(event, handler, opts, false);
   }
 
@@ -229,38 +162,14 @@ export default class EventManager {
       return;
     }
     const recognizer = manager.get(name);
-    // @ts-ignore
-    if (recognizer && recognizer.options.enable !== enabled) {
+    if (recognizer) {
       recognizer.set({enable: enabled});
-
-      const fallbackRecognizers: string[] = RECOGNIZER_FALLBACK_MAP[name];
-      if (fallbackRecognizers && !this.options.recognizers) {
-        // Set default require failures
-        // http://hammerjs.github.io/require-failure/
-        fallbackRecognizers.forEach(otherName => {
-          const otherRecognizer = manager.get(otherName);
-          if (enabled) {
-            // Wait for this recognizer to fail
-            otherRecognizer.requireFailure(name);
-            /**
-             * This seems to be a bug in hammerjs:
-             * requireFailure() adds both ways
-             * dropRequireFailure() only drops one way
-             * https://github.com/hammerjs/hammer.js/blob/master/src/recognizerjs/
-               recognizer-constructor.js#L136
-             */
-            recognizer.dropRequireFailure(otherName);
-          } else {
-            // Do not wait for this recognizer to fail
-            otherRecognizer.dropRequireFailure(name);
-          }
-        });
-      }
+      manager.touchAction.update();
     }
-    this.wheelInput.enableEventType(name, enabled);
-    this.moveInput.enableEventType(name, enabled);
-    this.keyInput.enableEventType(name, enabled);
-    this.contextmenuInput.enableEventType(name, enabled);
+    this.wheelInput?.enableEventType(name, enabled);
+    this.moveInput?.enableEventType(name, enabled);
+    this.keyInput?.enableEventType(name, enabled);
+    this.contextmenuInput?.enableEventType(name, enabled);
   }
 
   /**
@@ -268,7 +177,7 @@ export default class EventManager {
    */
   private _addEventHandler(
     event: string | MjolnirEventHandlers,
-    handler: (event: MjolnirEvent) => void,
+    handler: MjolnirEventHandler,
     opts?: HandlerOptions,
     once?: boolean,
     passive?: boolean
@@ -277,25 +186,25 @@ export default class EventManager {
       // @ts-ignore
       opts = handler;
       // If `event` is a map, call `on()` for each entry.
-      for (const eventName in event) {
-        this._addEventHandler(eventName, event[eventName], opts, once, passive);
+      for (const [eventName, handler] of Object.entries(event)) {
+        this._addEventHandler(eventName, handler!, opts, once, passive);
       }
       return;
     }
 
     const {manager, events} = this;
-    // Alias to a recognized gesture as necessary.
-    const eventAlias: string = GESTURE_EVENT_ALIASES[event] || event;
+    if (!manager) return;
 
-    let eventRegistrar = events.get(eventAlias);
+    let eventRegistrar = events.get(event);
     if (!eventRegistrar) {
-      eventRegistrar = new EventRegistrar(this);
-      events.set(eventAlias, eventRegistrar);
       // Enable recognizer for this event.
-      eventRegistrar.recognizerName = EVENT_RECOGNIZER_MAP[eventAlias] || eventAlias;
+      const recognizerName = this._getRecognizerName(event) || event;
+
+      eventRegistrar = new EventRegistrar(this, recognizerName);
+      events.set(event, eventRegistrar);
       // Listen to the event
       if (manager) {
-        manager.on(eventAlias, eventRegistrar.handleEvent);
+        manager.on(event, eventRegistrar.handleEvent);
       }
     }
     eventRegistrar.add(event, handler, opts, once, passive);
@@ -307,29 +216,24 @@ export default class EventManager {
   /**
    * Process the event deregistration for a single event + handler.
    */
-  private _removeEventHandler(
-    event: string | MjolnirEventHandlers,
-    handler?: (event: MjolnirEvent) => void
-  ) {
+  private _removeEventHandler(event: string | MjolnirEventHandlers, handler?: MjolnirEventHandler) {
     if (typeof event !== 'string') {
       // If `event` is a map, call `off()` for each entry.
-      for (const eventName in event) {
-        this._removeEventHandler(eventName, event[eventName]);
+      for (const [eventName, handler] of Object.entries(event)) {
+        this._removeEventHandler(eventName, handler);
       }
       return;
     }
 
     const {events} = this;
-    // Alias to a recognized gesture as necessary.
-    const eventAlias = GESTURE_EVENT_ALIASES[event] || event;
 
-    const eventRegistrar = events.get(eventAlias);
+    const eventRegistrar = events.get(event);
 
     if (!eventRegistrar) {
       return;
     }
 
-    eventRegistrar.remove(event, handler);
+    eventRegistrar.remove(event, handler!);
 
     if (eventRegistrar.isEmpty()) {
       const {recognizerName} = eventRegistrar;
@@ -347,6 +251,12 @@ export default class EventManager {
     }
   }
 
+  private _getRecognizerName(event: string): string | undefined {
+    return this.manager.recognizers.find(recognizer => {
+      return recognizer.getEventNames().includes(event);
+    })?.options.event;
+  }
+
   /**
    * Handle basic events using the 'hammer.input' Hammer.js API:
    * Before running Recognizers, Hammer emits a 'hammer.input' event
@@ -355,12 +265,7 @@ export default class EventManager {
    * See constants.BASIC_EVENT_CLASSES basic event class definitions.
    */
   private _onBasicInput = (event: MjolnirEventRaw) => {
-    const {srcEvent} = event;
-    const alias = BASIC_EVENT_ALIASES[srcEvent.type];
-    if (alias) {
-      // fire all events aliased to srcEvent.type
-      this.manager.emit(alias, event);
-    }
+    this.manager.emit(event.srcEvent.type, event as any);
   };
 
   /**
@@ -369,6 +274,6 @@ export default class EventManager {
    */
   private _onOtherEvent = (event: MjolnirEventRaw) => {
     // console.log('onotherevent', event.type, event)
-    this.manager.emit(event.type, event);
+    this.manager.emit(event.type, event as any);
   };
 }

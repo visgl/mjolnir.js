@@ -1,4 +1,5 @@
-import type {MjolnirEventRaw, HammerInput, Point} from '../types';
+import type {MjolnirEventRaw, Point} from '../types';
+import type {HammerEvent} from '../hammerjs';
 
 /* Constants */
 const DOWN_EVENT = 1;
@@ -29,7 +30,7 @@ export function whichButtons(event: MjolnirEventRaw): {
   leftButton: boolean;
   middleButton: boolean;
   rightButton: boolean;
-} {
+} | null {
   const eventType = MOUSE_EVENTS[event.srcEvent.type];
   if (!eventType) {
     // Not a mouse evet
@@ -63,8 +64,8 @@ export function getOffsetPosition(
 ): {
   center: Point;
   offsetCenter: Point;
-} {
-  const center = (event as HammerInput).center;
+} | null {
+  const center = (event as HammerEvent).center;
 
   // `center` is a hammer.js event property
   if (!center) {

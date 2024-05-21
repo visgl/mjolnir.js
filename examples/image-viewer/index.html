@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset='UTF-8' />
+    <title>mjolnir.js</title>
+    <style>
+      #app {width: 100vw; height: 100vh;}
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+  <script type="module">
+    import {renderToDOM} from './app.ts';
+    renderToDOM(document.getElementById('app'));
+  </script>
+</html>

@@ -24,12 +24,13 @@ import {render} from 'react-dom';
 import {EventManager, MjolnirEvent} from 'mjolnir.js';
 
 import './style.css';
-import {EVENTS, INITIAL_OPTIONS} from './constants';
+import {RECOGNIZERS, EVENTS, INITIAL_OPTIONS} from './constants';
 
 export default function App() {
   const rootRef = useRef<HTMLDivElement>();
   const redBoxRef = useRef<HTMLDivElement>();
 
+  const [eventManager, setEventManager] = useState<EventManager | null>(null);
   const [options, setOptions] = useState<{[eventName: string]: boolean}>(INITIAL_OPTIONS);
   const [eventLog, setEventLog] = useState<MjolnirEvent[]>([]);
 
@@ -44,48 +45,40 @@ export default function App() {
     });
   }, []);
 
-  const eventManager = useMemo(() => {
-    const eventListeners = {};
-    for (const eventName of EVENTS) {
-      if (INITIAL_OPTIONS[eventName]) {
-        eventListeners[eventName] = handleEvent;
-      }
-    }
-
-    return new EventManager(null, {
-      events: eventListeners
-    });
-  }, []);
-
   useEffect(() => {
-    eventManager.setElement(rootRef.current);
+    const eventManager = new EventManager(rootRef.current, {
+      recognizers: RECOGNIZERS
+    });
+    setEventManager(eventManager);
 
     for (const eventName of EVENTS) {
       if (INITIAL_OPTIONS[eventName]) {
+        eventManager.on(eventName, handleEvent);
         eventManager.on(eventName, handleEvent, {srcElement: redBoxRef.current});
       }
     }
 
     return () => {
-      for (const eventName of EVENTS) {
-        eventManager.off(eventName, handleEvent);
-      }
+      eventManager.destroy();
     };
   }, []);
 
-  const updateOption = useCallback((evt: React.ChangeEvent<HTMLInputElement>) => {
-    const {name, checked} = evt.target;
-    if (checked) {
-      eventManager.on(name, handleEvent);
-      eventManager.on(name, handleEvent, {srcElement: redBoxRef.current});
-    } else {
-      eventManager.off(name, handleEvent);
-    }
-    setOptions(curr => ({...curr, [name]: checked}));
-  }, []);
+  const updateOption = useCallback(
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
+      const {name, checked} = evt.target;
+      if (checked) {
+        eventManager.on(name, handleEvent);
+        eventManager.on(name, handleEvent, {srcElement: redBoxRef.current});
+      } else {
+        eventManager.off(name, handleEvent);
+      }
+      setOptions(curr => ({...curr, [name]: checked}));
+    },
+    [eventManager]
+  );
 
   return (
-    <div id="container">
+    <div id="container" onContextMenu={evt => evt.preventDefault()}>
       <div id="background" ref={rootRef}>
         <div id="red-box" ref={redBoxRef} />
       </div>
@@ -95,6 +88,7 @@ export default function App() {
       <div id="options">
         {EVENTS.map(eventName => (
           <Checkbox
+            key={eventName}
             eventName={eventName}
             value={options[eventName] || false}
             onChange={updateOption}
@@ -147,6 +141,6 @@ function Checkbox({
   );
 }
 
-export function renderToDOM(container) {
+export function renderToDOM(container: HTMLElement) {
   render(<App />, container);
 }

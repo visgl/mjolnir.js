@@ -17,18 +17,29 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+import {Pan, Rotate, Pinch, Swipe, Press, Tap, RecognizerTuple} from 'mjolnir.js';
+
+export const RECOGNIZERS: RecognizerTuple[] = [
+  [Rotate, {enable: false}, ['doublepan']],
+  [Pinch, {enable: false}, ['doublepan', 'rotate']],
+  [Swipe, {enable: false}],
+  [Pan, {threshold: 1, enable: false}, ['pinch'], ['swipe']],
+  [Press, {enable: false}],
+  [Tap, {event: 'dblclick', taps: 2, enable: false}],
+  [Tap, {event: 'anyclick', enable: false}, ['dblclick']],
+  [Tap, {event: 'click', enable: false}, ['anyclick'], ['dblclick']]
+];
 
 export const EVENTS = [
   'click',
   'anyclick',
-  'contextmenu',
+  'dblclick',
   'pointerdown',
   'pointermove',
   'pointerup',
   'pointerover',
   'pointerout',
   'pointerleave',
-  'doubletap',
   'pinchin',
   'pinchout',
   'pinchstart',
