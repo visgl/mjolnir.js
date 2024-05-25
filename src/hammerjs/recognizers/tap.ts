@@ -1,11 +1,10 @@
+/* global setTimeout, clearTimeout */
 import {Recognizer, RecognizerOptions} from '../recognizer/recognizer';
-import { TOUCH_ACTION_MANIPULATION } from '../touchaction/touchaction-Consts';
-import { InputEvent } from '../input/input-consts';
-import {
-  RecognizerState
-} from '../recognizer/recognizer-state';
+import {TOUCH_ACTION_MANIPULATION} from '../touchaction/touchaction-Consts';
+import {InputEvent} from '../input/input-consts';
+import {RecognizerState} from '../recognizer/recognizer-state';
 import {getPointDistance} from '../input/get-distance';
-import type { Point, HammerInput } from '../input/types';
+import type {Point, HammerInput} from '../input/types';
 
 export type TapRecognizerOptions = Partial<RecognizerOptions> & {
   event?: string;
@@ -36,7 +35,7 @@ export class TapRecognizer extends Recognizer<Required<TapRecognizerOptions>> {
   /** previous center for tap counting */
   private pCenter: Point | null = null;
 
-  private _timer: number | null = null;
+  private _timer: any = null;
   private _input: HammerInput | null = null;
 
   private count: number = 0;
@@ -60,7 +59,7 @@ export class TapRecognizer extends Recognizer<Required<TapRecognizerOptions>> {
   }
 
   process(input: HammerInput) {
-    const { options } = this;
+    const {options} = this;
 
     const validPointers = input.pointers.length === options.pointers;
     const validMovement = input.distance < options.threshold;
@@ -68,7 +67,7 @@ export class TapRecognizer extends Recognizer<Required<TapRecognizerOptions>> {
 
     this.reset();
 
-    if ((input.eventType & InputEvent.Start) && (this.count === 0)) {
+    if (input.eventType & InputEvent.Start && this.count === 0) {
       return this.failTimeout();
     }
 
@@ -79,8 +78,9 @@ export class TapRecognizer extends Recognizer<Required<TapRecognizerOptions>> {
         return this.failTimeout();
       }
 
-      const validInterval = this.pTime ? (input.timeStamp - this.pTime < options.interval) : true;
-      const validMultiTap = !this.pCenter || getPointDistance(this.pCenter, input.center) < options.posThreshold;
+      const validInterval = this.pTime ? input.timeStamp - this.pTime < options.interval : true;
+      const validMultiTap =
+        !this.pCenter || getPointDistance(this.pCenter, input.center) < options.posThreshold;
 
       this.pTime = input.timeStamp;
       this.pCenter = input.center;
@@ -101,33 +101,32 @@ export class TapRecognizer extends Recognizer<Required<TapRecognizerOptions>> {
         // or wait as long as the multitap interval to trigger
         if (!this.hasRequireFailures()) {
           return RecognizerState.Recognized;
-        } 
-          this._timer = window.setTimeout(() => {
-            this.state = RecognizerState.Recognized;
-            this.tryEmit(this._input!);
-          }, options.interval);
-          return RecognizerState.Began;
-        
+        }
+        this._timer = setTimeout(() => {
+          this.state = RecognizerState.Recognized;
+          this.tryEmit(this._input!);
+        }, options.interval);
+        return RecognizerState.Began;
       }
     }
     return RecognizerState.Failed;
   }
 
   failTimeout() {
-    this._timer = window.setTimeout(() => {
+    this._timer = setTimeout(() => {
       this.state = RecognizerState.Failed;
     }, this.options.interval);
     return RecognizerState.Failed;
   }
 
   reset() {
-    clearTimeout(this._timer as any);
+    clearTimeout(this._timer);
   }
 
   emit(input: HammerInput) {
     if (this.state === RecognizerState.Recognized) {
       input.tapCount = this.count;
-      this.manager?.emit(this.options.event, input);
+      this.manager.emit(this.options.event, input);
     }
   }
 }

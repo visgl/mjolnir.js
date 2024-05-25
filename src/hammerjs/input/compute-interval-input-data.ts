@@ -1,11 +1,10 @@
-import { InputEvent, COMPUTE_INTERVAL } from './input-consts';
+import {InputEvent, COMPUTE_INTERVAL} from './input-consts';
 import {getVelocity} from './get-velocity';
 import {getDirection} from './get-direction';
 
-import type { Session, HammerInput } from './types';
+import type {Session, HammerInput} from './types';
 
 /**
- * @private
  * velocity is calculated every x ms
  */
 export function computeIntervalInputData(session: Session, input: HammerInput) {
@@ -16,14 +15,17 @@ export function computeIntervalInputData(session: Session, input: HammerInput) {
   let velocityY;
   let direction;
 
-  if (input.eventType !== InputEvent.Cancel && (deltaTime > COMPUTE_INTERVAL || last.velocity === undefined)) {
+  if (
+    input.eventType !== InputEvent.Cancel &&
+    (deltaTime > COMPUTE_INTERVAL || last.velocity === undefined)
+  ) {
     const deltaX = input.deltaX - last.deltaX;
     const deltaY = input.deltaY - last.deltaY;
 
     const v = getVelocity(deltaTime, deltaX, deltaY);
     velocityX = v.x;
     velocityY = v.y;
-    velocity = (Math.abs(v.x) > Math.abs(v.y)) ? v.x : v.y;
+    velocity = Math.abs(v.x) > Math.abs(v.y) ? v.x : v.y;
     direction = getDirection(deltaX, deltaY);
 
     session.lastInterval = input;

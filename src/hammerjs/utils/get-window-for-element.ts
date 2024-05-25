@@ -1,7 +1,7 @@
 /**
  * get the window object of an element
  */
-export default function getWindowForElement(element: HTMLElement): Window {
+export function getWindowForElement(element: HTMLElement): Window | null {
   const doc = element.ownerDocument || (element as unknown as Document);
-  return doc.defaultView || window;
+  return doc.defaultView;
 }

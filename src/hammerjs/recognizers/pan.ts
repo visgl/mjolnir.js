@@ -1,10 +1,8 @@
-import  {AttrRecognizer, AttrRecognizerOptions} from './attribute';
-import {
-  InputDirection
-} from '../input/input-consts';
-import { RecognizerState } from '../recognizer/recognizer-state';
-import { TOUCH_ACTION_PAN_X,TOUCH_ACTION_PAN_Y } from '../touchaction/touchaction-Consts';
-import type { HammerInput } from '../input/types';
+import {AttrRecognizer, AttrRecognizerOptions} from './attribute';
+import {InputDirection} from '../input/input-consts';
+import {RecognizerState} from '../recognizer/recognizer-state';
+import {TOUCH_ACTION_PAN_X, TOUCH_ACTION_PAN_Y} from '../touchaction/touchaction-Consts';
+import type {HammerInput} from '../input/types';
 
 export type PanRecognizerOptions = Partial<AttrRecognizerOptions> & {
   direction?: InputDirection;
@@ -12,14 +10,10 @@ export type PanRecognizerOptions = Partial<AttrRecognizerOptions> & {
 };
 
 /**
- * @private
  * Pan
  * Recognized when the pointer is down and moved in the allowed direction.
- * @constructor
- * @extends AttrRecognizer
  */
-export default class PanRecognizer extends AttrRecognizer<Required<PanRecognizerOptions>> {
-
+export class PanRecognizer extends AttrRecognizer<Required<PanRecognizerOptions>> {
   pX: number | null;
   pY: number | null;
 
@@ -37,7 +31,9 @@ export default class PanRecognizer extends AttrRecognizer<Required<PanRecognizer
   }
 
   getTouchAction() {
-    const { options: { direction } } = this;
+    const {
+      options: {direction}
+    } = this;
     const actions = [];
     if (direction & InputDirection.Horizontal) {
       actions.push(TOUCH_ACTION_PAN_Y);
@@ -49,21 +45,22 @@ export default class PanRecognizer extends AttrRecognizer<Required<PanRecognizer
   }
 
   directionTest(input: HammerInput): boolean {
-    const { options } = this;
+    const {options} = this;
     let hasMoved = true;
-    let { distance } = input;
-    let { direction } = input;
+    let {distance} = input;
+    let {direction} = input;
     const x = input.deltaX;
     const y = input.deltaY;
 
     // lock to axis?
     if (!(direction & options.direction)) {
       if (options.direction & InputDirection.Horizontal) {
-        direction = (x === 0) ? InputDirection.None : (x < 0) ? InputDirection.Left : InputDirection.Right;
+        direction =
+          x === 0 ? InputDirection.None : x < 0 ? InputDirection.Left : InputDirection.Right;
         hasMoved = x !== this.pX;
         distance = Math.abs(input.deltaX);
       } else {
-        direction = (y === 0) ? InputDirection.None : (y < 0) ? InputDirection.Up : InputDirection.Down;
+        direction = y === 0 ? InputDirection.None : y < 0 ? InputDirection.Up : InputDirection.Down;
         hasMoved = y !== this.pY;
         distance = Math.abs(input.deltaY);
       }
@@ -73,12 +70,14 @@ export default class PanRecognizer extends AttrRecognizer<Required<PanRecognizer
   }
 
   attrTest(input: HammerInput): boolean {
-    return super.attrTest(input) &&
-        (Boolean(this.state & RecognizerState.Began) || (!(this.state & RecognizerState.Began) && this.directionTest(input)));
+    return (
+      super.attrTest(input) &&
+      (Boolean(this.state & RecognizerState.Began) ||
+        (!(this.state & RecognizerState.Began) && this.directionTest(input)))
+    );
   }
 
   emit(input: HammerInput) {
-
     this.pX = input.deltaX;
     this.pY = input.deltaY;
 

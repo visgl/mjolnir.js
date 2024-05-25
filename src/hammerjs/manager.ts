@@ -1,26 +1,32 @@
 import {TouchAction} from './touchaction/touchaction';
 import {PointerEventInput} from './inputs/pointerevent';
-import each from './utils/each';
-import splitStr from './utils/split-str';
-import prefixed from './utils/prefixed';
-import {
-    RecognizerState
-} from './recognizer/recognizer-state';
+import {splitStr} from './utils/split-str';
+import {prefixed} from './utils/prefixed';
+import {RecognizerState} from './recognizer/recognizer-state';
 
-import type { Input } from './input/input';
-import type { Recognizer } from './recognizer/recognizer';
-import type { Session, HammerInput } from './input/types';
+import type {Input} from './input/input';
+import type {Recognizer} from './recognizer/recognizer';
+import type {Session, HammerInput} from './input/types';
 
 const STOP = 1;
 const FORCED_STOP = 2;
 
+type RecognizerConstructor<OptionsT> = {
+  new (options: OptionsT): Recognizer;
+};
+
+export type RecognizerTuple<OptionsT = any> = [
+  Type: RecognizerConstructor<OptionsT>,
+  options: OptionsT,
+  recognizeWith?: string | string[],
+  requireFailure?: string | string[]
+];
+
 export type ManagerOptions = {
   /**
-   * set if DOM events are being triggered.
-   * But this is slower and unused by simple implementations, so disabled by default.
-   * @default false
+   * The recognizers that are being used.
    */
-  domEvents?: boolean;
+  recognizers: RecognizerTuple<any>[];
 
   /**
    * The value for the touchAction property/fallback.
@@ -92,10 +98,16 @@ export type ManagerOptions = {
      */
     tapHighlightColor?: string;
   };
-}
+};
+
+export type HammerEvent = HammerInput & {
+  type: string;
+  preventDefault: () => void;
+};
+export type EventHandler = (event: HammerEvent) => void;
 
 const defaultOptions: Required<ManagerOptions> = {
-  domEvents: false,
+  recognizers: [],
   touchAction: 'compute',
   enable: true,
   inputTarget: null,
@@ -116,17 +128,20 @@ const defaultOptions: Required<ManagerOptions> = {
 export class Manager {
   options: Required<ManagerOptions>;
 
-  element: HTMLElement;
+  element: HTMLElement | null;
   touchAction: TouchAction;
-  oldCssProps: ManagerOptions['cssProps'];
+  oldCssProps: {[prop: string]: any};
   session: Session;
-  recognizers: Recognizer<any>[];
+  recognizers: Recognizer[];
   input: Input;
+  handlers: {[event: string]: EventHandler[]};
 
   constructor(element: HTMLElement, options: ManagerOptions) {
-    this.options = {...defaultOptions, ...options};
-
-    this.options.inputTarget = this.options.inputTarget || element;
+    this.options = {
+      ...defaultOptions,
+      ...options,
+      inputTarget: options.inputTarget || element
+    };
 
     this.handlers = {};
     this.session = {};
@@ -139,11 +154,15 @@ export class Manager {
 
     this.toggleCssProps(true);
 
-    each(this.options.recognizers, (item) => {
-      const recognizer = this.add(new (item[0])(item[1]));
-      item[2] && recognizer.recognizeWith(item[2]);
-      item[3] && recognizer.requireFailure(item[3]);
-    }, this);
+    for (const item of this.options.recognizers) {
+      const recognizer = this.add(new item[0](item[1])) as Recognizer;
+      if (item[2]) {
+        recognizer.recognizeWith(item[2]);
+      }
+      if (item[3]) {
+        recognizer.requireFailure(item[3]);
+      }
+    }
   }
 
   /**
@@ -175,13 +194,12 @@ export class Manager {
   }
 
   /**
-   * @private
    * run the recognizers!
    * called by the inputHandler function on every movement of the pointers (touches)
    * it walks through all the recognizers and tries to detect the gesture that is being made
    */
   recognize(inputData: HammerInput) {
-    const { session } = this;
+    const {session} = this;
     if (session.stopped) {
       return;
     }
@@ -192,12 +210,12 @@ export class Manager {
     }
 
     let recognizer;
-    const { recognizers } = this;
+    const {recognizers} = this;
 
     // this holds the recognizer that is being recognized.
     // so the recognizer's state needs to be BEGAN, CHANGED, ENDED or RECOGNIZED
     // if no recognizer is detecting a thing, it is set to `null`
-    let { curRecognizer } = session;
+    let {curRecognizer} = session;
 
     // reset when the last recognizer is recognized
     // or when we're in a new session
@@ -215,9 +233,13 @@ export class Manager {
       //      that is being recognized.
       // 3.   allow if the recognizer is allowed to run simultaneous with the current recognized recognizer.
       //      this can be setup with the `recognizeWith()` method on the recognizer.
-      if (session.stopped !== FORCED_STOP && (// 1
-              !curRecognizer || recognizer === curRecognizer || // 2
-              recognizer.canRecognizeWith(curRecognizer))) { // 3
+      if (
+        session.stopped !== FORCED_STOP && // 1
+        (!curRecognizer ||
+          recognizer === curRecognizer || // 2
+          recognizer.canRecognizeWith(curRecognizer))
+      ) {
+        // 3
         recognizer.recognize(inputData);
       } else {
         recognizer.reset();
@@ -225,7 +247,10 @@ export class Manager {
 
       // if the recognizer has been recognizing the input as a valid gesture, we want to store this one as the
       // current active recognizer. but only if we don't already have an active recognizer
-      if (!curRecognizer && recognizer.state & (RecognizerState.Began | RecognizerState.Changed | RecognizerState.Ended)) {
+      if (
+        !curRecognizer &&
+        recognizer.state & (RecognizerState.Began | RecognizerState.Changed | RecognizerState.Ended)
+      ) {
         curRecognizer = session.curRecognizer = recognizer;
       }
       i++;
@@ -233,12 +258,11 @@ export class Manager {
   }
 
   /**
-   * @private
    * get a recognizer by its event name.
    */
-  get(recognizer: Recognizer<any> | string): Recognizer<any> | null {
+  get(recognizer: Recognizer | string): Recognizer | null {
     if (typeof recognizer === 'string') {
-      const { recognizers } = this;
+      const {recognizers} = this;
       for (let i = 0; i < recognizers.length; i++) {
         if (recognizers[i].options.event === recognizer) {
           return recognizers[i];
@@ -250,10 +274,10 @@ export class Manager {
   }
 
   /**
-   * @private add a recognizer to the manager
+   * add a recognizer to the manager
    * existing recognizers with the same event name will be removed
    */
-  add(recognizer: Recognizer<any> | Recognizer<any>[]) {
+  add(recognizer: Recognizer | Recognizer[]) {
     if (Array.isArray(recognizer)) {
       for (const item of recognizer) {
         this.add(item);
@@ -275,10 +299,9 @@ export class Manager {
   }
 
   /**
-   * @private
    * remove a recognizer by name or instance
    */
-  remove(recognizerOrName: Recognizer<any> | string | (Recognizer<any> | string)[]) {
+  remove(recognizerOrName: Recognizer | string | (Recognizer | string)[]) {
     if (Array.isArray(recognizerOrName)) {
       for (const item of recognizerOrName) {
         this.remove(item);
@@ -290,7 +313,7 @@ export class Manager {
 
     // let's make sure this recognizer exists
     if (recognizer) {
-      const { recognizers } = this;
+      const {recognizers} = this;
       const index = recognizers.indexOf(recognizer);
 
       if (index !== -1) {
@@ -303,81 +326,61 @@ export class Manager {
   }
 
   /**
-   * @private
    * bind event
-   * @param {String} events
-   * @param {Function} handler
-   * @returns {EventEmitter} this
    */
-  on(events, handler) {
-    if (events === undefined) {
+  on(events: string, handler: EventHandler) {
+    if (!events || !handler) {
       return;
     }
-    if (handler === undefined) {
-      return;
-    }
-
-    const { handlers } = this;
-    each(splitStr(events), (event) => {
+    const {handlers} = this;
+    for (const event of splitStr(events)) {
       handlers[event] = handlers[event] || [];
       handlers[event].push(handler);
-    });
-    return this;
+    }
   }
 
   /**
-   * @private unbind event, leave emit blank to remove all handlers
-   * @param {String} events
-   * @param {Function} [handler]
-   * @returns {EventEmitter} this
+   * unbind event, leave hander blank to remove all handlers
    */
-  off(events, handler) {
-    if (events === undefined) {
+  off(events: string, handler?: EventHandler) {
+    if (!events) {
       return;
     }
 
-    const { handlers } = this;
-    each(splitStr(events), (event) => {
+    const {handlers} = this;
+    for (const event of splitStr(events)) {
       if (!handler) {
         delete handlers[event];
-      } else {
-        handlers[event] && handlers[event].splice(handlers[event].indexOf(handler), 1);
+      } else if (handlers[event]) {
+        handlers[event].splice(handlers[event].indexOf(handler), 1);
       }
-    });
-    return this;
+    }
   }
 
   /**
-   * @private emit event to the listeners
-   * @param {String} event
-   * @param {Object} data
+   * emit event to the listeners
    */
-  emit(event, data) {
-    // we also want to trigger dom events
-    if (this.options.domEvents) {
-      triggerDomEvent(event, data);
-    }
-
+  emit(event: string, data: HammerInput) {
     // no handlers, so skip it all
     const handlers = this.handlers[event] && this.handlers[event].slice();
     if (!handlers || !handlers.length) {
       return;
     }
 
-    data.type = event;
-    data.preventDefault = function() {
+    const evt = data as HammerEvent;
+    evt.type = event;
+    evt.preventDefault = function () {
       data.srcEvent.preventDefault();
     };
 
     let i = 0;
     while (i < handlers.length) {
-      handlers[i](data);
+      handlers[i](evt);
       i++;
     }
   }
 
   /**
-   * @private
    * destroy the manager and unbinds all events
    * it doesn't unbind dom events, that is the user own responsibility
    */
@@ -394,34 +397,21 @@ export class Manager {
    * add/remove the css properties as defined in manager.options.cssProps
    */
   private toggleCssProps(add: boolean) {
-    const { element } = this;
+    const {element} = this;
     if (!element) {
       return;
     }
-    let prop;
-    each(this.options.cssProps, (value, name) => {
-      prop = prefixed(element.style, name);
+    for (const [name, value] of Object.entries(this.options.cssProps)) {
+      const prop = prefixed(element.style, name) as any;
       if (add) {
         this.oldCssProps[prop] = element.style[prop];
         element.style[prop] = value;
       } else {
         element.style[prop] = this.oldCssProps[prop] || '';
       }
-    });
+    }
     if (!add) {
       this.oldCssProps = {};
     }
   }
-
-}
-
-/**
- * @private
- * trigger dom event
- */
-function triggerDomEvent(event: string, data: object) {
-  const gestureEvent = document.createEvent('Event');
-  gestureEvent.initEvent(event, true, true);
-  gestureEvent.gesture = data;
-  data.target.dispatchEvent(gestureEvent);
 }

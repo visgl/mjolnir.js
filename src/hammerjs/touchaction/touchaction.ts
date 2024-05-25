@@ -1,16 +1,11 @@
-import {
-    TOUCH_ACTION_COMPUTE
-} from './touchaction-Consts';
-import each from '../utils/each';
+import {TOUCH_ACTION_COMPUTE} from './touchaction-Consts';
 import cleanTouchActions from './clean-touch-actions';
 
-import type { Manager } from '../manager';
+import type {Manager} from '../manager';
 
 /**
- * @private
  * Touch Action
  * sets the touchAction property or uses the js alternative
- * @constructor
  */
 export class TouchAction {
   manager: Manager;
@@ -30,9 +25,10 @@ export class TouchAction {
       value = this.compute();
     }
 
-    this.manager.element.style.touchAction = value;
-
-    this.actions = value;
+    if (this.manager.element) {
+      this.manager.element.style.touchAction = value;
+      this.actions = value;
+    }
   }
 
   /**
@@ -47,12 +43,11 @@ export class TouchAction {
    */
   compute(): string {
     let actions: string[] = [];
-    each(this.manager.recognizers, (recognizer) => {
+    for (const recognizer of this.manager.recognizers) {
       if (recognizer.options.enable) {
         actions = actions.concat(recognizer.getTouchAction());
       }
-    });
+    }
     return cleanTouchActions(actions.join(' '));
   }
-
 }

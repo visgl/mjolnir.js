@@ -1,9 +1,9 @@
 import {RecognizerState} from './recognizer-state';
-import uniqueId from '../utils/unique-id';
-import stateStr from './state-str';
+import {uniqueId} from '../utils/unique-id';
+import {stateStr} from './state-str';
 
-import type { Manager } from '../manager';
-import type { HammerInput } from '../input/types';
+import type {Manager} from '../manager';
+import type {HammerInput} from '../input/types';
 
 export type RecognizerOptions = {
   event: string;
@@ -11,7 +11,6 @@ export type RecognizerOptions = {
 };
 
 /**
- * @private
  * Recognizer flow explained; *
  * All recognizers have the initial state of POSSIBLE when a input session starts.
  * The definition of a input session is from the first input until the last input, with all it's movement in it. *
@@ -40,18 +39,18 @@ export type RecognizerOptions = {
  */
 
 /**
- * @private
  * Recognizer
  * Every recognizer needs to extend from this class.
  */
-export abstract class Recognizer<OptionsT extends RecognizerOptions> {
+export abstract class Recognizer<OptionsT extends RecognizerOptions = any> {
   id: number;
+  state: RecognizerState;
+  manager!: Manager;
 
-  protected options: OptionsT;
-  protected manager: Manager | null = null;
-  protected state: RecognizerState;
-  protected simultaneous: {[id: string]: Recognizer<any>};
-  protected requireFail: Recognizer<any>[];
+  readonly options: OptionsT;
+
+  protected simultaneous: {[id: string]: Recognizer};
+  protected requireFail: Recognizer[];
 
   constructor(options: OptionsT) {
     this.options = options;
@@ -70,14 +69,14 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions> {
     Object.assign(this.options, options);
 
     // also update the touchAction, in case something changed about the directions/enabled state
-    this.manager?.touchAction.update();
+    this.manager.touchAction.update();
     return this;
   }
 
   /**
    * recognize simultaneous with an other recognizer.
    */
-  recognizeWith(recognizerOrName: Recognizer<any> | string | (Recognizer<any> | string)[]) {
+  recognizeWith(recognizerOrName: Recognizer | string | (Recognizer | string)[]) {
     if (Array.isArray(recognizerOrName)) {
       for (const item of recognizerOrName) {
         this.recognizeWith(item);
@@ -85,8 +84,8 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions> {
       return this;
     }
 
-    const { simultaneous } = this;
-    const otherRecognizer =  this.manager?.get(recognizerOrName) ?? (recognizerOrName as Recognizer<any>);
+    const {simultaneous} = this;
+    const otherRecognizer = this.manager.get(recognizerOrName) ?? (recognizerOrName as Recognizer);
     if (!simultaneous[otherRecognizer.id]) {
       simultaneous[otherRecognizer.id] = otherRecognizer;
       otherRecognizer.recognizeWith(this);
@@ -97,7 +96,7 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions> {
   /**
    * drop the simultaneous link. it doesnt remove the link on the other recognizer.
    */
-  dropRecognizeWith(recognizerOrName: Recognizer<any> | string | (Recognizer<any> | string)[]) {
+  dropRecognizeWith(recognizerOrName: Recognizer | string | (Recognizer | string)[]) {
     if (Array.isArray(recognizerOrName)) {
       for (const item of recognizerOrName) {
         this.dropRecognizeWith(item);
@@ -105,7 +104,7 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions> {
       return this;
     }
 
-    const otherRecognizer = this.manager?.get(recognizerOrName) ?? (recognizerOrName as Recognizer<any>);
+    const otherRecognizer = this.manager.get(recognizerOrName) ?? (recognizerOrName as Recognizer);
     delete this.simultaneous[otherRecognizer.id];
     return this;
   }
@@ -113,7 +112,7 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions> {
   /**
    * recognizer can only run when an other is failing
    */
-  requireFailure(recognizerOrName: Recognizer<any> | string | (Recognizer<any> | string)[]) {
+  requireFailure(recognizerOrName: Recognizer | string | (Recognizer | string)[]) {
     if (Array.isArray(recognizerOrName)) {
       for (const item of recognizerOrName) {
         this.requireFailure(item);
@@ -121,8 +120,8 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions> {
       return this;
     }
 
-    const { requireFail } = this;
-    const otherRecognizer = this.manager?.get(recognizerOrName) ?? (recognizerOrName as Recognizer<any>);
+    const {requireFail} = this;
+    const otherRecognizer = this.manager.get(recognizerOrName) ?? (recognizerOrName as Recognizer);
     if (requireFail.indexOf(otherRecognizer) === -1) {
       requireFail.push(otherRecognizer);
       otherRecognizer.requireFailure(this);
@@ -133,7 +132,7 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions> {
   /**
    * drop the requireFailure link. it does not remove the link on the other recognizer.
    */
-  dropRequireFailure(recognizerOrName: Recognizer<any> | string | (Recognizer<any> | string)[]) {
+  dropRequireFailure(recognizerOrName: Recognizer | string | (Recognizer | string)[]) {
     if (Array.isArray(recognizerOrName)) {
       for (const item of recognizerOrName) {
         this.dropRequireFailure(item);
@@ -141,7 +140,7 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions> {
       return this;
     }
 
-    const otherRecognizer = this.manager?.get(recognizerOrName) ?? (recognizerOrName as Recognizer<any>);
+    const otherRecognizer = this.manager.get(recognizerOrName) ?? (recognizerOrName as Recognizer);
     const index = this.requireFail.indexOf(otherRecognizer);
     if (index > -1) {
       this.requireFail.splice(index, 1);
@@ -159,7 +158,7 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions> {
   /**
    * if the recognizer can recognize simultaneous with an other recognizer
    */
-  canRecognizeWith(otherRecognizer: Recognizer<any>): boolean {
+  canRecognizeWith(otherRecognizer: Recognizer): boolean {
     return Boolean(this.simultaneous[otherRecognizer.id]);
   }
 
@@ -167,28 +166,28 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions> {
    * You should use `tryEmit` instead of `emit` directly to check
    * that all the needed recognizers has failed before emitting.
    */
-  protected emit(input: HammerInput) {
-    const self = this;
-    const { state } = this;
+  protected emit(input?: HammerInput) {
+    // Some recognizers override emit() with their own logic
+    if (!input) return;
 
-    function emit(event: string) {
-      self.manager?.emit(event, input);
-    }
+    const {state} = this;
 
     // 'panstart' and 'panmove'
     if (state < RecognizerState.Ended) {
-      emit(self.options.event + stateStr(state));
+      this.manager.emit(this.options.event + stateStr(state), input);
     }
 
-    emit(self.options.event); // simple 'eventName' events
+    // simple 'eventName' events
+    this.manager.emit(this.options.event, input);
 
-    if (input.additionalEvent) { // additional event(panleft, panright, pinchin, pinchout...)
-      emit(input.additionalEvent);
+    // additional event(panleft, panright, pinchin, pinchout...)
+    if (input.additionalEvent) {
+      this.manager.emit(input.additionalEvent, input);
     }
 
     // panend and pancancel
     if (state >= RecognizerState.Ended) {
-      emit(self.options.event + stateStr(state));
+      this.manager.emit(this.options.event + stateStr(state), input);
     }
   }
 
@@ -197,12 +196,13 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions> {
    * if true, it emits a gesture event,
    * otherwise, setup the state to FAILED.
    */
-  protected tryEmit(input: HammerInput) {
+  protected tryEmit(input?: HammerInput) {
     if (this.canEmit()) {
-      return this.emit(input);
+      this.emit(input);
+    } else {
+      // it's failing anyway
+      this.state = RecognizerState.Failed;
     }
-    // it's failing anyway
-    this.state = RecognizerState.Failed;
   }
 
   /**
@@ -228,14 +228,17 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions> {
     const inputDataClone = {...inputData};
 
     // is is enabled and allow recognizing?
-    if (this.options.enable) {
+    if (!this.options.enable) {
       this.reset();
       this.state = RecognizerState.Failed;
       return;
     }
 
     // reset when we've reached the end
-    if (this.state & (RecognizerState.Recognized | RecognizerState.Cancelled | RecognizerState.Failed)) {
+    if (
+      this.state &
+      (RecognizerState.Recognized | RecognizerState.Cancelled | RecognizerState.Failed)
+    ) {
       this.state = RecognizerState.Possible;
     }
 
@@ -243,7 +246,13 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions> {
 
     // the recognizer has recognized a gesture
     // so trigger an event
-    if (this.state & (RecognizerState.Began | RecognizerState.Changed | RecognizerState.Ended | RecognizerState.Cancelled)) {
+    if (
+      this.state &
+      (RecognizerState.Began |
+        RecognizerState.Changed |
+        RecognizerState.Ended |
+        RecognizerState.Cancelled)
+    ) {
       this.tryEmit(inputDataClone);
     }
   }

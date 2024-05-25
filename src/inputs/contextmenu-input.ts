@@ -1,8 +1,6 @@
 import type {MjolnirPointerEventRaw} from '../types';
 import Input, {InputOptions} from './input';
 
-const EVENT_TYPE = 'contextmenu';
-
 export default class ContextmenuInput extends Input<MjolnirPointerEventRaw, InputOptions> {
   constructor(
     element: HTMLElement,
@@ -23,7 +21,7 @@ export default class ContextmenuInput extends Input<MjolnirPointerEventRaw, Inpu
    * if the specified event type is among those handled by this input.
    */
   enableEventType(eventType: string, enabled: boolean) {
-    if (eventType === EVENT_TYPE) {
+    if (eventType === 'contextmenu') {
       this.options.enable = enabled;
     }
   }
@@ -34,7 +32,7 @@ export default class ContextmenuInput extends Input<MjolnirPointerEventRaw, Inpu
     }
 
     this.callback({
-      type: EVENT_TYPE,
+      type: 'contextmenu',
       center: {
         x: event.clientX,
         y: event.clientY

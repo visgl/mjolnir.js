@@ -1,4 +1,4 @@
-import type { Vector } from './types';
+import type {Vector} from './types';
 
 /**
  * calculate the velocity between two points. unit is in px per ms.

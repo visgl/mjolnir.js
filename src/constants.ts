@@ -1,26 +1,21 @@
-import Hammer from './utils/hammer';
-import {RecognizerTuple} from './types';
+import * as Hammer from './hammerjs';
 
-// This module contains constants that must be conditionally required
-// due to `window`/`document` references downstream.
-export const RECOGNIZERS: RecognizerTuple[] = Hammer
-  ? [
-      [Hammer.Pan, {event: 'tripan', pointers: 3, threshold: 0, enable: false}],
-      [Hammer.Rotate, {enable: false}],
-      [Hammer.Pinch, {enable: false}],
-      [Hammer.Swipe, {enable: false}],
-      [Hammer.Pan, {threshold: 0, enable: false}],
-      [Hammer.Press, {enable: false}],
-      [Hammer.Tap, {event: 'doubletap', taps: 2, enable: false}],
-      // TODO - rename to 'tap' and 'singletap' in the next major release
-      [Hammer.Tap, {event: 'anytap', enable: false}],
-      [Hammer.Tap, {enable: false}]
-    ]
-  : null;
+export const RECOGNIZERS: Hammer.RecognizerTuple[] = [
+  [Hammer.Pan, {event: 'doublepan', pointers: 2, threshold: 0, enable: false}],
+  [Hammer.Rotate, {enable: false}],
+  [Hammer.Pinch, {enable: false}],
+  [Hammer.Swipe, {enable: false}],
+  [Hammer.Pan, {threshold: 0, enable: false}],
+  [Hammer.Press, {enable: false}],
+  [Hammer.Tap, {event: 'doubletap', taps: 2, enable: false}],
+  // TODO - rename to 'tap' and 'singletap' in the next major release
+  [Hammer.Tap, {event: 'anytap', enable: false}],
+  [Hammer.Tap, {enable: false}]
+];
 
 // Recognize the following gestures even if a given recognizer succeeds
 export const RECOGNIZER_COMPATIBLE_MAP = {
-  tripan: ['rotate', 'pinch', 'pan'],
+  doublepan: ['rotate', 'pinch', 'pan'],
   rotate: ['pinch'],
   pinch: ['pan'],
   pan: ['press', 'doubletap', 'anytap', 'tap'],
@@ -50,17 +45,6 @@ export const BASIC_EVENT_ALIASES = {
   mousedown: 'pointerdown',
   mousemove: 'pointermove',
   mouseup: 'pointerup'
-} as const;
-
-export const INPUT_EVENT_TYPES = {
-  KEY_EVENTS: ['keydown', 'keyup'],
-  MOUSE_EVENTS: ['mousedown', 'mousemove', 'mouseup', 'mouseover', 'mouseout', 'mouseleave'],
-  WHEEL_EVENTS: [
-    // Chrome, Safari
-    'wheel',
-    // IE
-    'mousewheel'
-  ]
 } as const;
 
 /**

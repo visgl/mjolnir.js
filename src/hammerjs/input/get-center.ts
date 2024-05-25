@@ -1,5 +1,4 @@
-import type { Point, PointerEventLike } from './types';
-
+import type {Point, PointerEventLike} from './types';
 
 /**
  * get the center of all the pointers

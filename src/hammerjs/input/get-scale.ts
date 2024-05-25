@@ -1,5 +1,5 @@
 import {getEventDistance} from './get-distance';
-import type { PointerEventLike } from './types';
+import type {PointerEventLike} from './types';
 
 /**
  * calculate the scale factor between two pointersets

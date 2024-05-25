@@ -1,8 +1,11 @@
-import { InputEvent } from './input-consts';
-import type { RawInput, Session } from './types';
+import {InputEvent} from './input-consts';
+import type {RawInput, Session} from './types';
 
 /** Populates input.deltaX, input.deltaY */
-export function computeDeltaXY(session: Session, input: RawInput): {
+export function computeDeltaXY(
+  session: Session,
+  input: RawInput
+): {
   deltaX: number;
   deltaY: number;
 } {

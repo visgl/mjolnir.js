@@ -1,20 +1,18 @@
 import {Recognizer, RecognizerOptions} from '../recognizer/recognizer';
 import {RecognizerState} from '../recognizer/recognizer-state';
-import {
-  InputEvent
-} from '../input/input-consts';
-import type { HammerInput } from '../input/types';
+import {InputEvent} from '../input/input-consts';
+import type {HammerInput} from '../input/types';
 
 export type AttrRecognizerOptions = RecognizerOptions & {
   pointers: number;
 };
 
 /**
- * @private
  * This recognizer is just used as a base for the simple attribute recognizers.
  */
-export abstract class AttrRecognizer<OptionsT extends AttrRecognizerOptions> extends Recognizer<OptionsT> {
-
+export abstract class AttrRecognizer<
+  OptionsT extends AttrRecognizerOptions
+> extends Recognizer<OptionsT> {
   /**
    * Used to check if it the recognizer receives valid input, like input.distance > 10.
    */
@@ -27,8 +25,8 @@ export abstract class AttrRecognizer<OptionsT extends AttrRecognizerOptions> ext
    * Process the input and return the state for the recognizer
    */
   process(input: HammerInput) {
-    const { state } = this;
-    const { eventType } = input;
+    const {state} = this;
+    const {eventType} = input;
 
     const isRecognized = state & (RecognizerState.Began | RecognizerState.Changed);
     const isValid = this.attrTest(input);

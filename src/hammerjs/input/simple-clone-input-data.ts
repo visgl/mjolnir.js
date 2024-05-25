@@ -1,5 +1,5 @@
 import {getCenter} from './get-center';
-import type { RawInput, PointerEventLike, SimpleInput } from './types';
+import type {RawInput, PointerEventLike, SimpleInput} from './types';
 
 /**
  * create a simple clone from the input used for storage of firstInput and firstMultiple

@@ -10,17 +10,16 @@ import {getScale} from './get-scale';
 import {getRotation} from './get-rotation';
 import {computeIntervalInputData} from './compute-interval-input-data';
 
-import type { Manager } from '../manager';
-import type { RawInput, HammerInput } from './types';
+import type {Manager} from '../manager';
+import type {RawInput, HammerInput} from './types';
 
 /**
-* @private
  * extend the data with some usable properties like scale, rotate, velocity etc
  */
 export function computeInputData(manager: Manager, input: RawInput): HammerInput {
-  const { session } = manager;
-  const { pointers } = input;
-  const { length:pointersLength } = pointers;
+  const {session} = manager;
+  const {pointers} = input;
+  const {length: pointersLength} = pointers;
 
   // store the first input to calculate the distance and direction
   if (!session.firstInput) {
@@ -34,10 +33,10 @@ export function computeInputData(manager: Manager, input: RawInput): HammerInput
     session.firstMultiple = false;
   }
 
-  const { firstInput, firstMultiple } = session;
+  const {firstInput, firstMultiple} = session;
   const offsetCenter = firstMultiple ? firstMultiple.center : firstInput.center;
 
-  const center = input.center = getCenter(pointers);
+  const center = (input.center = getCenter(pointers));
   input.timeStamp = Date.now();
   input.deltaTime = input.timeStamp - firstInput.timeStamp;
 
@@ -52,16 +51,22 @@ export function computeInputData(manager: Manager, input: RawInput): HammerInput
   const overallVelocity = getVelocity(input.deltaTime, input.deltaX, input.deltaY);
   input.overallVelocityX = overallVelocity.x;
   input.overallVelocityY = overallVelocity.y;
-  input.overallVelocity = (Math.abs(overallVelocity.x) > Math.abs(overallVelocity.y)) ? overallVelocity.x : overallVelocity.y;
+  input.overallVelocity =
+    Math.abs(overallVelocity.x) > Math.abs(overallVelocity.y)
+      ? overallVelocity.x
+      : overallVelocity.y;
 
   input.scale = firstMultiple ? getScale(firstMultiple.pointers, pointers) : 1;
   input.rotation = firstMultiple ? getRotation(firstMultiple.pointers, pointers) : 0;
 
-  input.maxPointers = !session.prevInput ? input.pointers.length : ((input.pointers.length >
-  session.prevInput.maxPointers) ? input.pointers.length : session.prevInput.maxPointers);
+  input.maxPointers = !session.prevInput
+    ? input.pointers.length
+    : input.pointers.length > session.prevInput.maxPointers
+    ? input.pointers.length
+    : session.prevInput.maxPointers;
 
   // find the correct target
-  let target = manager.element;
+  let target = manager.element!;
   if (hasParent(input.srcEvent.target as HTMLElement, target)) {
     target = input.srcEvent.target as HTMLElement;
   }

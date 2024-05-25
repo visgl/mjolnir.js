@@ -1,14 +1,12 @@
-import addEventListeners from '../utils/add-event-listeners';
-import removeEventListeners from '../utils/remove-event-listeners';
-import getWindowForElement from '../utils/get-window-for-element';
+import {addEventListeners, removeEventListeners} from '../utils/event-listeners';
+import {getWindowForElement} from '../utils/get-window-for-element';
 import {inputHandler} from './input-handler';
 
-import { InputEvent } from './input-consts';
-import type { RawInput } from './types';
-import type { Manager } from '../manager';
+import {InputEvent} from './input-consts';
+import type {RawInput} from './types';
+import type {Manager} from '../manager';
 
 /**
- * @private
  * create new input type manager
  */
 export abstract class Input {
@@ -22,13 +20,13 @@ export abstract class Input {
 
   constructor(manager: Manager) {
     this.manager = manager;
-    this.element = manager.element;
-    this.target = manager.options.inputTarget || manager.element;
+    this.element = manager.element!;
+    this.target = manager.options.inputTarget || manager.element!;
   }
 
   /** smaller wrapper around the handler, for the scope and the enabled state of the manager,
-    * so when disabled the input events are completely bypassed.
-    */
+   * so when disabled the input events are completely bypassed.
+   */
   protected domHandler = (ev: Event) => {
     if (this.manager.options.enable) {
       this.handler(ev);
@@ -48,7 +46,7 @@ export abstract class Input {
   /**
    * bind the events
    */
-  protected init() {
+  init() {
     addEventListeners(this.element, this.evEl, this.domHandler);
     addEventListeners(this.target, this.evTarget, this.domHandler);
     addEventListeners(getWindowForElement(this.element), this.evWin, this.domHandler);

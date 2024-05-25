@@ -1,8 +1,8 @@
-import { InputDirection } from './input-consts';
+import {InputDirection} from './input-consts';
 
 /**
  * get the direction between two points
- * @return direction
+ * @returns direction
  */
 export function getDirection(dx: number, dy: number): InputDirection {
   if (dx === dy) {
