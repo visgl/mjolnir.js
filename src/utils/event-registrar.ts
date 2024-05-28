@@ -1,4 +1,4 @@
-import type EventManager from '../event-manager';
+import type {EventManager} from '../event-manager';
 import {whichButtons, getOffsetPosition} from './event-utils';
 import type {
   MjolnirEventRaw,

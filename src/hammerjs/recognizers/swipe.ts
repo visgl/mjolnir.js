@@ -31,6 +31,10 @@ export class SwipeRecognizer extends AttrRecognizer<Required<SwipeRecognizerOpti
     return PanRecognizer.prototype.getTouchAction.call(this);
   }
 
+  getEventNames(): string[] {
+    return ['', 'up', 'down', 'left', 'right'].map(suffix => this.options.event + suffix);
+  }
+
   attrTest(input: HammerInput): boolean {
     const {direction} = this.options;
     let velocity = 0;

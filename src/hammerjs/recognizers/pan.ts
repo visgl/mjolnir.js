@@ -44,6 +44,12 @@ export class PanRecognizer extends AttrRecognizer<Required<PanRecognizerOptions>
     return actions;
   }
 
+  getEventNames(): string[] {
+    return ['', 'start', 'move', 'end', 'cancel', 'up', 'down', 'left', 'right'].map(
+      suffix => this.options.event + suffix
+    );
+  }
+
   directionTest(input: HammerInput): boolean {
     const {options} = this;
     let hasMoved = true;

@@ -152,7 +152,7 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions = any> {
    * has require failures boolean
    */
   hasRequireFailures(): boolean {
-    return this.requireFail.length > 0;
+    return Boolean(this.requireFail.find(recognier => recognier.options.enable));
   }
 
   /**
@@ -268,6 +268,13 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions = any> {
    * return the preferred touch-action
    */
   abstract getTouchAction(): string[];
+
+  /**
+   * return the event names that are emitted by this recognizer
+   */
+  getEventNames(): string[] {
+    return [this.options.event];
+  }
 
   /**
    * called when the gesture isn't allowed to recognize

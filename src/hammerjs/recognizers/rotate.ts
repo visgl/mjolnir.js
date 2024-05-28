@@ -26,6 +26,10 @@ export class RotateRecognizer extends AttrRecognizer<Required<RotateRecognizerOp
     return [TOUCH_ACTION_NONE];
   }
 
+  getEventNames(): string[] {
+    return ['', 'start', 'move', 'end', 'cancel'].map(suffix => this.options.event + suffix);
+  }
+
   attrTest(input: HammerInput): boolean {
     return (
       super.attrTest(input) &&
