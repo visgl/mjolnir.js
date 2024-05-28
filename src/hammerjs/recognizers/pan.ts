@@ -1,13 +1,33 @@
-import {AttrRecognizer, AttrRecognizerOptions} from './attribute';
+import {AttrRecognizer} from './attribute';
 import {InputDirection} from '../input/input-consts';
 import {RecognizerState} from '../recognizer/recognizer-state';
 import {TOUCH_ACTION_PAN_X, TOUCH_ACTION_PAN_Y} from '../touchaction/touchaction-Consts';
 import type {HammerInput} from '../input/types';
 
-export type PanRecognizerOptions = Partial<AttrRecognizerOptions> & {
+export type PanRecognizerOptions = {
+  /** Name of the event.
+   * @default 'pan'
+   */
+  event?: string;
+  /** Enable this event.
+   * @default true
+   */
+  enable?: boolean;
+  /** Required number of pointers. 0 for all pointers.
+   * @default 1
+   */
+  pointers?: number;
+  /** Required direction of panning.
+   * @default InputDirection.All
+   */
   direction?: InputDirection;
+  /** Minimal pan distance required before recognizing.
+   * @default 10
+   */
   threshold?: number;
 };
+
+const EVENT_NAMES = ['', 'start', 'move', 'end', 'cancel', 'up', 'down', 'left', 'right'] as const;
 
 /**
  * Pan
@@ -17,7 +37,7 @@ export class PanRecognizer extends AttrRecognizer<Required<PanRecognizerOptions>
   pX: number | null;
   pY: number | null;
 
-  constructor(options: PanRecognizerOptions) {
+  constructor(options: PanRecognizerOptions = {}) {
     super({
       enable: true,
       pointers: 1,
@@ -45,9 +65,7 @@ export class PanRecognizer extends AttrRecognizer<Required<PanRecognizerOptions>
   }
 
   getEventNames(): string[] {
-    return ['', 'start', 'move', 'end', 'cancel', 'up', 'down', 'left', 'right'].map(
-      suffix => this.options.event + suffix
-    );
+    return EVENT_NAMES.map(suffix => this.options.event + suffix);
   }
 
   directionTest(input: HammerInput): boolean {

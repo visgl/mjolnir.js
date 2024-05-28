@@ -1,21 +1,44 @@
-import {AttrRecognizer, AttrRecognizerOptions} from './attribute';
+import {AttrRecognizer} from './attribute';
 import {InputDirection} from '../input/input-consts';
 import {PanRecognizer} from './pan';
 import {InputEvent} from '../input/input-consts';
 import type {HammerInput} from '../input/types';
 
-export type SwipeRecognizerOptions = Partial<AttrRecognizerOptions> & {
+export type SwipeRecognizerOptions = {
+  /** Name of the event.
+   * @default 'swipe'
+   */
+  event?: string;
+  /** Enable this event.
+   * @default true
+   */
+  enable?: boolean;
+  /** Required number of pointers.
+   * @default 1
+   */
+  pointers?: number;
+  /** Direction of the panning.
+   * @default InputDirection.All
+   */
   direction?: InputDirection;
+  /** Minimal distance required before recognizing.
+   * @default 10
+   */
   threshold?: number;
+  /** Minimal velocity required before recognizing, in px/ms
+   * @default 0.3
+   */
   velocity?: number;
 };
+
+const EVENT_NAMES = ['', 'up', 'down', 'left', 'right'] as const;
 
 /**
  * Swipe
  * Recognized when the pointer is moving fast (velocity), with enough distance in the allowed direction.
  */
 export class SwipeRecognizer extends AttrRecognizer<Required<SwipeRecognizerOptions>> {
-  constructor(options: SwipeRecognizerOptions) {
+  constructor(options: SwipeRecognizerOptions = {}) {
     super({
       enable: true,
       event: 'swipe',
@@ -32,7 +55,7 @@ export class SwipeRecognizer extends AttrRecognizer<Required<SwipeRecognizerOpti
   }
 
   getEventNames(): string[] {
-    return ['', 'up', 'down', 'left', 'right'].map(suffix => this.options.event + suffix);
+    return EVENT_NAMES.map(suffix => this.options.event + suffix);
   }
 
   attrTest(input: HammerInput): boolean {

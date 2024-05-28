@@ -6,7 +6,9 @@ import type {Manager} from '../manager';
 import type {HammerInput} from '../input/types';
 
 export type RecognizerOptions = {
+  /** Name of the event */
   event: string;
+  /** Enable this recognizer */
   enable: boolean;
 };
 

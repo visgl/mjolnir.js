@@ -14,11 +14,24 @@ import ContextmenuInput from './inputs/contextmenu-input';
 import EventRegistrar, {HandlerOptions} from './utils/event-registrar';
 
 export type EventManagerOptions = {
+  /** The element to register events on */
   target: HTMLElement;
+  /** Event listeners */
   events?: MjolnirEventHandlers;
+  /** Gesture recognizers */
   recognizers?: RecognizerTuple[];
-  touchAction?: string;
+  /** Touch action to set on the target element.
+   * Use 'compute' to automatically set as the least restrictive value to support the recognizers.
+   * https://developer.mozilla.org/en-US/docs/Web/CSS/touch-action
+   * @default 'compute'
+   */
+  touchAction?: 'none' | 'compute' | 'manipulation' | 'pan-x' | 'pan-y' | 'pan-x pan-y';
+  /** Tab index of the target element */
   tabIndex?: number;
+  /**
+   * Optional CSS properties to be applied to the target element.
+   */
+  cssProps?: Partial<CSSStyleDeclaration>;
 };
 
 // Unified API for subscribing to events about both
@@ -40,23 +53,18 @@ export class EventManager {
     this.options = {
       recognizers: [],
       events: {},
-      // allow browser default touch action
-      // https://github.com/uber/react-map-gl/issues/506
-      touchAction: 'none',
+      touchAction: 'compute',
       tabIndex: 0,
+      cssProps: {},
       ...options
     };
     this.events = new Map();
 
     const element = options.target;
 
-    const manager = new HammerManager(element, {
-      touchAction: this.options.touchAction,
-      recognizers: this.options.recognizers
-    });
-    this.manager = manager;
+    this.manager = new HammerManager(element, this.options);
 
-    manager.on('hammer.input', this._onBasicInput);
+    this.manager.on('hammer.input', this._onBasicInput);
 
     // Handle events not handled by Hammer.js:
     // - mouse wheel

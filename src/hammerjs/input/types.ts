@@ -17,22 +17,36 @@ export type RawInput = {
   eventType: InputEvent;
 
   // Populated during processing
+  /** Timestamp of the event. */
   timeStamp?: number;
+  /** Total time since the first input. */
   deltaTime?: number;
 
+  /** Center position for multi-touch, or the position of the single pointer. */
   center?: Point;
+  /** Movement along the X axis. */
   deltaX?: number;
+  /** Movement along the Y axis. */
   deltaY?: number;
+  /** Angle moved, in degrees */
   angle?: number;
+  /** Distance moved */
   distance?: number;
+  /** Scaling that has been done with multi-touch. 1 on a single touch. */
   scale?: number;
+  /** Rotation (in degrees) that has been done with multi-touch. 0 on a single touch. */
   rotation?: number;
 
+  /** Direction moved. */
   direction?: InputDirection;
+  /** Direction moved from its starting point. */
   offsetDirection?: InputDirection;
 
+  /** Highest velocityX/Y value. */
   velocity?: number;
+  /** Velocity along the X axis, in px/ms */
   velocityX?: number;
+  /** Velocity along the Y axis, in px/ms */
   velocityY?: number;
 
   overallVelocity?: number;
@@ -42,10 +56,11 @@ export type RawInput = {
   maxPointers?: number;
   target?: HTMLElement;
 
+  /** Internal flag */
   additionalEvent?: string;
-
-  // Internal flags
+  /** Internal flag */
   isFirst?: boolean;
+  /** Internal flag */
   isFinal?: boolean;
 };
 
@@ -81,6 +96,6 @@ export type Session = {
 /**
  * Emitted input event */
 export type HammerInput = Omit<Required<RawInput>, 'isFirst' | 'isFinal'> & {
-  /** if emitted by TapRecognizer */
+  /** Number of consecutive taps recognized. Populated if emitted by TapRecognizer */
   tapCount?: number;
 };

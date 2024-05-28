@@ -1,23 +1,43 @@
 /* global setTimeout, clearTimeout */
-import {Recognizer, RecognizerOptions} from '../recognizer/recognizer';
+import {Recognizer} from '../recognizer/recognizer';
 import {TOUCH_ACTION_MANIPULATION} from '../touchaction/touchaction-Consts';
 import {InputEvent} from '../input/input-consts';
 import {RecognizerState} from '../recognizer/recognizer-state';
 import {getPointDistance} from '../input/get-distance';
 import type {Point, HammerInput} from '../input/types';
 
-export type TapRecognizerOptions = Partial<RecognizerOptions> & {
+export type TapRecognizerOptions = {
+  /** Name of the event.
+   * @default 'tap'
+   */
   event?: string;
+  /** Enable this event.
+   * @default true
+   */
+  enable?: boolean;
+  /** Required pointers.
+   * @default 1
+   */
   pointers?: number;
-  /** number of taps in succession */
+  /** Required number of taps in succession.
+   * @default 1
+   */
   taps?: number;
-  /** max time between the multi-tap taps */
+  /** Maximum time in ms between multiple taps.
+   * @default 300
+   */
   interval?: number;
-  /** max time of the pointer to be down (like finger on the screen) */
+  /** Maximum press time in ms.
+   * @default 250
+   */
   time?: number;
-  /** a minimal movement is ok, but keep it low */
+  /** While doing a tap some small movement is allowed.
+   * @default 9
+   */
   threshold?: number;
-  /** a multi-tap can be a bit off the initial position */
+  /** The maximum position difference between multiple taps.
+   * @default 10
+   */
   posThreshold?: number;
 };
 
@@ -40,7 +60,7 @@ export class TapRecognizer extends Recognizer<Required<TapRecognizerOptions>> {
 
   private count: number = 0;
 
-  constructor(options: TapRecognizerOptions) {
+  constructor(options: TapRecognizerOptions = {}) {
     super({
       enable: true,
       event: 'tap',

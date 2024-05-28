@@ -1,18 +1,35 @@
-import {AttrRecognizer, AttrRecognizerOptions} from './attribute';
+import {AttrRecognizer} from './attribute';
 import {TOUCH_ACTION_NONE} from '../touchaction/touchaction-Consts';
 import {RecognizerState} from '../recognizer/recognizer-state';
 import type {HammerInput} from '../input/types';
 
-export type PinchRecognizerOptions = Partial<AttrRecognizerOptions> & {
+export type PinchRecognizerOptions = {
+  /** Name of the event.
+   * @default 'pinch'
+   */
+  event?: string;
+  /** Enable this event.
+   * @default true
+   */
+  enable?: boolean;
+  /** Required number of pointers, with a minimum of 2.
+   * @default 2
+   */
+  pointers?: number;
+  /** Minimal scale before recognizing.
+   * @default 0
+   */
   threshold?: number;
 };
+
+const EVENT_NAMES = ['', 'start', 'move', 'end', 'cancel', 'in', 'out'] as const;
 
 /**
  * Pinch
  * Recognized when two or more pointers are moving toward (zoom-in) or away from each other (zoom-out).
  */
 export class PinchRecognizer extends AttrRecognizer<Required<PinchRecognizerOptions>> {
-  constructor(options: PinchRecognizerOptions) {
+  constructor(options: PinchRecognizerOptions = {}) {
     super({
       enable: true,
       event: 'pinch',
@@ -27,9 +44,7 @@ export class PinchRecognizer extends AttrRecognizer<Required<PinchRecognizerOpti
   }
 
   getEventNames(): string[] {
-    return ['', 'start', 'move', 'end', 'cancel', 'in', 'out'].map(
-      suffix => this.options.event + suffix
-    );
+    return EVENT_NAMES.map(suffix => this.options.event + suffix);
   }
 
   attrTest(input: HammerInput): boolean {

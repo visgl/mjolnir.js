@@ -1,18 +1,34 @@
 /* global setTimeout, clearTimeout */
-import {Recognizer, RecognizerOptions} from '../recognizer/recognizer';
+import {Recognizer} from '../recognizer/recognizer';
 import {RecognizerState} from '../recognizer/recognizer-state';
 import {TOUCH_ACTION_AUTO} from '../touchaction/touchaction-Consts';
 import {InputEvent} from '../input/input-consts';
 import {HammerInput} from '../input/types';
 
-export type PressRecognizerOptions = Partial<RecognizerOptions> & {
+export type PressRecognizerOptions = {
+  /** Name of the event.
+   * @default 'press'
+   */
   event?: string;
+  /** Enable this event.
+   * @default true
+   */
+  enable?: boolean;
+  /** Required number of pointers.
+   * @default 1
+   */
   pointers?: number;
-  /** max time of the pointer to be down (like finger on the screen) */
+  /** Minimal press time in ms.
+   * @default 251
+   */
   time?: number;
-  /** a minimal movement is ok, but keep it low */
+  /** Minimal movement that is allowed while pressing.
+   * @default 9
+   */
   threshold?: number;
 };
+
+const EVENT_NAMES = ['', 'up'] as const;
 
 /**
  * Press
@@ -22,7 +38,7 @@ export class PressRecognizer extends Recognizer<Required<PressRecognizerOptions>
   private _timer: any = null;
   private _input: HammerInput | null = null;
 
-  constructor(options: PressRecognizerOptions) {
+  constructor(options: PressRecognizerOptions = {}) {
     super({
       enable: true,
       event: 'press',
@@ -35,6 +51,10 @@ export class PressRecognizer extends Recognizer<Required<PressRecognizerOptions>
 
   getTouchAction() {
     return [TOUCH_ACTION_AUTO];
+  }
+
+  getEventNames(): string[] {
+    return EVENT_NAMES.map(suffix => this.options.event + suffix);
   }
 
   process(input: HammerInput) {

@@ -1,5 +1,15 @@
 export {EventManager} from './event-manager';
-export {Recognizer, Pan, Rotate, Pinch, Swipe, Press, Tap, InputDirection} from './hammerjs';
+export {
+  Recognizer,
+  Pan,
+  Rotate,
+  Pinch,
+  Swipe,
+  Press,
+  Tap,
+  InputDirection,
+  InputEvent
+} from './hammerjs';
 
 // types
 export type {EventManagerOptions} from './event-manager';

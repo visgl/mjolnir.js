@@ -11,22 +11,23 @@ import type {Session, HammerInput} from './input/types';
 const STOP = 1;
 const FORCED_STOP = 2;
 
-type RecognizerConstructor<OptionsT> = {
-  new (options: OptionsT): Recognizer;
-};
-
-export type RecognizerTuple<OptionsT = any> = [
-  Type: RecognizerConstructor<OptionsT>,
-  options: OptionsT,
-  recognizeWith?: string | string[],
-  requireFailure?: string | string[]
-];
+export type RecognizerTuple =
+  | Recognizer
+  | [
+      recognizer: Recognizer,
+      /** Allow another gesture to be recognized simultaneously with this one.
+       * For example an interaction can trigger pinch and rotate at the same time. */
+      recognizeWith?: string | string[],
+      /** Another recognizer is mutually exclusive with this one.
+       * For example an interaction could be singletap or doubletap; pan-horizontal or pan-vertical; but never both. */
+      requireFailure?: string | string[]
+    ];
 
 export type ManagerOptions = {
   /**
    * The recognizers that are being used.
    */
-  recognizers: RecognizerTuple<any>[];
+  recognizers: RecognizerTuple[];
 
   /**
    * The value for the touchAction property/fallback.
@@ -58,46 +59,7 @@ export type ManagerOptions = {
    * Some CSS properties can be used to improve the working of Hammer.
    * Add them to this method and they will be set when creating a new Manager.
    */
-  cssProps?: {
-    /**
-     * Disables text selection to improve the dragging gesture. Mainly for desktop browsers.
-     * @default 'none'
-     */
-    userSelect?: string;
-
-    /**
-     * Disable the Windows Phone grippers when pressing an element.
-     * @default 'none'
-     */
-    touchSelect?: string;
-
-    /**
-     * Disables the default callout shown when you touch and hold a touch target.
-     * On iOS, when you touch and hold a touch target such as a link, Safari displays
-     * a callout containing information about the link. This property allows you to disable that callout.
-     * @default 'none'
-     */
-    touchCallout?: string;
-
-    /**
-     * Specifies whether zooming is enabled. Used by IE10>
-     * @default 'none'
-     */
-    contentZooming?: string;
-
-    /**
-     * Specifies that an entire element should be draggable instead of its contents. Mainly for desktop browsers.
-     * @default 'none'
-     */
-    userDrag?: string;
-
-    /**
-     * Overrides the highlight color shown when the user taps a link or a JavaScript
-     * clickable element in iOS. This property obeys the alpha value, if specified.
-     * @default 'rgba(0,0,0,0)'
-     */
-    tapHighlightColor?: string;
-  };
+  cssProps?: Partial<CSSStyleDeclaration>;
 };
 
 export type HammerEvent = HammerInput & {
@@ -113,11 +75,21 @@ const defaultOptions: Required<ManagerOptions> = {
   inputTarget: null,
   inputClass: null,
   cssProps: {
+    /**
+     * Disables text selection to improve the dragging gesture. Mainly for desktop browsers.
+     */
     userSelect: 'none',
-    touchSelect: 'none',
+    /**
+     * (iOS only) Disables the default callout shown when you touch and hold a touch target.
+     * When you touch and hold a touch target such as a link, Safari displays
+     * a callout containing information about the link. This property allows you to disable that callout.
+     */
+    // @ts-ignore
     touchCallout: 'none',
-    contentZooming: 'none',
-    userDrag: 'none',
+    /**
+     * (iOS only) Sets the color of the highlight that appears over a link while it's being tapped.
+     */
+    // @ts-ignore
     tapHighlightColor: 'rgba(0,0,0,0)'
   }
 };
@@ -140,6 +112,7 @@ export class Manager {
     this.options = {
       ...defaultOptions,
       ...options,
+      cssProps: {...defaultOptions.cssProps, ...options.cssProps},
       inputTarget: options.inputTarget || element
     };
 
@@ -155,12 +128,13 @@ export class Manager {
     this.toggleCssProps(true);
 
     for (const item of this.options.recognizers) {
-      const recognizer = this.add(new item[0](item[1])) as Recognizer;
-      if (item[2]) {
-        recognizer.recognizeWith(item[2]);
+      const itemArray = Array.isArray(item) ? item : [item];
+      const recognizer = itemArray[0];
+      if (itemArray[2]) {
+        recognizer.recognizeWith(itemArray[2]);
       }
-      if (item[3]) {
-        recognizer.requireFailure(item[3]);
+      if (itemArray[3]) {
+        recognizer.requireFailure(itemArray[3]);
       }
     }
   }
@@ -405,7 +379,7 @@ export class Manager {
       const prop = prefixed(element.style, name) as any;
       if (add) {
         this.oldCssProps[prop] = element.style[prop];
-        element.style[prop] = value;
+        element.style[prop] = value as any;
       } else {
         element.style[prop] = this.oldCssProps[prop] || '';
       }
