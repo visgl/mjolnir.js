@@ -142,6 +142,6 @@ function Checkbox({
   );
 }
 
-export function renderToDOM(container) {
+export function renderToDOM(container: HTMLElement) {
   render(<App />, container);
 }

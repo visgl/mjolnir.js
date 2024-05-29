@@ -6,5 +6,5 @@ import {PointerEventLike} from './types';
  * @returns rotation in degrees
  */
 export function getRotation(start: PointerEventLike[], end: PointerEventLike[]): number {
-  return getEventAngle(end[1], end[0]) + getEventAngle(start[1], start[0]);
+  return getEventAngle(end[1], end[0]) - getEventAngle(start[1], start[0]);
 }

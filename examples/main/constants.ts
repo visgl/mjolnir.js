@@ -20,7 +20,6 @@
 import {Pan, Rotate, Pinch, Swipe, Press, Tap, RecognizerTuple} from 'mjolnir.js';
 
 export const RECOGNIZERS: RecognizerTuple[] = [
-  [Pan, {event: 'doublepan', pointers: 2, threshold: 1, enable: false}],
   [Rotate, {enable: false}, ['doublepan']],
   [Pinch, {enable: false}, ['doublepan', 'rotate']],
   [Swipe, {enable: false}],

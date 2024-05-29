@@ -80,6 +80,11 @@ const defaultOptions: Required<ManagerOptions> = {
      */
     userSelect: 'none',
     /**
+     * (Webkit) Disable default dragging behavior
+     */
+    // @ts-ignore
+    userDrag: 'none',
+    /**
      * (iOS only) Disables the default callout shown when you touch and hold a touch target.
      * When you touch and hold a touch target such as a link, Safari displays
      * a callout containing information about the link. This property allows you to disable that callout.
@@ -130,6 +135,7 @@ export class Manager {
     for (const item of this.options.recognizers) {
       const itemArray = Array.isArray(item) ? item : [item];
       const recognizer = itemArray[0];
+      this.add(recognizer);
       if (itemArray[2]) {
         recognizer.recognizeWith(itemArray[2]);
       }

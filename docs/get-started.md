@@ -19,7 +19,7 @@ import {EventManager, Pinch, Pan} from 'mjolnir.js';
 
 const eventManager = new EventManager({
   target: document.getElementById('container'),
-  recognizers: [Pinch, Pan],
+  recognizers: [new Pinch(), new Pan()],
   events: {
     pinch: (event) => {
       // do something
@@ -38,7 +38,7 @@ const {EventManager, Pinch, Pan} = mjolnir;
 
 const eventManager = new EventManager({
   target: document.getElementById('container'),
-  recognizers: [Pinch, Pan],
+  recognizers: [new Pinch(), new Pan()],
   events: {
     pinch: (event) => {
       // do something
@@ -65,7 +65,7 @@ function App() {
     // did mount
     const eventManager = new EventManager({
       target: ref.current,
-      recognizers: [Pinch, Pan],
+      recognizers: [new Pinch(), new Pan()],
       events: {
         pinch: (event) => {
           // do something
