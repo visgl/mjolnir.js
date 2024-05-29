@@ -37,7 +37,7 @@ export type MjolnirPointerEventRaw = MjolnirEventRaw & {
     | 'pointerleave';
   pointerType: 'mouse' | 'pen' | 'touch';
   center: Point;
-  srcEvent: PointerEvent;
+  srcEvent: MouseEvent | PointerEvent;
 };
 
 export type MjolnirWheelEventRaw = MjolnirEventRaw & {

@@ -31,7 +31,6 @@ export function whichButtons(event: MjolnirEventRaw): {
   middleButton: boolean;
   rightButton: boolean;
 } | null {
-  // @ts-expect-error event type may not be a MOUSE_EVENT
   const eventType = MOUSE_EVENTS[event.srcEvent.type];
   if (!eventType) {
     // Not a mouse evet

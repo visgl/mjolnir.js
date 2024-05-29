@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es2020",
     "moduleResolution": "node",
+    "strictNullChecks": true,
     "allowSyntheticDefaultImports": true,
     "module": "ES2020",
     "declaration": true,

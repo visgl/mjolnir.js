@@ -28,13 +28,15 @@
   },
   "files": [
     "src",
-    "dist"
+    "dist",
+    "dist.min.js"
   ],
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "bootstrap": "yarn && ocular-bootstrap",
     "start": "(cd examples/main && (path-exists node_modules || npm i) && npm run start-local)",
     "build": "ocular-clean && ocular-build",
+    "build-bundle": "ocular-bundle ./src/index.ts",
     "lint": "ocular-lint",
     "cover": "ocular-test cover",
     "publish-prod": "ocular-publish prod",

@@ -6,6 +6,7 @@
       "entries": [
         {"entry": "docs"},
         {"entry": "docs/get-started"},
+        {"entry": "docs/whats-new"},
         {"entry": "docs/upgrade-guide"}
       ]
     },
@@ -13,7 +14,13 @@
       "title": "API Reference",
       "entries": [
         {"entry": "docs/api-reference/event-manager"},
-        {"entry": "docs/api-reference/event"}
+        {"entry": "docs/api-reference/pan"},
+        {"entry": "docs/api-reference/pinch"},
+        {"entry": "docs/api-reference/press"},
+        {"entry": "docs/api-reference/rotate"},
+        {"entry": "docs/api-reference/swipe"},
+        {"entry": "docs/api-reference/tap"},
+        {"entry": "docs/api-reference/types"}
       ]
     }
   ]

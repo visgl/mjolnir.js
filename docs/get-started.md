@@ -6,32 +6,57 @@
 npm install mjolnir.js
 ```
 
-# Usage
+or
+
+```html
+<script src="https://unpkg.com/mjolnir.js@3/dist.min.js"></script>
+```
+
+# Using with NPM
 
 ```ts
 import {EventManager, Pinch, Pan} from 'mjolnir.js';
 
 const eventManager = new EventManager({
   target: document.getElementById('container'),
-  recognizers: [Pinch, Pan]
-});
-
-eventManager.on({
-  pinch: (event) => {
-    // do something
+  recognizers: [Pinch, Pan],
+  events: {
+    pinch: (event) => {
+      // do something
+    }
   }
 });
 
-// ...
+// when done
 eventManager.destroy();
 ```
+
+## Using with Script Tag
+
+```js
+const {EventManager, Pinch, Pan} = mjolnir;
+
+const eventManager = new EventManager({
+  target: document.getElementById('container'),
+  recognizers: [Pinch, Pan],
+  events: {
+    pinch: (event) => {
+      // do something
+    }
+  }
+});
+
+// when done
+eventManager.destroy();
+```
+
 
 ## Using with React
 
 
 ```tsx
 import React, {useRef, useEffect} from 'react';
-import {EventManager, Pan} from 'mjolnir.js';
+import {EventManager, Pinch, Pan} from 'mjolnir.js';
 
 function App() {
   const ref = useRef();
@@ -40,17 +65,19 @@ function App() {
     // did mount
     const eventManager = new EventManager({
       target: ref.current,
-      recognizers: [Pan],
+      recognizers: [Pinch, Pan],
       events: {
-        panmove: console.log
+        pinch: (event) => {
+          // do something
+        }
       }
     });
 
-    // unmount
+    // unmounting
     return () => eventManager.destroy();
   }, []);
 
-  return <div ref={ref} />;
+  return <div id="container" ref={ref} />;
 }
 ```
 

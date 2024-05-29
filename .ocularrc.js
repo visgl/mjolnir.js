@@ -1,8 +1,16 @@
+/** @typedef {import('ocular-dev-tools').OcularConfig} OcularConfig */
 import {resolve} from 'path';
 
+/** @type OcularConfig */
 export default {
   lint: {
     paths: ['src', 'examples', 'test', 'docs']
+  },
+
+  bundle: {
+    globalName: 'mjolnir',
+    target: ['chrome110', 'firefox110', 'safari15'],
+    format: 'umd'
   },
 
   typescript: {

@@ -11,3 +11,4 @@ yarn-error.log
 .idea
 .reify-cache
 .nyc_output
+dist.min.js
