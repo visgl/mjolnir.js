@@ -1,3 +1,7 @@
+// mjolnir.js
+// SPDX-License-Identifier: MIT
+// Copyright (c) vis.gl contributors
+
 /* global window */
 import test from 'tape';
 import {_enableDOMLogging as enableDOMLogging} from '@probe.gl/test-utils';

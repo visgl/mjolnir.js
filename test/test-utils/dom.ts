@@ -1,3 +1,7 @@
+// mjolnir.js
+// SPDX-License-Identifier: MIT
+// Copyright (c) vis.gl contributors
+
 type ElementOptions = {
   id?: string;
   children?: ElementOptions[];

@@ -1,3 +1,7 @@
+// mjolnir.js
+// SPDX-License-Identifier: MIT
+// Copyright (c) vis.gl contributors
+
 import type {EventManager} from '../event-manager';
 import {whichButtons, getOffsetPosition} from './event-utils';
 import type {

@@ -1,3 +1,7 @@
+// mjolnir.js
+// SPDX-License-Identifier: MIT
+// Copyright (c) vis.gl contributors
+
 export {EventManager} from './event-manager';
 export {
   Recognizer,

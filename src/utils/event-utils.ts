@@ -1,3 +1,7 @@
+// mjolnir.js
+// SPDX-License-Identifier: MIT
+// Copyright (c) vis.gl contributors
+
 import type {MjolnirEventRaw, Point} from '../types';
 import type {HammerEvent} from '../hammerjs';
 

@@ -1,3 +1,7 @@
+// mjolnir.js
+// SPDX-License-Identifier: MIT
+// Copyright (c) vis.gl contributors
+
 import type {MjolnirWheelEventRaw} from '../types';
 import {Input, InputOptions} from './input';
 
