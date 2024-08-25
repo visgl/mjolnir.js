@@ -1,0 +1,14 @@
+{
+  "unversionedId": "event-manager copy",
+  "id": "event-manager copy",
+  "title": "event-manager copy",
+  "description": "",
+  "source": "@site/src/examples/event-manager copy.mdx",
+  "sourceDirName": ".",
+  "slug": "/event-manager copy",
+  "permalink": "/mjolnir.js/examples/event-manager copy",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {}
+}

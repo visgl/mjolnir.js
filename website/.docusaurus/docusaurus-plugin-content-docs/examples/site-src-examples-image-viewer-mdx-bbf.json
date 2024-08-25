@@ -1,0 +1,19 @@
+{
+  "unversionedId": "image-viewer",
+  "id": "image-viewer",
+  "title": "Image Viewer",
+  "description": "",
+  "source": "@site/src/examples/image-viewer.mdx",
+  "sourceDirName": ".",
+  "slug": "/image-viewer",
+  "permalink": "/mjolnir.js/examples/image-viewer",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "examplesSidebar",
+  "previous": {
+    "title": "Event Manager",
+    "permalink": "/mjolnir.js/examples/event-manager"
+  }
+}

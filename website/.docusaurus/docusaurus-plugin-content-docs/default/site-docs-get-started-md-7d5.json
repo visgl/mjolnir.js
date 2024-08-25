@@ -1,0 +1,15 @@
+{
+  "unversionedId": "get-started",
+  "id": "get-started",
+  "title": "Get Started",
+  "description": "Installation",
+  "source": "@site/../docs/get-started.md",
+  "sourceDirName": ".",
+  "slug": "/get-started",
+  "permalink": "/mjolnir.js/docs/get-started",
+  "draft": false,
+  "editUrl": "https://github.com/visgl/mjolnir.js/tree/master/website/../docs/get-started.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {}
+}

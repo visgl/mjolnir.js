@@ -1,0 +1,23 @@
+{
+  "unversionedId": "event-manager",
+  "id": "event-manager",
+  "title": "Event Manager",
+  "description": "",
+  "source": "@site/src/examples/event-manager.mdx",
+  "sourceDirName": ".",
+  "slug": "/event-manager",
+  "permalink": "/mjolnir.js/examples/event-manager",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "examplesSidebar",
+  "previous": {
+    "title": "Examples",
+    "permalink": "/mjolnir.js/examples/"
+  },
+  "next": {
+    "title": "Image Viewer",
+    "permalink": "/mjolnir.js/examples/image-viewer"
+  }
+}

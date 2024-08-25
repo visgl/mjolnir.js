@@ -1,0 +1,24 @@
+{
+  "unversionedId": "api-reference/event-manager",
+  "id": "api-reference/event-manager",
+  "title": "EventManager",
+  "description": "Provides a unified API for subscribing to events about both basic input events (e.g. 'pointermove', 'keydown', 'wheel') and gestural input (e.g. 'click', 'tap', 'panstart').",
+  "source": "@site/../docs/api-reference/event-manager.md",
+  "sourceDirName": "api-reference",
+  "slug": "/api-reference/event-manager",
+  "permalink": "/mjolnir.js/docs/api-reference/event-manager",
+  "draft": false,
+  "editUrl": "https://github.com/visgl/mjolnir.js/tree/master/website/../docs/api-reference/event-manager.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Upgrade Guide",
+    "permalink": "/mjolnir.js/docs/upgrade-guide"
+  },
+  "next": {
+    "title": "Pan",
+    "permalink": "/mjolnir.js/docs/api-reference/pan"
+  }
+}

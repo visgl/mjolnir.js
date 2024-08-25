@@ -1,0 +1,20 @@
+{
+  "unversionedId": "api-reference/types",
+  "id": "api-reference/types",
+  "title": "Types",
+  "description": "InputDirection Enum",
+  "source": "@site/../docs/api-reference/types.md",
+  "sourceDirName": "api-reference",
+  "slug": "/api-reference/types",
+  "permalink": "/mjolnir.js/docs/api-reference/types",
+  "draft": false,
+  "editUrl": "https://github.com/visgl/mjolnir.js/tree/master/website/../docs/api-reference/types.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Tap",
+    "permalink": "/mjolnir.js/docs/api-reference/tap"
+  }
+}

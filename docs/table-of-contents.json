@@ -1,27 +1,25 @@
-{
-  "id": "table-of-contents",
-  "chapters": [
-    {
-      "title": "Overview",
-      "entries": [
-        {"entry": "docs"},
-        {"entry": "docs/get-started"},
-        {"entry": "docs/whats-new"},
-        {"entry": "docs/upgrade-guide"}
-      ]
-    },
-    {
-      "title": "API Reference",
-      "entries": [
-        {"entry": "docs/api-reference/event-manager"},
-        {"entry": "docs/api-reference/pan"},
-        {"entry": "docs/api-reference/pinch"},
-        {"entry": "docs/api-reference/press"},
-        {"entry": "docs/api-reference/rotate"},
-        {"entry": "docs/api-reference/swipe"},
-        {"entry": "docs/api-reference/tap"},
-        {"entry": "docs/api-reference/types"}
-      ]
-    }
-  ]
-}
+[
+  {
+    "type": "category",
+    "label": "Overview",
+    "items": [
+      "README",
+      "whats-new",
+      "upgrade-guide"
+    ]
+  },
+  {
+    "type": "category",
+    "label": "API Reference",
+    "items": [
+      "api-reference/event-manager",
+      "api-reference/pan",
+      "api-reference/pinch",
+      "api-reference/press",
+      "api-reference/rotate",
+      "api-reference/swipe",
+      "api-reference/tap",
+      "api-reference/types"
+    ]
+  }
+]

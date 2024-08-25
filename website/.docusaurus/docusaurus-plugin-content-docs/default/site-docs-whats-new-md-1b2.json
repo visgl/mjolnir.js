@@ -1,0 +1,24 @@
+{
+  "unversionedId": "whats-new",
+  "id": "whats-new",
+  "title": "What's New",
+  "description": "v3.0",
+  "source": "@site/../docs/whats-new.md",
+  "sourceDirName": ".",
+  "slug": "/whats-new",
+  "permalink": "/mjolnir.js/docs/whats-new",
+  "draft": false,
+  "editUrl": "https://github.com/visgl/mjolnir.js/tree/master/website/../docs/whats-new.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Overview",
+    "permalink": "/mjolnir.js/docs/"
+  },
+  "next": {
+    "title": "Upgrade Guide",
+    "permalink": "/mjolnir.js/docs/upgrade-guide"
+  }
+}

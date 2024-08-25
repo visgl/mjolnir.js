@@ -1,0 +1,24 @@
+{
+  "unversionedId": "api-reference/pinch",
+  "id": "api-reference/pinch",
+  "title": "Pinch",
+  "description": "Recognized when two or more pointers are moving toward (zoom-in) or away from each other (zoom-out).",
+  "source": "@site/../docs/api-reference/pinch.md",
+  "sourceDirName": "api-reference",
+  "slug": "/api-reference/pinch",
+  "permalink": "/mjolnir.js/docs/api-reference/pinch",
+  "draft": false,
+  "editUrl": "https://github.com/visgl/mjolnir.js/tree/master/website/../docs/api-reference/pinch.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Pan",
+    "permalink": "/mjolnir.js/docs/api-reference/pan"
+  },
+  "next": {
+    "title": "Press",
+    "permalink": "/mjolnir.js/docs/api-reference/press"
+  }
+}

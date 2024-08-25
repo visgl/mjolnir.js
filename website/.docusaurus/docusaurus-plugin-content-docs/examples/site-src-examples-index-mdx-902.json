@@ -1,0 +1,19 @@
+{
+  "unversionedId": "index",
+  "id": "index",
+  "title": "Examples",
+  "description": "/images/examples/${item.docId || item.label.toLowerCase()}.jpg} />",
+  "source": "@site/src/examples/index.mdx",
+  "sourceDirName": ".",
+  "slug": "/",
+  "permalink": "/mjolnir.js/examples/",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "examplesSidebar",
+  "next": {
+    "title": "Event Manager",
+    "permalink": "/mjolnir.js/examples/event-manager"
+  }
+}

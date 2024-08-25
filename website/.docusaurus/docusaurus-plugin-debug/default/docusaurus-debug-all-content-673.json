@@ -1,0 +1,488 @@
+{
+  "docusaurus-plugin-content-docs": {
+    "default": {
+      "loadedVersions": [
+        {
+          "versionName": "current",
+          "label": "Next",
+          "banner": null,
+          "badge": false,
+          "noIndex": false,
+          "className": "docs-version-current",
+          "path": "/mjolnir.js/docs",
+          "tagsPath": "/mjolnir.js/docs/tags",
+          "editUrl": "https://github.com/visgl/mjolnir.js/tree/master/website/../docs",
+          "editUrlLocalized": "https://github.com/visgl/mjolnir.js/tree/master/website/i18n/en/docusaurus-plugin-content-docs/current",
+          "isLast": true,
+          "routePriority": -1,
+          "sidebarFilePath": "/Users/missx/Source/mjolnir.js/website/src/docs-sidebar.js",
+          "contentPath": "/Users/missx/Source/mjolnir.js/docs",
+          "contentPathLocalized": "/Users/missx/Source/mjolnir.js/website/i18n/en/docusaurus-plugin-content-docs/current",
+          "docs": [
+            {
+              "unversionedId": "api-reference/event-manager",
+              "id": "api-reference/event-manager",
+              "title": "EventManager",
+              "description": "Provides a unified API for subscribing to events about both basic input events (e.g. 'pointermove', 'keydown', 'wheel') and gestural input (e.g. 'click', 'tap', 'panstart').",
+              "source": "@site/../docs/api-reference/event-manager.md",
+              "sourceDirName": "api-reference",
+              "slug": "/api-reference/event-manager",
+              "permalink": "/mjolnir.js/docs/api-reference/event-manager",
+              "draft": false,
+              "editUrl": "https://github.com/visgl/mjolnir.js/tree/master/website/../docs/api-reference/event-manager.md",
+              "tags": [],
+              "version": "current",
+              "frontMatter": {},
+              "sidebar": "docsSidebar",
+              "previous": {
+                "title": "Upgrade Guide",
+                "permalink": "/mjolnir.js/docs/upgrade-guide"
+              },
+              "next": {
+                "title": "Pan",
+                "permalink": "/mjolnir.js/docs/api-reference/pan"
+              }
+            },
+            {
+              "unversionedId": "api-reference/pan",
+              "id": "api-reference/pan",
+              "title": "Pan",
+              "description": "Recognized when the pointer is down and moved in the allowed direction.",
+              "source": "@site/../docs/api-reference/pan.md",
+              "sourceDirName": "api-reference",
+              "slug": "/api-reference/pan",
+              "permalink": "/mjolnir.js/docs/api-reference/pan",
+              "draft": false,
+              "editUrl": "https://github.com/visgl/mjolnir.js/tree/master/website/../docs/api-reference/pan.md",
+              "tags": [],
+              "version": "current",
+              "frontMatter": {},
+              "sidebar": "docsSidebar",
+              "previous": {
+                "title": "EventManager",
+                "permalink": "/mjolnir.js/docs/api-reference/event-manager"
+              },
+              "next": {
+                "title": "Pinch",
+                "permalink": "/mjolnir.js/docs/api-reference/pinch"
+              }
+            },
+            {
+              "unversionedId": "api-reference/pinch",
+              "id": "api-reference/pinch",
+              "title": "Pinch",
+              "description": "Recognized when two or more pointers are moving toward (zoom-in) or away from each other (zoom-out).",
+              "source": "@site/../docs/api-reference/pinch.md",
+              "sourceDirName": "api-reference",
+              "slug": "/api-reference/pinch",
+              "permalink": "/mjolnir.js/docs/api-reference/pinch",
+              "draft": false,
+              "editUrl": "https://github.com/visgl/mjolnir.js/tree/master/website/../docs/api-reference/pinch.md",
+              "tags": [],
+              "version": "current",
+              "frontMatter": {},
+              "sidebar": "docsSidebar",
+              "previous": {
+                "title": "Pan",
+                "permalink": "/mjolnir.js/docs/api-reference/pan"
+              },
+              "next": {
+                "title": "Press",
+                "permalink": "/mjolnir.js/docs/api-reference/press"
+              }
+            },
+            {
+              "unversionedId": "api-reference/press",
+              "id": "api-reference/press",
+              "title": "Press",
+              "description": "Recognized when the pointer is down for some time without any movement.",
+              "source": "@site/../docs/api-reference/press.md",
+              "sourceDirName": "api-reference",
+              "slug": "/api-reference/press",
+              "permalink": "/mjolnir.js/docs/api-reference/press",
+              "draft": false,
+              "editUrl": "https://github.com/visgl/mjolnir.js/tree/master/website/../docs/api-reference/press.md",
+              "tags": [],
+              "version": "current",
+              "frontMatter": {},
+              "sidebar": "docsSidebar",
+              "previous": {
+                "title": "Pinch",
+                "permalink": "/mjolnir.js/docs/api-reference/pinch"
+              },
+              "next": {
+                "title": "Rotate",
+                "permalink": "/mjolnir.js/docs/api-reference/rotate"
+              }
+            },
+            {
+              "unversionedId": "api-reference/rotate",
+              "id": "api-reference/rotate",
+              "title": "Rotate",
+              "description": "Recognized when two or more pointer are moving in a circular motion.",
+              "source": "@site/../docs/api-reference/rotate.md",
+              "sourceDirName": "api-reference",
+              "slug": "/api-reference/rotate",
+              "permalink": "/mjolnir.js/docs/api-reference/rotate",
+              "draft": false,
+              "editUrl": "https://github.com/visgl/mjolnir.js/tree/master/website/../docs/api-reference/rotate.md",
+              "tags": [],
+              "version": "current",
+              "frontMatter": {},
+              "sidebar": "docsSidebar",
+              "previous": {
+                "title": "Press",
+                "permalink": "/mjolnir.js/docs/api-reference/press"
+              },
+              "next": {
+                "title": "Swipe",
+                "permalink": "/mjolnir.js/docs/api-reference/swipe"
+              }
+            },
+            {
+              "unversionedId": "api-reference/swipe",
+              "id": "api-reference/swipe",
+              "title": "Swipe",
+              "description": "Recognized when the pointer is moving fast (velocity), with enough distance in the allowed direction.",
+              "source": "@site/../docs/api-reference/swipe.md",
+              "sourceDirName": "api-reference",
+              "slug": "/api-reference/swipe",
+              "permalink": "/mjolnir.js/docs/api-reference/swipe",
+              "draft": false,
+              "editUrl": "https://github.com/visgl/mjolnir.js/tree/master/website/../docs/api-reference/swipe.md",
+              "tags": [],
+              "version": "current",
+              "frontMatter": {},
+              "sidebar": "docsSidebar",
+              "previous": {
+                "title": "Rotate",
+                "permalink": "/mjolnir.js/docs/api-reference/rotate"
+              },
+              "next": {
+                "title": "Tap",
+                "permalink": "/mjolnir.js/docs/api-reference/tap"
+              }
+            },
+            {
+              "unversionedId": "api-reference/tap",
+              "id": "api-reference/tap",
+              "title": "Tap",
+              "description": "Recognized when the pointer is doing a small tap/click. Multiple taps are recognized if they occur between the given interval and position. The eventData from the emitted event contains the property tapCount, which contains the amount of multi-taps being recognized.",
+              "source": "@site/../docs/api-reference/tap.md",
+              "sourceDirName": "api-reference",
+              "slug": "/api-reference/tap",
+              "permalink": "/mjolnir.js/docs/api-reference/tap",
+              "draft": false,
+              "editUrl": "https://github.com/visgl/mjolnir.js/tree/master/website/../docs/api-reference/tap.md",
+              "tags": [],
+              "version": "current",
+              "frontMatter": {},
+              "sidebar": "docsSidebar",
+              "previous": {
+                "title": "Swipe",
+                "permalink": "/mjolnir.js/docs/api-reference/swipe"
+              },
+              "next": {
+                "title": "Types",
+                "permalink": "/mjolnir.js/docs/api-reference/types"
+              }
+            },
+            {
+              "unversionedId": "api-reference/types",
+              "id": "api-reference/types",
+              "title": "Types",
+              "description": "InputDirection Enum",
+              "source": "@site/../docs/api-reference/types.md",
+              "sourceDirName": "api-reference",
+              "slug": "/api-reference/types",
+              "permalink": "/mjolnir.js/docs/api-reference/types",
+              "draft": false,
+              "editUrl": "https://github.com/visgl/mjolnir.js/tree/master/website/../docs/api-reference/types.md",
+              "tags": [],
+              "version": "current",
+              "frontMatter": {},
+              "sidebar": "docsSidebar",
+              "previous": {
+                "title": "Tap",
+                "permalink": "/mjolnir.js/docs/api-reference/tap"
+              }
+            },
+            {
+              "unversionedId": "get-started",
+              "id": "get-started",
+              "title": "Get Started",
+              "description": "Installation",
+              "source": "@site/../docs/get-started.md",
+              "sourceDirName": ".",
+              "slug": "/get-started",
+              "permalink": "/mjolnir.js/docs/get-started",
+              "draft": false,
+              "editUrl": "https://github.com/visgl/mjolnir.js/tree/master/website/../docs/get-started.md",
+              "tags": [],
+              "version": "current",
+              "frontMatter": {}
+            },
+            {
+              "unversionedId": "README",
+              "id": "README",
+              "title": "Overview",
+              "description": "mjolnir.js is a JavaScript event and gesture handling module. It is built on top of and named in homage of the classic hammer.js library.",
+              "source": "@site/../docs/README.md",
+              "sourceDirName": ".",
+              "slug": "/",
+              "permalink": "/mjolnir.js/docs/",
+              "draft": false,
+              "editUrl": "https://github.com/visgl/mjolnir.js/tree/master/website/../docs/README.md",
+              "tags": [],
+              "version": "current",
+              "frontMatter": {},
+              "sidebar": "docsSidebar",
+              "next": {
+                "title": "What's New",
+                "permalink": "/mjolnir.js/docs/whats-new"
+              }
+            },
+            {
+              "unversionedId": "upgrade-guide",
+              "id": "upgrade-guide",
+              "title": "Upgrade Guide",
+              "description": "From 2.x to 3.0",
+              "source": "@site/../docs/upgrade-guide.md",
+              "sourceDirName": ".",
+              "slug": "/upgrade-guide",
+              "permalink": "/mjolnir.js/docs/upgrade-guide",
+              "draft": false,
+              "editUrl": "https://github.com/visgl/mjolnir.js/tree/master/website/../docs/upgrade-guide.md",
+              "tags": [],
+              "version": "current",
+              "frontMatter": {},
+              "sidebar": "docsSidebar",
+              "previous": {
+                "title": "What's New",
+                "permalink": "/mjolnir.js/docs/whats-new"
+              },
+              "next": {
+                "title": "EventManager",
+                "permalink": "/mjolnir.js/docs/api-reference/event-manager"
+              }
+            },
+            {
+              "unversionedId": "whats-new",
+              "id": "whats-new",
+              "title": "What's New",
+              "description": "v3.0",
+              "source": "@site/../docs/whats-new.md",
+              "sourceDirName": ".",
+              "slug": "/whats-new",
+              "permalink": "/mjolnir.js/docs/whats-new",
+              "draft": false,
+              "editUrl": "https://github.com/visgl/mjolnir.js/tree/master/website/../docs/whats-new.md",
+              "tags": [],
+              "version": "current",
+              "frontMatter": {},
+              "sidebar": "docsSidebar",
+              "previous": {
+                "title": "Overview",
+                "permalink": "/mjolnir.js/docs/"
+              },
+              "next": {
+                "title": "Upgrade Guide",
+                "permalink": "/mjolnir.js/docs/upgrade-guide"
+              }
+            }
+          ],
+          "drafts": [],
+          "sidebars": {
+            "docsSidebar": [
+              {
+                "type": "category",
+                "label": "Overview",
+                "items": [
+                  {
+                    "type": "doc",
+                    "id": "README"
+                  },
+                  {
+                    "type": "doc",
+                    "id": "whats-new"
+                  },
+                  {
+                    "type": "doc",
+                    "id": "upgrade-guide"
+                  }
+                ],
+                "collapsed": true,
+                "collapsible": true
+              },
+              {
+                "type": "category",
+                "label": "API Reference",
+                "items": [
+                  {
+                    "type": "doc",
+                    "id": "api-reference/event-manager"
+                  },
+                  {
+                    "type": "doc",
+                    "id": "api-reference/pan"
+                  },
+                  {
+                    "type": "doc",
+                    "id": "api-reference/pinch"
+                  },
+                  {
+                    "type": "doc",
+                    "id": "api-reference/press"
+                  },
+                  {
+                    "type": "doc",
+                    "id": "api-reference/rotate"
+                  },
+                  {
+                    "type": "doc",
+                    "id": "api-reference/swipe"
+                  },
+                  {
+                    "type": "doc",
+                    "id": "api-reference/tap"
+                  },
+                  {
+                    "type": "doc",
+                    "id": "api-reference/types"
+                  }
+                ],
+                "collapsed": true,
+                "collapsible": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "examples": {
+      "loadedVersions": [
+        {
+          "versionName": "current",
+          "label": "Next",
+          "banner": null,
+          "badge": false,
+          "noIndex": false,
+          "className": "docs-version-current",
+          "path": "/mjolnir.js/examples",
+          "tagsPath": "/mjolnir.js/examples/tags",
+          "isLast": true,
+          "routePriority": -1,
+          "sidebarFilePath": "/Users/missx/Source/mjolnir.js/website/src/examples-sidebar.js",
+          "contentPath": "/Users/missx/Source/mjolnir.js/website/src/examples",
+          "contentPathLocalized": "/Users/missx/Source/mjolnir.js/website/i18n/en/docusaurus-plugin-content-docs-examples/current",
+          "docs": [
+            {
+              "unversionedId": "event-manager",
+              "id": "event-manager",
+              "title": "Event Manager",
+              "description": "",
+              "source": "@site/src/examples/event-manager.mdx",
+              "sourceDirName": ".",
+              "slug": "/event-manager",
+              "permalink": "/mjolnir.js/examples/event-manager",
+              "draft": false,
+              "tags": [],
+              "version": "current",
+              "frontMatter": {},
+              "sidebar": "examplesSidebar",
+              "previous": {
+                "title": "Examples",
+                "permalink": "/mjolnir.js/examples/"
+              },
+              "next": {
+                "title": "Image Viewer",
+                "permalink": "/mjolnir.js/examples/image-viewer"
+              }
+            },
+            {
+              "unversionedId": "image-viewer",
+              "id": "image-viewer",
+              "title": "Image Viewer",
+              "description": "",
+              "source": "@site/src/examples/image-viewer.mdx",
+              "sourceDirName": ".",
+              "slug": "/image-viewer",
+              "permalink": "/mjolnir.js/examples/image-viewer",
+              "draft": false,
+              "tags": [],
+              "version": "current",
+              "frontMatter": {},
+              "sidebar": "examplesSidebar",
+              "previous": {
+                "title": "Event Manager",
+                "permalink": "/mjolnir.js/examples/event-manager"
+              }
+            },
+            {
+              "unversionedId": "index",
+              "id": "index",
+              "title": "Examples",
+              "description": "/images/examples/${item.docId || item.label.toLowerCase()}.png} />",
+              "source": "@site/src/examples/index.mdx",
+              "sourceDirName": ".",
+              "slug": "/",
+              "permalink": "/mjolnir.js/examples/",
+              "draft": false,
+              "tags": [],
+              "version": "current",
+              "frontMatter": {},
+              "sidebar": "examplesSidebar",
+              "next": {
+                "title": "Event Manager",
+                "permalink": "/mjolnir.js/examples/event-manager"
+              }
+            }
+          ],
+          "drafts": [],
+          "sidebars": {
+            "examplesSidebar": [
+              {
+                "type": "doc",
+                "id": "index"
+              },
+              {
+                "type": "doc",
+                "id": "event-manager"
+              },
+              {
+                "type": "doc",
+                "id": "image-viewer"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "docusaurus-plugin-content-blog": {
+    "default": {
+      "blogSidebarTitle": "Recent posts",
+      "blogPosts": [],
+      "blogListPaginated": [],
+      "blogTags": {},
+      "blogTagsListPath": "/mjolnir.js/blog/tags",
+      "blogTagsPaginated": []
+    }
+  },
+  "docusaurus-plugin-content-pages": {
+    "default": [
+      {
+        "type": "jsx",
+        "permalink": "/mjolnir.js/",
+        "source": "@site/src/pages/index.jsx"
+      }
+    ]
+  },
+  "docusaurus-plugin-debug": {},
+  "docusaurus-theme-classic": {},
+  "ocular-docusaurus-plugin": {},
+  "@cmfcmf/docusaurus-search-local": {},
+  "docusaurus-plugin-client-redirects": {},
+  "docusaurus-bootstrap-plugin": {},
+  "docusaurus-mdx-fallback-plugin": {}
+}
