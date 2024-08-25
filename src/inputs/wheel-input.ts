@@ -5,7 +5,7 @@
 import type {MjolnirWheelEventRaw} from '../types';
 import {Input, InputOptions} from './input';
 
-import {window, userAgent} from '../utils/globals';
+import {userAgent} from '../utils/globals';
 
 const firefox = userAgent.indexOf('firefox') !== -1;
 
@@ -47,12 +47,12 @@ export class WheelInput extends Input<MjolnirWheelEventRaw, Required<InputOption
     }
 
     let value = event.deltaY;
-    if (window.WheelEvent) {
+    if (globalThis.WheelEvent) {
       // Firefox doubles the values on retina screens...
-      if (firefox && event.deltaMode === window.WheelEvent.DOM_DELTA_PIXEL) {
-        value /= window.devicePixelRatio;
+      if (firefox && event.deltaMode === globalThis.WheelEvent.DOM_DELTA_PIXEL) {
+        value /= globalThis.devicePixelRatio;
       }
-      if (event.deltaMode === window.WheelEvent.DOM_DELTA_LINE) {
+      if (event.deltaMode === globalThis.WheelEvent.DOM_DELTA_LINE) {
         value *= WHEEL_DELTA_PER_LINE;
       }
     }

@@ -16,7 +16,7 @@ export {PinchRecognizer as Pinch} from './recognizers/pinch';
 export {RotateRecognizer as Rotate} from './recognizers/rotate';
 export {PressRecognizer as Press} from './recognizers/press';
 
-export type {HammerEvent, RecognizerTuple, ManagerOptions} from './manager';
+export type {HammerEvent, ManagerOptions} from './manager';
 export type {TapRecognizerOptions} from './recognizers/tap';
 export type {PanRecognizerOptions} from './recognizers/pan';
 export type {SwipeRecognizerOptions} from './recognizers/swipe';

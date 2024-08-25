@@ -16,7 +16,7 @@ export {
 } from './hammerjs';
 
 // types
-export type {EventManagerOptions} from './event-manager';
+export type {EventManagerOptions, RecognizerTuple} from './event-manager';
 export type {
   MjolnirEvent,
   MjolnirGestureEvent,
@@ -31,6 +31,5 @@ export type {
   PinchRecognizerOptions,
   SwipeRecognizerOptions,
   PressRecognizerOptions,
-  TapRecognizerOptions,
-  RecognizerTuple
+  TapRecognizerOptions
 } from './hammerjs';

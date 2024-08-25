@@ -78,13 +78,7 @@ export default function App() {
   );
 
   return (
-    <div id="container" onContextMenu={evt => evt.preventDefault()}>
-      <div id="background" ref={rootRef}>
-        <div id="red-box" ref={redBoxRef} />
-      </div>
-
-      <div id="logs">{eventLog.map(renderEventLogEntry)}</div>
-
+    <div id="container">
       <div id="options">
         {EVENTS.map(eventName => (
           <Checkbox
@@ -94,6 +88,12 @@ export default function App() {
             onChange={updateOption}
           />
         ))}
+      </div>
+      <div id="content">
+        <div id="background" ref={rootRef} onContextMenu={evt => evt.preventDefault()}>
+          <div id="red-box" ref={redBoxRef} />
+        </div>
+        <div id="logs">{eventLog.map(renderEventLogEntry)}</div>
       </div>
     </div>
   );

@@ -11,24 +11,7 @@ import type {Session, HammerInput} from './input/types';
 const STOP = 1;
 const FORCED_STOP = 2;
 
-export type RecognizerTuple =
-  | Recognizer
-  | [
-      recognizer: Recognizer,
-      /** Allow another gesture to be recognized simultaneously with this one.
-       * For example an interaction can trigger pinch and rotate at the same time. */
-      recognizeWith?: string | string[],
-      /** Another recognizer is mutually exclusive with this one.
-       * For example an interaction could be singletap or doubletap; pan-horizontal or pan-vertical; but never both. */
-      requireFailure?: string | string[]
-    ];
-
 export type ManagerOptions = {
-  /**
-   * The recognizers that are being used.
-   */
-  recognizers: RecognizerTuple[];
-
   /**
    * The value for the touchAction property/fallback.
    * When set to `compute` it will magically set the correct value based on the added recognizers.
@@ -69,7 +52,6 @@ export type HammerEvent = HammerInput & {
 export type EventHandler = (event: HammerEvent) => void;
 
 const defaultOptions: Required<ManagerOptions> = {
-  recognizers: [],
   touchAction: 'compute',
   enable: true,
   inputTarget: null,
@@ -131,18 +113,6 @@ export class Manager {
     this.touchAction = new TouchAction(this, this.options.touchAction);
 
     this.toggleCssProps(true);
-
-    for (const item of this.options.recognizers) {
-      const itemArray = Array.isArray(item) ? item : [item];
-      const recognizer = itemArray[0];
-      this.add(recognizer);
-      if (itemArray[2]) {
-        recognizer.recognizeWith(itemArray[2]);
-      }
-      if (itemArray[3]) {
-        recognizer.requireFailure(itemArray[3]);
-      }
-    }
   }
 
   /**

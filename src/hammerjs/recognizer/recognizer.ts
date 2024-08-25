@@ -87,7 +87,10 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions = any> {
     }
 
     const {simultaneous} = this;
-    const otherRecognizer = this.manager.get(recognizerOrName) ?? (recognizerOrName as Recognizer);
+    const otherRecognizer = this.manager.get(recognizerOrName);
+    if (!otherRecognizer) {
+      throw new Error(`Cannot find recognizer ${recognizerOrName}`);
+    }
     if (!simultaneous[otherRecognizer.id]) {
       simultaneous[otherRecognizer.id] = otherRecognizer;
       otherRecognizer.recognizeWith(this);
@@ -106,8 +109,10 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions = any> {
       return this;
     }
 
-    const otherRecognizer = this.manager.get(recognizerOrName) ?? (recognizerOrName as Recognizer);
-    delete this.simultaneous[otherRecognizer.id];
+    const otherRecognizer = this.manager.get(recognizerOrName);
+    if (otherRecognizer) {
+      delete this.simultaneous[otherRecognizer.id];
+    }
     return this;
   }
 
@@ -123,7 +128,10 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions = any> {
     }
 
     const {requireFail} = this;
-    const otherRecognizer = this.manager.get(recognizerOrName) ?? (recognizerOrName as Recognizer);
+    const otherRecognizer = this.manager.get(recognizerOrName);
+    if (!otherRecognizer) {
+      throw new Error(`Cannot find recognizer ${recognizerOrName}`);
+    }
     if (requireFail.indexOf(otherRecognizer) === -1) {
       requireFail.push(otherRecognizer);
       otherRecognizer.requireFailure(this);
@@ -142,10 +150,12 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions = any> {
       return this;
     }
 
-    const otherRecognizer = this.manager.get(recognizerOrName) ?? (recognizerOrName as Recognizer);
-    const index = this.requireFail.indexOf(otherRecognizer);
-    if (index > -1) {
-      this.requireFail.splice(index, 1);
+    const otherRecognizer = this.manager.get(recognizerOrName);
+    if (otherRecognizer) {
+      const index = this.requireFail.indexOf(otherRecognizer);
+      if (index > -1) {
+        this.requireFail.splice(index, 1);
+      }
     }
     return this;
   }

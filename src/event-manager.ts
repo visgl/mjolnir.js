@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) vis.gl contributors
 
-import {Manager as HammerManager, RecognizerTuple} from './hammerjs';
+import {Manager as HammerManager, Recognizer} from './hammerjs';
 import type {
   MjolnirEventRaw,
   MjolnirEvent,
@@ -16,6 +16,34 @@ import {KeyInput} from './inputs/key-input';
 import {ContextmenuInput} from './inputs/contextmenu-input';
 
 import {EventRegistrar, HandlerOptions} from './utils/event-registrar';
+
+type RecognizerConstructor = {new (options: any): Recognizer};
+
+export type RecognizerTuple =
+  | Recognizer
+  | RecognizerConstructor
+  | RecognizerTupleNormalized
+  /** hammer.js/mjolnir.js@2 style */
+  | [
+      recognizer: RecognizerConstructor,
+      options?: any,
+      /** Allow another gesture to be recognized simultaneously with this one.
+       * For example an interaction can trigger pinch and rotate at the same time. */
+      recognizeWith?: string | string[],
+      /** Another recognizer is mutually exclusive with this one.
+       * For example an interaction could be singletap or doubletap; pan-horizontal or pan-vertical; but never both. */
+      requireFailure?: string | string[]
+    ];
+
+type RecognizerTupleNormalized = {
+  recognizer: Recognizer;
+  /** Allow another gesture to be recognized simultaneously with this one.
+   * For example an interaction can trigger pinch and rotate at the same time. */
+  recognizeWith?: string[];
+  /** Another recognizer is mutually exclusive with this one.
+   * For example an interaction could be singletap or doubletap; pan-horizontal or pan-vertical; but never both. */
+  requireFailure?: string[];
+};
 
 export type EventManagerOptions = {
   /** Event listeners */
@@ -35,6 +63,27 @@ export type EventManagerOptions = {
    */
   cssProps?: Partial<CSSStyleDeclaration>;
 };
+
+function normalizeRecognizer(item: RecognizerTuple): RecognizerTupleNormalized {
+  if ('recognizer' in item) {
+    return item;
+  }
+  let recognizer: Recognizer;
+  const itemArray = Array.isArray(item) ? [...item] : [item];
+  if (typeof itemArray[0] === 'function') {
+    // Backward compatibility: v2 / hammerjs style
+    const RecognizerType = itemArray.shift();
+    const options = itemArray.shift() || {};
+    recognizer = new RecognizerType(options);
+  } else {
+    recognizer = itemArray.shift();
+  }
+  return {
+    recognizer,
+    recognizeWith: itemArray[0] as unknown as string[],
+    requireFailure: itemArray[1] as unknown as string[]
+  };
+}
 
 // Unified API for subscribing to events about both
 // basic input events (e.g. 'mousemove', 'touchstart', 'wheel')
@@ -67,6 +116,16 @@ export class EventManager {
     if (!element) return;
 
     this.manager = new HammerManager(element, this.options);
+    for (const item of this.options.recognizers) {
+      const {recognizer, recognizeWith, requireFailure} = normalizeRecognizer(item);
+      this.manager.add(recognizer);
+      if (recognizeWith) {
+        recognizer.recognizeWith(recognizeWith);
+      }
+      if (requireFailure) {
+        recognizer.requireFailure(requireFailure);
+      }
+    }
 
     this.manager.on('hammer.input', this._onBasicInput);
 
