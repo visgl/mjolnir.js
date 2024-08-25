@@ -1,7 +1,7 @@
 {
   "name": "mjolnir.js",
   "description": "An Event Manager",
-  "version": "2.7.3",
+  "version": "3.0.0-alpha.1",
   "type": "module",
   "keywords": [
     "hammerjs",
@@ -46,8 +46,7 @@
   "pre-commit": [
     "test"
   ],
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "jsdom": "^16.0.0",
     "ocular-dev-tools": "2.0.0-alpha.33",

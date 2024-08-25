@@ -1,5 +1,12 @@
 # Change Log
 
+#### [3.0.0-alpha.1] - Aug 24, 2024
+
+- ES module
+- Improved TypeScript definitions
+- Hammer.js is no longer a dependency due to the lack of maintenance. It has been ported to TypeScript and incorporated into mjolnir.js' code base. This will allow us to better address bugs and security issues moving forward.
+
+
 #### [2.7.2] - May 16, 2024
 
 - Remove use of deprecated MouseEvent.which property (#1)
