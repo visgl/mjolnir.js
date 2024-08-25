@@ -116,11 +116,18 @@ Remarks:
 ### Recognize gestures
 
 To emit gesture events from user input, the application should pass a list of recognizers to the `EventManager` constructor.
-Each item in the `recognizers` list can be either a recognizer instance, or an array in the following form:
-
-- `recognizer` - a recognizer instance
-- `recognizeWith` (string | string[]) - Allow another gesture to be recognized simultaneously with this one. For example an interaction can trigger pinch and rotate at the same time.
-- `requireFailure` (string | string[]) - Another recognizer is mutually exclusive with this one. For example an interaction could be singletap or doubletap; pan-horizontal or pan-vertical; but never both.
+Each item in the `recognizers` list can be one of:
+- A recognizer class, e.g. `Pan`
+- A recognizer instance, e.g. `new Pan({pointers: 2})`
+- An array in the following form:
+  + `RecognizerClass` - A recognizer class
+  + `options` (object, optional) - An object that is the recognizer options
+  + `recognizeWith` (string | string[], optional) - Allow another gesture to be recognized simultaneously with this one. For example an interaction can trigger pinch and rotate at the same time.
+  + `requireFailure` (string | string[], optional) - Another recognizer is mutually exclusive with this one. For example an interaction could be singletap or doubletap; pan-horizontal or pan-vertical; but never both.
+- An object with the following field:
+  + `recognizer` - A recognizer instance
+  + `recognizeWith` (string[], optional) - Allow another gesture to be recognized simultaneously with this one. For example an interaction can trigger pinch and rotate at the same time.
+  + `requireFailure` (string[], optional) - Another recognizer is mutually exclusive with this one. For example an interaction could be singletap or doubletap; pan-horizontal or pan-vertical; but never both.
 
 The following recognizers are available for use:
 

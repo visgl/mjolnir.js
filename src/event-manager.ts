@@ -80,8 +80,8 @@ function normalizeRecognizer(item: RecognizerTuple): RecognizerTupleNormalized {
   }
   return {
     recognizer,
-    recognizeWith: itemArray[0] as unknown as string[],
-    requireFailure: itemArray[1] as unknown as string[]
+    recognizeWith: typeof itemArray[0] === 'string' ? [itemArray[0]] : itemArray[0],
+    requireFailure: typeof itemArray[1] === 'string' ? [itemArray[1]] : itemArray[1]
   };
 }
 
