@@ -10,7 +10,7 @@
     "swizzle": "docusaurus swizzle",
     "clear": "docusaurus clear",
     "serve": "docusaurus serve",
-    "write-heading-ids": "ts-node scripts/write-heading-ids.ts",
+    "write-heading-ids": "ocular-doc-headers ../docs",
     "deploy": "docusaurus deploy"
   },
   "resolution_notes": {
@@ -21,16 +21,9 @@
   },
   "dependencies": {
     "@docusaurus/core": "^2.0.0",
-    "@docusaurus/plugin-client-redirects": "^2.0.0",
-    "@docusaurus/plugin-content-docs": "^2.0.0",
-    "@docusaurus/preset-classic": "^2.0.0",
-    "@mdx-js/react": "^1.6.22",
+    "@vis.gl/docusaurus-website": "1.0.0-alpha.5",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "styled-components": "^5.3.3",
-    "@cmfcmf/docusaurus-search-local": "^1.0.0",
-    "babel-plugin-styled-components": "^2.0.0",
-    "ts-node": "~10.9.1"
+    "react-dom": "^18.2.0"
   },
   "browserslist": [
     ">0.2% and supports async-functions",
