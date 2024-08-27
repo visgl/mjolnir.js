@@ -38,7 +38,7 @@ export default function App() {
     evt.srcEvent.preventDefault();
     evt.stopPropagation();
 
-    setEventLog(curr => {
+    setEventLog((curr) => {
       curr = curr.slice(0, 30);
       curr.unshift(evt);
       return curr;
@@ -72,7 +72,7 @@ export default function App() {
       } else {
         eventManager.off(name, handleEvent);
       }
-      setOptions(curr => ({...curr, [name]: checked}));
+      setOptions((curr) => ({...curr, [name]: checked}));
     },
     [eventManager]
   );
@@ -80,7 +80,7 @@ export default function App() {
   return (
     <div id="container">
       <div id="options">
-        {EVENTS.map(eventName => (
+        {EVENTS.map((eventName) => (
           <Checkbox
             key={eventName}
             eventName={eventName}
@@ -90,7 +90,7 @@ export default function App() {
         ))}
       </div>
       <div id="content">
-        <div id="background" ref={rootRef} onContextMenu={evt => evt.preventDefault()}>
+        <div id="background" ref={rootRef} onContextMenu={(evt) => evt.preventDefault()}>
           <div id="red-box" ref={redBoxRef} />
         </div>
         <div id="logs">{eventLog.map(renderEventLogEntry)}</div>

@@ -8,13 +8,13 @@
     "transpileOnly": true
   },
   "compilerOptions": {
-    "target": "es2020",
+    "target": "ES2020",
+    "module": "ES2020",
     "jsx": "react",
     "strictNullChecks": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "moduleResolution": "node",
-    "module": "ES2020",
     "paths": {
       "mjolnir.js": ["./src"]
     }

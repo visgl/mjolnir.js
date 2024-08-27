@@ -34,8 +34,7 @@
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "bootstrap": "yarn && ocular-bootstrap",
-    "start": "(cd examples/main && (path-exists node_modules || npm i) && npm run start-local)",
-    "build": "ocular-clean && ocular-build",
+    "build": "ocular-clean && ocular-build && npm run build-bundle",
     "build-bundle": "ocular-bundle ./src/index.ts",
     "lint": "ocular-lint",
     "cover": "ocular-test cover",
@@ -49,7 +48,8 @@
   "dependencies": {},
   "devDependencies": {
     "jsdom": "^16.0.0",
-    "ocular-dev-tools": "2.0.0-alpha.33",
+    "@vis.gl/dev-tools": "1.0.0-alpha.8",
+    "@vis.gl/ts-plugins": "1.0.0-alpha.8",
     "pre-commit": "^1.2.2",
     "puppeteer": "^22.0.0"
   },

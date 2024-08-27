@@ -1,10 +1,11 @@
-/** @typedef {import('ocular-dev-tools').OcularConfig} OcularConfig */
+/** @typedef {import('@vis.gl/dev-tools').OcularConfig} OcularConfig */
 import {resolve} from 'path';
 
 /** @type OcularConfig */
 export default {
   lint: {
-    paths: ['src', 'examples', 'test', 'docs']
+    paths: ['src', 'examples', 'test', 'docs'],
+    extensions: ['js', 'mjs', 'jsx', 'ts', 'tsx', 'd.ts', 'md']
   },
 
   bundle: {
@@ -16,8 +17,6 @@ export default {
   typescript: {
     project: 'tsconfig.build.json'
   },
-
-  babel: false,
 
   alias: {
     'mjolnir.js': resolve('./src')

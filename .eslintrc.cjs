@@ -1,13 +1,7 @@
-const {getESLintConfig} = require('ocular-dev-tools/configuration');
+const {getESLintConfig} = require('@vis.gl/dev-tools/configuration');
 
 module.exports = getESLintConfig({
   overrides: {
-    parser: '',
-    parserOptions: {
-      project: ['./tsconfig.json'],
-      ecmaVersion: 2020
-    },
-
     env: {
       es2020: true
       // browser: true,
@@ -28,7 +22,16 @@ module.exports = getESLintConfig({
           indent: 0,
           'max-statements': 1,
           complexity: 1,
+
+          // https://github.com/typescript-eslint/typescript-eslint/issues/2483
+          "no-shadow": 0,
+          "@typescript-eslint/no-shadow": 2,
+
+          "no-use-before-define": 0,
+          "@typescript-eslint/no-use-before-define": 2,
+
           '@typescript-eslint/ban-ts-comment': 0,
+          '@typescript-eslint/ban-types': 0,
           '@typescript-eslint/explicit-module-boundary-types': 0,
           '@typescript-eslint/no-unsafe-assignment': 0,
           '@typescript-eslint/no-unsafe-member-access': 0,
