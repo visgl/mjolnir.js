@@ -12,3 +12,6 @@ yarn-error.log
 .reify-cache
 .nyc_output
 dist.min.js
+
+website/.docusaurus
+website/build
