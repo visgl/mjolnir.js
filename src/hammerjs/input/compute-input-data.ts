@@ -62,8 +62,8 @@ export function computeInputData(manager: Manager, input: RawInput): HammerInput
   input.maxPointers = !session.prevInput
     ? input.pointers.length
     : input.pointers.length > session.prevInput.maxPointers
-    ? input.pointers.length
-    : session.prevInput.maxPointers;
+      ? input.pointers.length
+      : session.prevInput.maxPointers;
 
   // find the correct target
   let target = manager.element!;

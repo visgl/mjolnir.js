@@ -27,11 +27,11 @@ export class KeyInput extends Input<MjolnirKeyEventRaw, Required<KeyInputOptions
 
     element.tabIndex = this.options.tabIndex;
     element.style.outline = 'none';
-    KEY_EVENTS.forEach(event => element.addEventListener(event, this.handleEvent));
+    KEY_EVENTS.forEach((event) => element.addEventListener(event, this.handleEvent));
   }
 
   destroy() {
-    KEY_EVENTS.forEach(event => this.element.removeEventListener(event, this.handleEvent));
+    KEY_EVENTS.forEach((event) => this.element.removeEventListener(event, this.handleEvent));
   }
 
   /**

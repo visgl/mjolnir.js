@@ -26,23 +26,23 @@ export function spy(obj?: object, methodName?: string): SpyFunction {
   }
 
   // @ts-ignore
-  const spy: SpyFunction = function (...args) {
-    spy.callCount++;
-    spy.called = true;
+  const spyInstance: SpyFunction = function (...args) {
+    spyInstance.callCount++;
+    spyInstance.called = true;
     /* eslint-disable no-invalid-this */
     return func.apply(this, args);
   };
 
-  spy.callCount = 0;
-  spy.called = false;
-  spy.reset = () => {
-    spy.callCount = 0;
-    spy.called = false;
+  spyInstance.callCount = 0;
+  spyInstance.called = false;
+  spyInstance.reset = () => {
+    spyInstance.callCount = 0;
+    spyInstance.called = false;
   };
-  spy.restore = () => {
+  spyInstance.restore = () => {
     obj[methodName] = func;
   };
 
-  obj[methodName] = spy;
-  return spy;
+  obj[methodName] = spyInstance;
+  return spyInstance;
 }

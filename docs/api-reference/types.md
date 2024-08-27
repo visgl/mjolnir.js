@@ -30,7 +30,6 @@
 - `stopPropagation` (() => void) - Do not invoke handlers registered for any ancestors in the DOM tree.
 - `stopImmediatePropagation` (() => void) - Do not invoke any other handlers registered for the same element or its ancestors.
 
-
 ### MjolnirPointerEvent
 
 Emitted by `pointer*` events. Extends `MjolnirEvent` with the following fields:
@@ -39,7 +38,6 @@ Emitted by `pointer*` events. Extends `MjolnirEvent` with the following fields:
 - `middleButton` (boolean) - Flag indicating whether the middle mouse button is involved during the event
 - `rightButton` (boolean) - Flag indicating whether the right mouse button is involved during the event
 - `pointerType` (string) - A string indicating the type of input (e.g. `'mouse'`, `'touch'`, `'pen'`)
-
 
 ### MjolnirGestureEvent
 
@@ -62,7 +60,6 @@ Emitted by recognizers (`Pan`, `Rotate` etc.). Extends `MjolnirEvent` with the f
 - `leftButton` (boolean) - Flag indicating whether the left mouse button is involved during the event
 - `middleButton` (boolean) - Flag indicating whether the middle mouse button is involved during the event
 - `rightButton` (boolean) - Flag indicating whether the right mouse button is involved during the event
-
 
 ### MjolnirWheelEvent
 

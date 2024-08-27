@@ -48,9 +48,7 @@ const eventManager = new EventManager(document.getElementById('container'), {
 eventManager.destroy();
 ```
 
-
 ## Using with React
-
 
 ```tsx
 import React, {useRef, useEffect} from 'react';
@@ -78,4 +76,4 @@ function App() {
 }
 ```
 
-*Note that React's event chain is independent from that of mjolnir.js'. Therefore, a `click` event handler registered with mjolnir.js cannot be blocked by calling `stopPropagation` on a React `onClick` event.*
+_Note that React's event chain is independent from that of mjolnir.js'. Therefore, a `click` event handler registered with mjolnir.js cannot be blocked by calling `stopPropagation` on a React `onClick` event._

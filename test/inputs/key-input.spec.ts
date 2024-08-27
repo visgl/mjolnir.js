@@ -7,7 +7,7 @@ import {KeyInput} from 'mjolnir.js/inputs/key-input';
 import {spy} from '../test-utils/spy';
 import {createEventTarget} from '../test-utils/dom';
 
-test('keyInput#constructor', t => {
+test('keyInput#constructor', (t) => {
   const element = createEventTarget();
 
   const numKeyEvents = 2; // KEY_EVENTS.length
@@ -24,7 +24,7 @@ test('keyInput#constructor', t => {
   t.end();
 });
 
-test('keyInput#destroy', t => {
+test('keyInput#destroy', (t) => {
   const element = createEventTarget();
   const numKeyEvents = 2; // KEY_EVENTS.length
   const removeELSpy = spy(element, 'removeEventListener');
@@ -41,7 +41,7 @@ test('keyInput#destroy', t => {
 });
 
 /* eslint-disable max-statements */
-test('keyInput#enableEventType', t => {
+test('keyInput#enableEventType', (t) => {
   const element = createEventTarget();
   const keyDownMock = {
     type: 'keydown',

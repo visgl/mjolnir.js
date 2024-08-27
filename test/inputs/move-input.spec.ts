@@ -7,7 +7,7 @@ import {MoveInput} from 'mjolnir.js/inputs/move-input';
 import {spy} from '../test-utils/spy';
 import {createEventTarget} from '../test-utils/dom';
 
-test('moveInput#constructor', t => {
+test('moveInput#constructor', (t) => {
   const element = createEventTarget();
   const numMouseEvents = 6; // MOUSE_EVENTS.length
   const addELSpy = spy(element, 'addEventListener');
@@ -21,7 +21,7 @@ test('moveInput#constructor', t => {
   t.end();
 });
 
-test('moveInput#destroy', t => {
+test('moveInput#destroy', (t) => {
   const element = createEventTarget();
   const numMouseEvents = 6; // MOUSE_EVENTS.length
   const removeELSpy = spy(element, 'removeEventListener');
@@ -37,7 +37,7 @@ test('moveInput#destroy', t => {
   t.end();
 });
 
-test('moveInput#handleEvent', t => {
+test('moveInput#handleEvent', (t) => {
   const element = createEventTarget();
   const callbackSpy = spy();
   const mouseDownMock = {
@@ -78,13 +78,13 @@ test('moveInput#handleEvent', t => {
   t.end();
 });
 
-test('moveInput#enableEventType', t => {
+test('moveInput#enableEventType', (t) => {
   const element = createEventTarget();
 
   let callbackSpy;
   let moveInput;
 
-  t.test('pointermove', assert => {
+  t.test('pointermove', (assert) => {
     const mouseHoverMock = {
       type: 'mousemove',
       button: 0,
@@ -106,7 +106,7 @@ test('moveInput#enableEventType', t => {
     assert.end();
   });
 
-  t.test('pointerleave', assert => {
+  t.test('pointerleave', (assert) => {
     const mouseLeaveMock = {
       type: 'mouseleave',
       target: element
@@ -126,7 +126,7 @@ test('moveInput#enableEventType', t => {
     assert.end();
   });
 
-  t.test('pointerover', assert => {
+  t.test('pointerover', (assert) => {
     const mouseOverMock = {
       type: 'mouseover',
       target: element
@@ -146,7 +146,7 @@ test('moveInput#enableEventType', t => {
     assert.end();
   });
 
-  t.test('pointerout', assert => {
+  t.test('pointerout', (assert) => {
     const mouseOutMock = {
       type: 'mouseout',
       target: element

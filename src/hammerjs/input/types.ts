@@ -65,6 +65,13 @@ export type RawInput = {
 };
 
 /**
+ * Emitted input event */
+export type HammerInput = Omit<Required<RawInput>, 'isFirst' | 'isFinal'> & {
+  /** Number of consecutive taps recognized. Populated if emitted by TapRecognizer */
+  tapCount?: number;
+};
+
+/**
  * Simplified HammerInput object retained in memory to help event processing */
 export type SimpleInput = {
   pointers: PointerEventLike[];
@@ -91,11 +98,4 @@ export type Session = {
   lastInterval?: HammerInput;
 
   prevented?: boolean;
-};
-
-/**
- * Emitted input event */
-export type HammerInput = Omit<Required<RawInput>, 'isFirst' | 'isFinal'> & {
-  /** Number of consecutive taps recognized. Populated if emitted by TapRecognizer */
-  tapCount?: number;
 };

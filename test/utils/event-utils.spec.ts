@@ -5,7 +5,7 @@
 import test from 'tape-promise/tape';
 import {whichButtons} from 'mjolnir.js/utils/event-utils';
 
-test('EventUtils#whichButtons', t => {
+test('EventUtils#whichButtons', (t) => {
   const TESTS = [
     {
       srcEvent: {

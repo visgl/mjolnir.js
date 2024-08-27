@@ -33,12 +33,6 @@ export type ManagerOptions = {
   inputTarget?: null | EventTarget;
 
   /**
-   * force an input class
-   * @default null
-   */
-  inputClass?: null | Function;
-
-  /**
    * Some CSS properties can be used to improve the working of Hammer.
    * Add them to this method and they will be set when creating a new Manager.
    */
@@ -55,7 +49,6 @@ const defaultOptions: Required<ManagerOptions> = {
   touchAction: 'compute',
   enable: true,
   inputTarget: null,
-  inputClass: null,
   cssProps: {
     /**
      * Disables text selection to improve the dragging gesture. Mainly for desktop browsers.
@@ -210,17 +203,14 @@ export class Manager {
   /**
    * get a recognizer by its event name.
    */
-  get(recognizer: Recognizer | string): Recognizer | null {
-    if (typeof recognizer === 'string') {
-      const {recognizers} = this;
-      for (let i = 0; i < recognizers.length; i++) {
-        if (recognizers[i].options.event === recognizer) {
-          return recognizers[i];
-        }
+  get(recognizerName: string): Recognizer | null {
+    const {recognizers} = this;
+    for (let i = 0; i < recognizers.length; i++) {
+      if (recognizers[i].options.event === recognizerName) {
+        return recognizers[i];
       }
-      return null;
     }
-    return recognizer;
+    return null;
   }
 
   /**
@@ -259,7 +249,8 @@ export class Manager {
       return this;
     }
 
-    const recognizer = this.get(recognizerOrName);
+    const recognizer =
+      typeof recognizerOrName === 'string' ? this.get(recognizerOrName) : recognizerOrName;
 
     // let's make sure this recognizer exists
     if (recognizer) {

@@ -19,6 +19,16 @@ import {EventRegistrar, HandlerOptions} from './utils/event-registrar';
 
 type RecognizerConstructor = {new (options: any): Recognizer};
 
+type RecognizerTupleNormalized = {
+  recognizer: Recognizer;
+  /** Allow another gesture to be recognized simultaneously with this one.
+   * For example an interaction can trigger pinch and rotate at the same time. */
+  recognizeWith?: string[];
+  /** Another recognizer is mutually exclusive with this one.
+   * For example an interaction could be singletap or doubletap; pan-horizontal or pan-vertical; but never both. */
+  requireFailure?: string[];
+};
+
 export type RecognizerTuple =
   | Recognizer
   | RecognizerConstructor
@@ -34,16 +44,6 @@ export type RecognizerTuple =
        * For example an interaction could be singletap or doubletap; pan-horizontal or pan-vertical; but never both. */
       requireFailure?: string | string[]
     ];
-
-type RecognizerTupleNormalized = {
-  recognizer: Recognizer;
-  /** Allow another gesture to be recognized simultaneously with this one.
-   * For example an interaction can trigger pinch and rotate at the same time. */
-  recognizeWith?: string[];
-  /** Another recognizer is mutually exclusive with this one.
-   * For example an interaction could be singletap or doubletap; pan-horizontal or pan-vertical; but never both. */
-  requireFailure?: string[];
-};
 
 export type EventManagerOptions = {
   /** Event listeners */
@@ -170,7 +170,7 @@ export class EventManager {
   on(events: MjolnirEventHandlers, opts?: HandlerOptions): void;
   on<EventT extends MjolnirEvent>(
     event: EventT['type'],
-    handler: (event: EventT) => void,
+    handler: (ev: EventT) => void,
     opts?: HandlerOptions
   ): void;
 
@@ -183,7 +183,7 @@ export class EventManager {
   once(events: MjolnirEventHandlers, opts?: HandlerOptions): void;
   once<EventT extends MjolnirEvent>(
     event: EventT['type'],
-    handler: (event: EventT) => void,
+    handler: (ev: EventT) => void,
     opts?: HandlerOptions
   ): void;
 
@@ -198,7 +198,7 @@ export class EventManager {
   watch(events: MjolnirEventHandlers, opts?: HandlerOptions): void;
   watch<EventT extends MjolnirEvent>(
     event: EventT['type'],
-    handler: (event: EventT) => void,
+    handler: (ev: EventT) => void,
     opts?: HandlerOptions
   ): void;
 
@@ -210,7 +210,7 @@ export class EventManager {
    * Deregister a previously-registered event handler.
    */
   off(events: MjolnirEventHandlers): void;
-  off<EventT extends MjolnirEvent>(event: EventT['type'], handler: (event: EventT) => void): void;
+  off<EventT extends MjolnirEvent>(event: EventT['type'], handler: (ev: EventT) => void): void;
 
   off(event: any, handler?: any) {
     this._removeEventHandler(event, handler);
@@ -249,8 +249,8 @@ export class EventManager {
       // @ts-ignore
       opts = handler;
       // If `event` is a map, call `on()` for each entry.
-      for (const [eventName, handler] of Object.entries(event)) {
-        this._addEventHandler(eventName, handler!, opts, once, passive);
+      for (const [eventName, eventHandler] of Object.entries(event)) {
+        this._addEventHandler(eventName, eventHandler!, opts, once, passive);
       }
       return;
     }
@@ -282,8 +282,8 @@ export class EventManager {
   private _removeEventHandler(event: string | MjolnirEventHandlers, handler?: MjolnirEventHandler) {
     if (typeof event !== 'string') {
       // If `event` is a map, call `off()` for each entry.
-      for (const [eventName, handler] of Object.entries(event)) {
-        this._removeEventHandler(eventName, handler);
+      for (const [eventName, eventHandler] of Object.entries(event)) {
+        this._removeEventHandler(eventName, eventHandler);
       }
       return;
     }
@@ -315,7 +315,7 @@ export class EventManager {
   }
 
   private _getRecognizerName(event: string): string | undefined {
-    return this.manager.recognizers.find(recognizer => {
+    return this.manager.recognizers.find((recognizer) => {
       return recognizer.getEventNames().includes(event);
     })?.options.event;
   }

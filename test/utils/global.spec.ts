@@ -5,7 +5,7 @@
 import test from 'tape-promise/tape';
 import {global, window, document, userAgent} from 'mjolnir.js/utils/globals';
 
-test('globals', t => {
+test('globals', (t) => {
   t.ok(global, 'global is an object');
   t.ok(window, 'window is an object');
   t.ok(document, 'document is an object');

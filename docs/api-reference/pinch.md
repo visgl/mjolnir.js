@@ -9,14 +9,12 @@ import {EventManager, Pinch} from 'mjolnir.js';
 
 const eventManager = new EventManager({
   // ...
-  recognizers: [
-    new Pinch({pointers: 2})
-  ]
+  recognizers: [new Pinch({pointers: 2})]
 });
 ```
 
-* `options` (object, optional) - Options
-  - `event` (string) -	Name of the event. Default `'pinch'`.
+- `options` (object, optional) - Options
+  - `event` (string) - Name of the event. Default `'pinch'`.
   - `pointers` (number) - Required pointers, with a minimal of 2. Default `2`.
   - `threshold` (number) - Minimal scale before recognizing. Default `0`.
 
@@ -29,7 +27,6 @@ const eventManager = new EventManager({
 - pinchcancel
 - pinchin
 - pinchout
-
 
 ## Source
 

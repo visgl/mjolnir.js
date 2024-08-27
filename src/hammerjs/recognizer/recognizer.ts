@@ -86,11 +86,16 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions = any> {
       return this;
     }
 
-    const {simultaneous} = this;
-    const otherRecognizer = this.manager.get(recognizerOrName);
-    if (!otherRecognizer) {
-      throw new Error(`Cannot find recognizer ${recognizerOrName}`);
+    let otherRecognizer: Recognizer | null;
+    if (typeof recognizerOrName === 'string') {
+      otherRecognizer = this.manager.get(recognizerOrName);
+      if (!otherRecognizer) {
+        throw new Error(`Cannot find recognizer ${recognizerOrName}`);
+      }
+    } else {
+      otherRecognizer = recognizerOrName;
     }
+    const {simultaneous} = this;
     if (!simultaneous[otherRecognizer.id]) {
       simultaneous[otherRecognizer.id] = otherRecognizer;
       otherRecognizer.recognizeWith(this);
@@ -109,7 +114,12 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions = any> {
       return this;
     }
 
-    const otherRecognizer = this.manager.get(recognizerOrName);
+    let otherRecognizer: Recognizer | null;
+    if (typeof recognizerOrName === 'string') {
+      otherRecognizer = this.manager.get(recognizerOrName);
+    } else {
+      otherRecognizer = recognizerOrName;
+    }
     if (otherRecognizer) {
       delete this.simultaneous[otherRecognizer.id];
     }
@@ -127,11 +137,16 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions = any> {
       return this;
     }
 
-    const {requireFail} = this;
-    const otherRecognizer = this.manager.get(recognizerOrName);
-    if (!otherRecognizer) {
-      throw new Error(`Cannot find recognizer ${recognizerOrName}`);
+    let otherRecognizer: Recognizer | null;
+    if (typeof recognizerOrName === 'string') {
+      otherRecognizer = this.manager.get(recognizerOrName);
+      if (!otherRecognizer) {
+        throw new Error(`Cannot find recognizer ${recognizerOrName}`);
+      }
+    } else {
+      otherRecognizer = recognizerOrName;
     }
+    const {requireFail} = this;
     if (requireFail.indexOf(otherRecognizer) === -1) {
       requireFail.push(otherRecognizer);
       otherRecognizer.requireFailure(this);
@@ -150,7 +165,12 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions = any> {
       return this;
     }
 
-    const otherRecognizer = this.manager.get(recognizerOrName);
+    let otherRecognizer: Recognizer | null;
+    if (typeof recognizerOrName === 'string') {
+      otherRecognizer = this.manager.get(recognizerOrName);
+    } else {
+      otherRecognizer = recognizerOrName;
+    }
     if (otherRecognizer) {
       const index = this.requireFail.indexOf(otherRecognizer);
       if (index > -1) {
@@ -164,7 +184,7 @@ export abstract class Recognizer<OptionsT extends RecognizerOptions = any> {
    * has require failures boolean
    */
   hasRequireFailures(): boolean {
-    return Boolean(this.requireFail.find(recognier => recognier.options.enable));
+    return Boolean(this.requireFail.find((recognier) => recognier.options.enable));
   }
 
   /**

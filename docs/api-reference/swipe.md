@@ -9,14 +9,12 @@ import {EventManager, InputDirection, Swipe} from 'mjolnir.js';
 
 const eventManager = new EventManager({
   // ...
-  recognizers: [
-    new Swipe({direction: InputDirection.Horizontal})
-  ]
+  recognizers: [new Swipe({direction: InputDirection.Horizontal})]
 });
 ```
 
-* `options` (object, optional) - Options
-  - `event` (string) -	Name of the event. Default `'swipe'`.
+- `options` (object, optional) - Options
+  - `event` (string) - Name of the event. Default `'swipe'`.
   - `pointers` (number) - Required pointers. Default `1`.
   - `threshold` (number) - Minimal distance required before recognizing. Default `10`.
   - `direction` {InputDirection} - Direction of the panning. Default `InputDirection.All`.
@@ -29,7 +27,6 @@ const eventManager = new EventManager({
 - swiperight
 - swipeup
 - swipedown
-
 
 ## Source
 

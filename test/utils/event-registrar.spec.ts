@@ -7,7 +7,7 @@ import {EventRegistrar} from 'mjolnir.js/utils/event-registrar';
 import {createEventTarget} from '../test-utils/dom';
 
 /* eslint-disable max-statements */
-test('EventRegistrar#add, remove', t => {
+test('EventRegistrar#add, remove', (t) => {
   const eventRegistrar = new EventRegistrar(null, 'test');
   const handler1 = () => {};
   const handler2 = () => {};
@@ -82,7 +82,7 @@ test('EventRegistrar#add, remove', t => {
   t.end();
 });
 
-test('EventRegistrar#normalizeEvent', t => {
+test('EventRegistrar#normalizeEvent', (t) => {
   const root = createEventTarget();
   const eventMock = {
     type: 'foo',
@@ -96,7 +96,7 @@ test('EventRegistrar#normalizeEvent', t => {
 
   let normalizedEvent;
   const eventRegistrar = new EventRegistrar({getElement: () => root});
-  eventRegistrar.add('foo', evt => {
+  eventRegistrar.add('foo', (evt) => {
     normalizedEvent = evt;
   });
 
@@ -116,7 +116,7 @@ test('EventRegistrar#normalizeEvent', t => {
   t.end();
 });
 
-test('EventRegistrar#propagation', t => {
+test('EventRegistrar#propagation', (t) => {
   const rootNode = createEventTarget({
     id: 'root',
     children: [
@@ -146,7 +146,7 @@ test('EventRegistrar#propagation', t => {
 
   const fooHandler =
     (message: string, stopPropagation = false, stopImmediatePropagation = false) =>
-    evt => {
+    (evt) => {
       handlerCalls.push(message);
       if (stopPropagation) {
         evt.stopPropagation();

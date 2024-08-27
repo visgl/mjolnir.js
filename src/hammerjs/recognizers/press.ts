@@ -54,7 +54,7 @@ export class PressRecognizer extends Recognizer<Required<PressRecognizerOptions>
   }
 
   getEventNames(): string[] {
-    return EVENT_NAMES.map(suffix => this.options.event + suffix);
+    return EVENT_NAMES.map((suffix) => this.options.event + suffix);
   }
 
   process(input: HammerInput) {

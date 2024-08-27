@@ -12,8 +12,8 @@ import {EventManager} from 'mjolnir.js';
 const eventManager = new EventManager(target, options);
 ```
 
-* `target` (HTMLElement) - DOM element on which event handlers will be registered.
-* `options` (object) - Options
+- `target` (HTMLElement) - DOM element on which event handlers will be registered.
+- `options` (object) - Options
   - `events` (object) - A map from event names to their handler functions, to register on init.
   - `recognizers` (RecognizerTuple[]) - Gesture recognizers. See [Recognize Gestures](#recognize-gestures) section below for usage.
   - `touchAction` (string) - Allow browser default touch actions. See [touch-action CSS property](https://developer.mozilla.org/en-US/docs/Web/CSS/touch-action). Use 'compute' to automatically set as the least restrictive value to support the recognizers. Default `'compute'`.
@@ -30,7 +30,7 @@ Tears down internal event management implementations.
 eventManager.destroy();
 ```
 
-*Note: It is recommended to call `destroy` when done since `EventManager` adds event listeners to `window`.*
+_Note: It is recommended to call `destroy` when done since `EventManager` adds event listeners to `window`._
 
 ### on
 
@@ -45,10 +45,10 @@ eventManager.on(eventMap, options);
 - `handler` ((event: MjolnirEvent) => void) - The function to be called on `event`.
 - `eventMap` (object) - A map from event names to their handler functions
 - `options` (object, optional)
-  + `srcElement` (HTMLElement) - The source element of this event. If provided, only events that are targeting this element or its decendants will invoke the handler. If ignored, default to the root element of the event manager. Events are propagated up the DOM tree.
-  + `priority` (number) - Handlers targeting the same `srcElement` will be executed by their priorities (higher numbers first). Handlers with the same priority will be executed in the order of registration. Default `0`.
+  - `srcElement` (HTMLElement) - The source element of this event. If provided, only events that are targeting this element or its decendants will invoke the handler. If ignored, default to the root element of the event manager. Events are propagated up the DOM tree.
+  - `priority` (number) - Handlers targeting the same `srcElement` will be executed by their priorities (higher numbers first). Handlers with the same priority will be executed in the order of registration. Default `0`.
 
-*Note: Unlike the DOM event system, developers are responsible of deregistering event handlers when `srcElement` is removed.*
+_Note: Unlike the DOM event system, developers are responsible of deregistering event handlers when `srcElement` is removed._
 
 ### once
 
@@ -111,23 +111,25 @@ eventManager.watch('dblClick', evt => evt.stopPropagation(), {srcElement: <child
 - `'contextmenu'`
 
 Remarks:
+
 - Keyboard events are fired when focus is on the EventManager's target element or its decendants, unless typing into a text input.
 
 ### Recognize gestures
 
 To emit gesture events from user input, the application should pass a list of recognizers to the `EventManager` constructor.
 Each item in the `recognizers` list can be one of:
+
 - A recognizer class, e.g. `Pan`
 - A recognizer instance, e.g. `new Pan({pointers: 2})`
 - An array in the following form:
-  + `RecognizerClass` - A recognizer class
-  + `options` (object, optional) - An object that is the recognizer options
-  + `recognizeWith` (string | string[], optional) - Allow another gesture to be recognized simultaneously with this one. For example an interaction can trigger pinch and rotate at the same time.
-  + `requireFailure` (string | string[], optional) - Another recognizer is mutually exclusive with this one. For example an interaction could be singletap or doubletap; pan-horizontal or pan-vertical; but never both.
+  - `RecognizerClass` - A recognizer class
+  - `options` (object, optional) - An object that is the recognizer options
+  - `recognizeWith` (string | string[], optional) - Allow another gesture to be recognized simultaneously with this one. For example an interaction can trigger pinch and rotate at the same time.
+  - `requireFailure` (string | string[], optional) - Another recognizer is mutually exclusive with this one. For example an interaction could be singletap or doubletap; pan-horizontal or pan-vertical; but never both.
 - An object with the following field:
-  + `recognizer` - A recognizer instance
-  + `recognizeWith` (string[], optional) - Allow another gesture to be recognized simultaneously with this one. For example an interaction can trigger pinch and rotate at the same time.
-  + `requireFailure` (string[], optional) - Another recognizer is mutually exclusive with this one. For example an interaction could be singletap or doubletap; pan-horizontal or pan-vertical; but never both.
+  - `recognizer` - A recognizer instance
+  - `recognizeWith` (string[], optional) - Allow another gesture to be recognized simultaneously with this one. For example an interaction can trigger pinch and rotate at the same time.
+  - `requireFailure` (string[], optional) - Another recognizer is mutually exclusive with this one. For example an interaction could be singletap or doubletap; pan-horizontal or pan-vertical; but never both.
 
 The following recognizers are available for use:
 
@@ -137,7 +139,6 @@ The following recognizers are available for use:
 - [Rotate](./rotate.md)
 - [Swipe](./swipe.md)
 - [Tap](./tap.md)
-
 
 ## Source
 

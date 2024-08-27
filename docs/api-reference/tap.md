@@ -4,7 +4,6 @@ Recognized when the pointer is doing a small tap/click. Multiple taps are recogn
 
 If an Tap recognizer has a failing requirement, it waits the interval time before emitting the event. This is because if you want to only trigger a doubletap, the recognizer needs to see if any other taps are coming in. Use [requireFailure](./event-manager.md#recognize-gesture) to distinguish single tap events from double tap.
 
-
 ## Constructor
 
 ```ts
@@ -19,8 +18,8 @@ const eventManager = new EventManager({
 });
 ```
 
-* `options` (object, optional) - Options
-  - `event` (string) -	Name of the event. Default `'tap'`.
+- `options` (object, optional) - Options
+  - `event` (string) - Name of the event. Default `'tap'`.
   - `pointers` (number) - Required pointers. Default `1`.
   - `taps` (number) - Amount of taps required. Default `1`.
   - `interval` (number) - Maximum time in ms between multiple taps. Default `300`.

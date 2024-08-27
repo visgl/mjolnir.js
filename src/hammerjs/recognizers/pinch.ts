@@ -44,7 +44,7 @@ export class PinchRecognizer extends AttrRecognizer<Required<PinchRecognizerOpti
   }
 
   getEventNames(): string[] {
-    return EVENT_NAMES.map(suffix => this.options.event + suffix);
+    return EVENT_NAMES.map((suffix) => this.options.event + suffix);
   }
 
   attrTest(input: HammerInput): boolean {

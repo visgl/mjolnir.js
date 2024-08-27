@@ -1,7 +1,6 @@
 import {AttrRecognizer} from './attribute';
-import {InputDirection} from '../input/input-consts';
+import {InputDirection, InputEvent} from '../input/input-consts';
 import {PanRecognizer} from './pan';
-import {InputEvent} from '../input/input-consts';
 import type {HammerInput} from '../input/types';
 
 export type SwipeRecognizerOptions = {
@@ -55,7 +54,7 @@ export class SwipeRecognizer extends AttrRecognizer<Required<SwipeRecognizerOpti
   }
 
   getEventNames(): string[] {
-    return EVENT_NAMES.map(suffix => this.options.event + suffix);
+    return EVENT_NAMES.map((suffix) => this.options.event + suffix);
   }
 
   attrTest(input: HammerInput): boolean {

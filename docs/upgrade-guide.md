@@ -2,7 +2,7 @@
 
 ## From 2.x to 3.0
 
-- `EventManager` no longer comes with a default set of recognizers. Specify `options.recognizers` to emit gesture events. 
+- `EventManager` no longer comes with a default set of recognizers. Specify `options.recognizers` to emit gesture events.
 - `EventManager`'s `recognizerOptions` prop is removed.
 - Element must be supplied when constructing `EventManager` and cannot be reassigned. To change the event target, destroy the existing event manager instance and construct a new one.
 - Hammer.js is no longer a dependency. Due to the lack of maintenance on the legacy hammerjs project, mjolnir.js has ported it to TypeScript and incorporated it into the code base. To configure recognizers (Pan, Pinch etc.), directly import them from `mjolnir.js`. For details, see the documentation of each recognizer.

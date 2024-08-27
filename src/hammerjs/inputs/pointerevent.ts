@@ -42,7 +42,7 @@ export class PointerEventInput extends Input {
     const isTouch = pointerType === 'touch';
 
     // get index of the event in the store
-    let storeIndex = store.findIndex(e => e.pointerId === ev.pointerId);
+    let storeIndex = store.findIndex((e) => e.pointerId === ev.pointerId);
 
     // start and mouse must be down
     if (eventType & InputEvent.Start && (ev.buttons || isTouch)) {

@@ -48,11 +48,11 @@ export class MoveInput extends Input<MjolnirPointerEventRaw, Required<InputOptio
     this.enableOutEvent = enable;
     this.enableOverEvent = enable;
 
-    MOUSE_EVENTS.forEach(event => element.addEventListener(event, this.handleEvent));
+    MOUSE_EVENTS.forEach((event) => element.addEventListener(event, this.handleEvent));
   }
 
   destroy() {
-    MOUSE_EVENTS.forEach(event => this.element.removeEventListener(event, this.handleEvent));
+    MOUSE_EVENTS.forEach((event) => this.element.removeEventListener(event, this.handleEvent));
   }
 
   /**

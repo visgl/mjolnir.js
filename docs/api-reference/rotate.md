@@ -9,14 +9,12 @@ import {EventManager, Rotate} from 'mjolnir.js';
 
 const eventManager = new EventManager({
   // ...
-  recognizers: [
-    new Rotate({pointers: 2})
-  ]
+  recognizers: [new Rotate({pointers: 2})]
 });
 ```
 
-* `options` (object, optional) - Options
-  - `event` (string) -	Name of the event. Default `'rotate'`.
+- `options` (object, optional) - Options
+  - `event` (string) - Name of the event. Default `'rotate'`.
   - `pointers` (number) - Required pointers, with a minimal of 2. Default `2`.
   - `threshold` (number) - Minimal rotation before recognizing. Default `0`.
 

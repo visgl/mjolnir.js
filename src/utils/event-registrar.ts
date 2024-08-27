@@ -116,7 +116,7 @@ export class EventRegistrar {
         }
       }
     }
-    this._active = handlers.some(entry => !entry.passive);
+    this._active = handlers.some((entry) => !entry.passive);
   }
 
   /**

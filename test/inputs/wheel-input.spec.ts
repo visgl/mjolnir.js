@@ -7,7 +7,7 @@ import {WheelInput} from 'mjolnir.js/inputs/wheel-input';
 import {spy} from '../test-utils/spy';
 import {createEventTarget} from '../test-utils/dom';
 
-test('wheelInput#constructor', t => {
+test('wheelInput#constructor', (t) => {
   const element = createEventTarget();
   const numWheelEvents = 1; // WHEEL_EVENTS.length
   const addELSpy = spy(element, 'addEventListener');
@@ -23,7 +23,7 @@ test('wheelInput#constructor', t => {
   t.end();
 });
 
-test('wheelInput#destroy', t => {
+test('wheelInput#destroy', (t) => {
   const element = createEventTarget();
   const numWheelEvents = 1; // WHEEL_EVENTS.length
   const removeELSpy = spy(element, 'removeEventListener');
@@ -39,7 +39,7 @@ test('wheelInput#destroy', t => {
   t.end();
 });
 
-test('moveInput#enableEventType', t => {
+test('moveInput#enableEventType', (t) => {
   const element = createEventTarget();
   const WHEEL_EVENT_TYPES = ['wheel']; // wheel-input.EVENT_TYPE
   const wheelInput = new WheelInput(element, null, {
@@ -49,7 +49,7 @@ test('moveInput#enableEventType', t => {
   t.notOk(wheelInput.options.enable, 'should not enable for unsupported event');
 
   t.ok(
-    WHEEL_EVENT_TYPES.every(event => {
+    WHEEL_EVENT_TYPES.every((event) => {
       wheelInput.options.enable = false;
       wheelInput.enableEventType(event, true);
       return wheelInput.options.enable;
@@ -61,7 +61,7 @@ test('moveInput#enableEventType', t => {
   t.end();
 });
 
-test('wheelInput#handleEvent', t => {
+test('wheelInput#handleEvent', (t) => {
   const element = createEventTarget();
 
   const wheelEventMock = {
@@ -74,7 +74,7 @@ test('wheelInput#handleEvent', t => {
   };
 
   let callbackParams = null;
-  const callback = evt => (callbackParams = evt);
+  const callback = (evt) => (callbackParams = evt);
 
   const wheelInput = new WheelInput(element, callback, {
     enable: false

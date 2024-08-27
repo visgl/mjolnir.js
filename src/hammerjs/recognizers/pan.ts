@@ -65,7 +65,7 @@ export class PanRecognizer extends AttrRecognizer<Required<PanRecognizerOptions>
   }
 
   getEventNames(): string[] {
-    return EVENT_NAMES.map(suffix => this.options.event + suffix);
+    return EVENT_NAMES.map((suffix) => this.options.event + suffix);
   }
 
   directionTest(input: HammerInput): boolean {

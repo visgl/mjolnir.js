@@ -7,7 +7,7 @@ import {EventManager, Tap, Pan} from 'mjolnir.js';
 import {spy} from './test-utils/spy';
 import {createEventTarget} from './test-utils/dom';
 
-test('eventManager#constructor', t => {
+test('eventManager#constructor', (t) => {
   const root = createEventTarget();
 
   let eventManager = new EventManager(root);
@@ -40,7 +40,7 @@ test('eventManager#constructor', t => {
   t.end();
 });
 
-test('eventManager#destroy', t => {
+test('eventManager#destroy', (t) => {
   const root = createEventTarget();
   const eventManager = new EventManager(root);
   const {manager, moveInput, wheelInput, keyInput} = eventManager;
@@ -72,7 +72,7 @@ test('eventManager#destroy', t => {
   t.end();
 });
 
-test('eventManager#on', t => {
+test('eventManager#on', (t) => {
   const root = createEventTarget();
   const eventManager = new EventManager(root, {
     recognizers: [new Tap({event: 'click'}), new Tap({event: 'dblclick', taps: 2})]
@@ -103,7 +103,7 @@ test('eventManager#on', t => {
   t.end();
 });
 
-test('eventManager#watch', t => {
+test('eventManager#watch', (t) => {
   const root = createEventTarget();
   const eventManager = new EventManager(root, {
     recognizers: [new Tap({event: 'click'}), new Tap({event: 'dblclick', taps: 2})]
@@ -118,7 +118,7 @@ test('eventManager#watch', t => {
   t.end();
 });
 
-test('eventManager#once', t => {
+test('eventManager#once', (t) => {
   const root = createEventTarget();
   const eventManager = new EventManager(root, {
     recognizers: [new Tap({event: 'click'}), new Tap({event: 'dblclick', taps: 2})]
@@ -149,7 +149,7 @@ test('eventManager#once', t => {
   t.end();
 });
 
-test('eventManager#off', t => {
+test('eventManager#off', (t) => {
   const root = createEventTarget();
   const eventManager = new EventManager(root, {
     recognizers: [new Tap({event: 'click'}), new Tap({event: 'dblclick', taps: 2}), new Pan()]
@@ -211,7 +211,7 @@ test('eventManager#off', t => {
   t.end();
 });
 
-test('eventManager#eventHandling', t => {
+test('eventManager#eventHandling', (t) => {
   const root = createEventTarget();
   const eventMock = {type: 'foo'};
   const eventManager = new EventManager(root);
@@ -225,7 +225,7 @@ test('eventManager#eventHandling', t => {
   t.end();
 });
 
-test('eventManager#normalizeEvent', t => {
+test('eventManager#normalizeEvent', (t) => {
   const root = createEventTarget();
   const eventMock = {
     type: 'foo',
@@ -240,7 +240,7 @@ test('eventManager#normalizeEvent', t => {
 
   let normalizedEvent;
 
-  eventManager.on('foo', evt => {
+  eventManager.on('foo', (evt) => {
     normalizedEvent = evt;
   });
 
@@ -256,7 +256,7 @@ test('eventManager#normalizeEvent', t => {
   t.end();
 });
 
-test('eventManager#propagation', t => {
+test('eventManager#propagation', (t) => {
   const rootNode = createEventTarget({
     id: 'root',
     children: [
@@ -275,7 +275,7 @@ test('eventManager#propagation', t => {
 
   const fooHandler =
     (message: string, stopPropagation = false) =>
-    evt => {
+    (evt) => {
       handlerCalls.push(message);
       if (stopPropagation) {
         evt.stopPropagation();
