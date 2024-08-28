@@ -12,15 +12,7 @@ const config = getDocusaurusConfig({
   examplesDir: './src/examples',
   exampleTableOfContents: require('./src/examples/table-of-contents.json'),
 
-  search: 'local',
-
-  webpackConfig: {
-    resolve: {
-      alias: {
-        'mjolnir.js': resolve('../src')
-      }
-    }
-  }
+  search: 'local'
 });
 
 module.exports = config;

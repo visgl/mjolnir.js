@@ -32,28 +32,27 @@
     "dist.min.js"
   ],
   "scripts": {
-    "typecheck": "tsc -p tsconfig.json --noEmit",
     "bootstrap": "yarn && ocular-bootstrap",
     "build": "ocular-clean && ocular-build && npm run build-bundle",
     "build-bundle": "ocular-bundle ./src/index.ts",
     "lint": "ocular-lint",
     "cover": "ocular-test cover",
-    "publish-prod": "ocular-publish prod",
-    "publish-beta": "ocular-publish beta",
+    "publish-prod": "ocular-publish version-only-prod",
+    "publish-beta": "ocular-publish version-only-beta",
     "test": "ocular-test"
   },
   "pre-commit": [
     "test"
   ],
-  "dependencies": {},
   "devDependencies": {
+    "@vis.gl/dev-tools": "1.0.0-alpha.13",
+    "@vis.gl/ts-plugins": "1.0.0-alpha.13",
     "jsdom": "^16.0.0",
-    "@vis.gl/dev-tools": "1.0.0-alpha.8",
-    "@vis.gl/ts-plugins": "1.0.0-alpha.8",
     "pre-commit": "^1.2.2",
     "puppeteer": "^22.0.0"
   },
-  "engines": {
-    "node": ">= 18"
+  "volta": {
+    "node": "20.15.1",
+    "yarn": "4.3.1"
   }
 }
