@@ -1,5 +1,9 @@
 # Change Log
 
+#### v3.0.0-alpha.3 - Aug 27, 2024
+
+- chore: switch to @vis.gl/dev-tools and CI release
+
 #### [3.0.0-alpha.1] - Aug 24, 2024
 
 - ES module
