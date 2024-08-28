@@ -1,5 +1,4 @@
 const {getDocusaurusConfig} = require('@vis.gl/docusaurus-website');
-const {resolve} = require('path');
 
 const config = getDocusaurusConfig({
   projectName: 'mjolnir.js',
