@@ -1,5 +1,9 @@
 # Change Log
 
+#### v3.0.0-alpha.4 - Aug 28, 2024
+
+- fix: build config and import paths
+
 #### v3.0.0-alpha.3 - Aug 27, 2024
 
 - chore: switch to @vis.gl/dev-tools and CI release
