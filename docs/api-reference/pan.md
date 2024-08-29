@@ -17,7 +17,7 @@ const eventManager = new EventManager({
   - `event` (string) - Name of the event. Default `'pan'`.
   - `pointers` (number) - Required pointers. Default `1`.
   - `threshold` (number) - Minimal pan distance required before recognizing. Default `10`.
-  - `direction` {InputDirection} - Direction of the panning. Default `InputDirection.All`.
+  - `direction` (InputDirection) - Direction of the panning. Default `InputDirection.All`.
 
 ## Events
 

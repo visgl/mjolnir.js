@@ -17,7 +17,7 @@ const eventManager = new EventManager({
   - `event` (string) - Name of the event. Default `'swipe'`.
   - `pointers` (number) - Required pointers. Default `1`.
   - `threshold` (number) - Minimal distance required before recognizing. Default `10`.
-  - `direction` {InputDirection} - Direction of the panning. Default `InputDirection.All`.
+  - `direction` (InputDirection) - Direction of the panning. Default `InputDirection.All`.
   - `velocity` (number) - Minimal velocity required before recognizing, unit is in px per ms. Default `0.3`.
 
 ## Events
