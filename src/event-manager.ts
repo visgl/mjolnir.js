@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) vis.gl contributors
 
-import {Manager as HammerManager, Recognizer} from './hammerjs';
+import {Manager as HammerManager, Recognizer} from './hammerjs/index';
 import type {
   MjolnirEventRaw,
   MjolnirEvent,

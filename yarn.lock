@@ -1484,9 +1484,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vis.gl/dev-tools@npm:1.0.0-alpha.15":
-  version: 1.0.0-alpha.15
-  resolution: "@vis.gl/dev-tools@npm:1.0.0-alpha.15"
+"@vis.gl/dev-tools@npm:1.0.0-alpha.18":
+  version: 1.0.0-alpha.18
+  resolution: "@vis.gl/dev-tools@npm:1.0.0-alpha.18"
   dependencies:
     "@esbuild-plugins/node-globals-polyfill": "npm:^0.2.0"
     "@esbuild-plugins/node-modules-polyfill": "npm:^0.2.0"
@@ -1527,19 +1527,19 @@ __metadata:
     ocular-metrics: scripts/metrics.js
     ocular-publish: scripts/publish.js
     ocular-test: scripts/test.js
-  checksum: 10c0/724c953577d06aac88bbb8f742dd2ea41a00b534b574aef6fbbb712bb2c2be6c3523788316b029dbcb2e1c611e6204a9b3f420ff864bd2157e2ed4b299f2d0f4
+  checksum: 10c0/be08859ad56cbb05580784ca8a9c03934fa5f33b5cf6b8a995531b4af377dab4dd967d9a779c4a0d46a7d994ce41814ded32263181746a3c622c9cd0899663be
   languageName: node
   linkType: hard
 
-"@vis.gl/ts-plugins@npm:1.0.0-alpha.15":
-  version: 1.0.0-alpha.15
-  resolution: "@vis.gl/ts-plugins@npm:1.0.0-alpha.15"
+"@vis.gl/ts-plugins@npm:1.0.0-alpha.18":
+  version: 1.0.0-alpha.18
+  resolution: "@vis.gl/ts-plugins@npm:1.0.0-alpha.18"
   dependencies:
     "@luma.gl/constants": "npm:^9.0.0"
     minimatch: "npm:^3.0.0"
     ts-patch: "npm:^3.1.2"
     typescript: "npm:^5.2.2"
-  checksum: 10c0/44504bcf755acce8c2de2d914cedf20085d692a6ca6596cf2e09b63848727f5bd834e56325af1a50fe703f104ce533bf092b67a8ae11b5a9759a00d556bd5e81
+  checksum: 10c0/f8b3a7a5c683db683c5315e5c7ab299093da2e470c5e88ea3233474da6fe015abb9a763063390c933619ddd0a4d24bd75436c3228a3f312b5f6abec7bcaba22e
   languageName: node
   linkType: hard
 
@@ -6723,8 +6723,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "mjolnir.js@workspace:."
   dependencies:
-    "@vis.gl/dev-tools": "npm:1.0.0-alpha.15"
-    "@vis.gl/ts-plugins": "npm:1.0.0-alpha.15"
+    "@vis.gl/dev-tools": "npm:1.0.0-alpha.18"
+    "@vis.gl/ts-plugins": "npm:1.0.0-alpha.18"
     jsdom: "npm:^16.0.0"
     pre-commit: "npm:^1.2.2"
     puppeteer: "npm:^22.0.0"

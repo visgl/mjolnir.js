@@ -13,7 +13,7 @@ export {
   Tap,
   InputDirection,
   InputEvent
-} from './hammerjs';
+} from './hammerjs/index';
 
 // types
 export type {EventManagerOptions, RecognizerTuple} from './event-manager';
@@ -32,4 +32,4 @@ export type {
   SwipeRecognizerOptions,
   PressRecognizerOptions,
   TapRecognizerOptions
-} from './hammerjs';
+} from './hammerjs/index';
