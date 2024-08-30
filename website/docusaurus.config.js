@@ -2,7 +2,7 @@ const {getDocusaurusConfig} = require('@vis.gl/docusaurus-website');
 
 const config = getDocusaurusConfig({
   projectName: 'mjolnir.js',
-  tagline: 'An event manager',
+  tagline: 'A modern event manager',
   siteUrl: 'https://visgl.github.io/mjolnir.js',
   repoUrl: 'https://github.com/visgl/mjolnir.js',
 
