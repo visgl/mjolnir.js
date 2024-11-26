@@ -7,7 +7,7 @@ export default function hasParent(node: HTMLElement, parent: HTMLElement): boole
     if (ancester === parent) {
       return true;
     }
-    ancester = node.parentNode;
+    ancester = ancester.parentNode;
   }
   return false;
 }
