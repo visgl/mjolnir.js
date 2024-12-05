@@ -2,12 +2,12 @@
  * find if a node is in the given parent
  */
 export default function hasParent(node: HTMLElement, parent: HTMLElement): boolean {
-  let ancester: Node | null = node;
-  while (ancester) {
-    if (ancester === parent) {
+  let ancestor: Node | null = node;
+  while (ancestor) {
+    if (ancestor === parent) {
       return true;
     }
-    ancester = node.parentNode;
+    ancestor = ancestor.parentNode;
   }
   return false;
 }
