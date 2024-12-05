@@ -1,5 +1,9 @@
 # Change Log
 
+#### v3.0.0-beta.1 - Dec 4, 2024
+
+- Fix infinite loop (#8)
+
 #### v3.0.0-alpha.4 - Aug 28, 2024
 
 - fix: build config and import paths
