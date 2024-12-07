@@ -77,16 +77,8 @@ export type MjolnirEvent =
   | MjolnirWheelEvent
   | MjolnirKeyEvent;
 
-export type MjolnirEventHandler<EventT extends MjolnirEvent = any> = (event: EventT) => void;
+export type MjolnirEventHandler<EventT extends MjolnirEvent = MjolnirEvent> = (event: EventT) => void;
 
-export type MjolnirEventHandlers = Partial<
-  {
-    [type in MjolnirGestureEvent['type']]: (event: MjolnirGestureEvent) => void;
-  } & {
-    [type in MjolnirPointerEvent['type']]: (event: MjolnirPointerEvent) => void;
-  } & {
-    [type in MjolnirWheelEvent['type']]: (event: MjolnirWheelEvent) => void;
-  } & {
-    [type in MjolnirKeyEvent['type']]: (event: MjolnirKeyEvent) => void;
-  }
->;
+export type MjolnirEventHandlers = {
+  [type: string]: MjolnirEventHandler;
+};
