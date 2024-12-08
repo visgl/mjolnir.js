@@ -250,7 +250,7 @@ export class EventManager {
       opts = handler;
       // If `event` is a map, call `on()` for each entry.
       for (const [eventName, eventHandler] of Object.entries(event)) {
-        this._addEventHandler(eventName, eventHandler!, opts, once, passive);
+        this._addEventHandler(eventName, eventHandler, opts, once, passive);
       }
       return;
     }
