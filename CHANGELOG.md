@@ -1,5 +1,9 @@
 # Change Log
 
+#### v3.0.0-beta.4 - Dec 7, 2024
+
+- Update events option type
+
 #### v3.0.0-beta.3 - Dec 7, 2024
 
 - Update events option type
