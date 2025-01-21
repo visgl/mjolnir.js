@@ -1,5 +1,11 @@
 # Change Log
 
+#### v3.0.0 - Jan 21, 2025
+
+- Package is now a fully ESM-compliant module
+- Improved TypeScript definitions
+- Hammer.js is no longer a dependency due to the lack of maintenance. It has been ported to TypeScript and incorporated into mjolnir.js' code base. This will allow us to better address bugs and security issues moving forward.
+
 #### v3.0.0-beta.4 - Dec 7, 2024
 
 - Update events option type
