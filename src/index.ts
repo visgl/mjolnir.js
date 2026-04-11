@@ -18,6 +18,7 @@ export {
 // types
 export type {EventManagerOptions, RecognizerTuple} from './event-manager';
 export type {
+  MjolnirEventRaw,
   MjolnirEvent,
   MjolnirGestureEvent,
   MjolnirKeyEvent,
