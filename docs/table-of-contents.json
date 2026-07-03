@@ -13,6 +13,7 @@
     "label": "API Reference",
     "items": [
       "api-reference/event-manager",
+      "api-reference/double-click-drag",
       "api-reference/pan",
       "api-reference/pinch",
       "api-reference/press",
