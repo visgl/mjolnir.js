@@ -1,5 +1,9 @@
 # Change Log
 
+#### v3.0.1 - Jul 3, 2026
+
+- feat: add DoubleClickDrag recognizer (#13)
+
 #### v3.0.0 - Jan 21, 2025
 
 - Package is now a fully ESM-compliant module
