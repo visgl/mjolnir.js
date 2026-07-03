@@ -5,6 +5,7 @@
 export {EventManager} from './event-manager';
 export {
   Recognizer,
+  DoubleClickDrag,
   Pan,
   Rotate,
   Pinch,
@@ -26,6 +27,7 @@ export type {
 } from './types';
 
 export type {
+  DoubleClickDragRecognizerOptions,
   PanRecognizerOptions,
   RotateRecognizerOptions,
   PinchRecognizerOptions,

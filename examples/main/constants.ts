@@ -17,7 +17,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-import {Pan, Rotate, Pinch, Swipe, Press, Tap, RecognizerTuple} from 'mjolnir.js';
+import {Pan, Rotate, Pinch, Swipe, Press, Tap, DoubleClickDrag, RecognizerTuple} from 'mjolnir.js';
 
 export const RECOGNIZERS: RecognizerTuple[] = [
   [Rotate, {enable: false}],
@@ -25,6 +25,7 @@ export const RECOGNIZERS: RecognizerTuple[] = [
   [Swipe, {enable: false}],
   [Pan, {threshold: 1, enable: false}, ['pinch'], ['swipe']],
   [Press, {enable: false}],
+  [DoubleClickDrag, {event: 'dbclickdrag', enable: false}],
   [Tap, {event: 'dblclick', taps: 2, enable: false}],
   [Tap, {event: 'anyclick', enable: false}, ['dblclick']],
   [Tap, {event: 'click', enable: false}, ['anyclick'], ['dblclick']]
@@ -34,6 +35,10 @@ export const EVENTS = [
   'click',
   'anyclick',
   'dblclick',
+  'dbclickdragstart',
+  'dbclickdragmove',
+  'dbclickdragend',
+  'dbclickdragcancel',
   'pointerdown',
   'pointermove',
   'pointerup',
@@ -70,7 +75,10 @@ export const EVENTS = [
 
 export const INITIAL_OPTIONS = {
   click: true,
-  doubletap: true,
+  dblclick: true,
+  dbclickdragstart: true,
+  dbclickdragmove: true,
+  dbclickdragend: true,
   pinchstart: true,
   pinchmove: true,
   pinchend: true,

@@ -3,5 +3,6 @@
 // Copyright (c) vis.gl contributors
 
 import './event-manager.spec';
+import './hammerjs';
 import './inputs';
 import './utils';
