@@ -91,6 +91,10 @@ export default function App() {
       </div>
       <div id="content">
         <div id="background" ref={rootRef} onContextMenu={(evt) => evt.preventDefault()}>
+          <div id="gesture-hint">
+            Double-click or double-tap, then drag up or down to trigger
+            <code> doubleclickdrag </code>
+          </div>
           <div id="red-box" ref={redBoxRef} />
         </div>
         <div id="logs">{eventLog.map(renderEventLogEntry)}</div>
@@ -118,6 +122,9 @@ function renderEventLogEntry(evt: MjolnirEvent, index: number) {
         }
       </span>
       <span key="target">{evt.target.id}</span>
+      <span key="scale">
+        {evt.scale && evt.type.startsWith('doubleclickdrag') ? evt.scale.toFixed(2) : ''}
+      </span>
     </div>
   );
 }

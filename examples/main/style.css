@@ -30,6 +30,23 @@ body {
   position: relative;
   overflow: hidden;
 }
+#gesture-hint {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  z-index: 1;
+  max-width: 320px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  color: #1f2933;
+  font-size: 14px;
+  line-height: 1.4;
+}
+#gesture-hint code {
+  font-family: monospace;
+}
 #logs {
   text-align: center;
   font-size: 0.9em;
