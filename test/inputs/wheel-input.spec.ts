@@ -9,23 +9,19 @@ import {createEventTarget} from '../test-utils/dom';
 
 test('wheelInput#constructor', (t) => {
   const element = createEventTarget();
-  const numWheelEvents = 1; // WHEEL_EVENTS.length
   const addELSpy = spy(element, 'addEventListener');
   const wheelInput = new WheelInput(element, () => {}, {});
   t.ok(wheelInput, 'WheelInput created without optional params');
-  t.equal(
-    addELSpy.callCount,
-    numWheelEvents,
-    'should call addEventListener once for each passed event:handler pair'
-  );
+  t.equal(addELSpy.callCount, 0, 'does not add listeners while disabled');
 
+  wheelInput.destroy();
   element.remove();
   t.end();
 });
 
 test('wheelInput#destroy', (t) => {
   const element = createEventTarget();
-  const numWheelEvents = 1; // WHEEL_EVENTS.length
+  const numWheelEvents = 1;
   const removeELSpy = spy(element, 'removeEventListener');
   const wheelInput = new WheelInput(element, () => {}, {});
   wheelInput.destroy();
@@ -39,24 +35,29 @@ test('wheelInput#destroy', (t) => {
   t.end();
 });
 
-test('moveInput#enableEventType', (t) => {
+test('wheelInput#enableEventType', (t) => {
   const element = createEventTarget();
-  const WHEEL_EVENT_TYPES = ['wheel']; // wheel-input.EVENT_TYPE
+  const addELSpy = spy(element, 'addEventListener');
+  const removeELSpy = spy(element, 'removeEventListener');
   const wheelInput = new WheelInput(element, null, {
     enable: false
   });
   wheelInput.enableEventType('foo', true);
   t.notOk(wheelInput.options.enable, 'should not enable for unsupported event');
 
-  t.ok(
-    WHEEL_EVENT_TYPES.every((event) => {
-      wheelInput.options.enable = false;
-      wheelInput.enableEventType(event, true);
-      return wheelInput.options.enable;
-    }),
-    'should enable for all supported events'
-  );
+  wheelInput.enableEventType('wheel', true);
+  t.ok(wheelInput.options.enable, 'should enable for supported event');
+  t.equal(addELSpy.callCount, 1, 'adds the wheel listener');
+  wheelInput.enableEventType('wheel', true);
+  t.equal(addELSpy.callCount, 1, 'does not add listeners again when already enabled');
 
+  removeELSpy.reset();
+  wheelInput.enableEventType('wheel', false);
+  t.equal(removeELSpy.callCount, 1, 'removes the wheel listener');
+  wheelInput.enableEventType('wheel', false);
+  t.equal(removeELSpy.callCount, 1, 'does not remove listeners again when already disabled');
+
+  wheelInput.destroy();
   element.remove();
   t.end();
 });
@@ -83,7 +84,7 @@ test('wheelInput#handleEvent', (t) => {
   wheelInput.handleEvent(wheelEventMock);
   t.notOk(callbackParams, 'callback should not be called when disabled');
 
-  wheelInput.options.enable = true;
+  wheelInput.enableEventType('wheel', true);
   wheelInput.handleEvent(wheelEventMock);
   t.ok(callbackParams, 'callback should be called on wheel event when enabled');
   t.is(callbackParams.delta, -1, 'callback contains the correct delta');
@@ -93,8 +94,9 @@ test('wheelInput#handleEvent', (t) => {
   wheelEventMock.deltaY = 4.000244140625;
   wheelEventMock.shiftKey = true;
   wheelInput.handleEvent(wheelEventMock);
-  t.is(callbackParams.delta, -0.25, 'callback contains the correct delta');
+  t.is(callbackParams.delta, -1.00006103515625, 'callback contains the unscaled delta');
 
+  wheelInput.destroy();
   element.remove();
   t.end();
 });

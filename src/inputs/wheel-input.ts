@@ -10,24 +10,26 @@ import {userAgent} from '../utils/globals';
 const firefox = userAgent.indexOf('firefox') !== -1;
 
 // Constants for normalizing input delta
-const WHEEL_DELTA_MAGIC_SCALER = 4.000244140625;
 const WHEEL_DELTA_PER_LINE = 40;
 // Slow down zoom if shift key is held for more precise zooming
 const SHIFT_MULTIPLIER = 0.25;
 
-export class WheelInput extends Input<MjolnirWheelEventRaw, Required<InputOptions>> {
+export class WheelInput extends Input<MjolnirWheelEventRaw, InputOptions> {
   constructor(
     element: HTMLElement,
     callback: (event: MjolnirWheelEventRaw) => void,
     options: InputOptions
   ) {
-    super(element, callback, {enable: true, ...options});
+    options.enable = options.enable ?? false;
+    super(element, callback, options);
 
-    element.addEventListener('wheel', this.handleEvent, {passive: false});
+    if (options.enable) {
+      this.listen('wheel', true);
+    }
   }
 
   destroy() {
-    this.element.removeEventListener('wheel', this.handleEvent);
+    this.listen('wheel', false);
   }
 
   /**
@@ -35,8 +37,9 @@ export class WheelInput extends Input<MjolnirWheelEventRaw, Required<InputOption
    * if the specified event type is among those handled by this input.
    */
   enableEventType(eventType: string, enabled: boolean) {
-    if (eventType === 'wheel') {
+    if (eventType === 'wheel' && this.options.enable !== enabled) {
       this.options.enable = enabled;
+      this.listen('wheel', enabled);
     }
   }
 
@@ -55,12 +58,6 @@ export class WheelInput extends Input<MjolnirWheelEventRaw, Required<InputOption
       if (event.deltaMode === globalThis.WheelEvent.DOM_DELTA_LINE) {
         value *= WHEEL_DELTA_PER_LINE;
       }
-    }
-
-    if (value !== 0 && value % WHEEL_DELTA_MAGIC_SCALER === 0) {
-      // This one is definitely a mouse wheel event.
-      // Normalize this value to match trackpad.
-      value = Math.floor(value / WHEEL_DELTA_MAGIC_SCALER);
     }
 
     if (event.shiftKey && value) {
