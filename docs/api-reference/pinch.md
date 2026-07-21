@@ -7,7 +7,7 @@ Recognized when two or more pointers are moving toward (zoom-in) or away from ea
 ```ts
 import {EventManager, Pinch} from 'mjolnir.js';
 
-const eventManager = new EventManager({
+const eventManager = new EventManager(target, {
   // ...
   recognizers: [new Pinch({pointers: 2})]
 });
@@ -17,6 +17,27 @@ const eventManager = new EventManager({
   - `event` (string) - Name of the event. Default `'pinch'`.
   - `pointers` (number) - Required pointers, with a minimal of 2. Default `2`.
   - `threshold` (number) - Minimal scale before recognizing. Default `0`.
+  - `trackpad` (boolean) - Recognize trackpad pinch gestures from wheel events. This option is only used when `pointers` is `2`. Default `false`.
+
+### Trackpad pinch
+
+Trackpad support is opt-in:
+
+```ts
+import {EventManager, Pinch} from 'mjolnir.js';
+
+const eventManager = new EventManager(target, {
+  recognizers: [new Pinch({trackpad: true})]
+});
+
+eventManager.on('pinchmove', (event) => {
+  if (event.pointerType === 'trackpad') {
+    console.log(event.scale);
+  }
+});
+```
+
+The browser represents a trackpad pinch as a wheel sequence with `ctrlKey` set. Mjolnir.js converts this sequence into a continuous pinch lifecycle (`pinchstart`, `pinchmove`, and `pinchend`). Existing pointer and touch behavior is unchanged when `trackpad` is not enabled.
 
 ## Events
 

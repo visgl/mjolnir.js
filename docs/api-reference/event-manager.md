@@ -113,6 +113,8 @@ eventManager.watch('dblClick', evt => evt.stopPropagation(), {srcElement: <child
 Remarks:
 
 - Keyboard events are fired when focus is on the EventManager's target element or its decendants, unless typing into a text input.
+- `wheel` events are emitted for both mouse wheels and trackpads. See [`MjolnirWheelEvent`](./types.md#mjolnirwheelevent) for device classification.
+- Calling `preventDefault()` from a `wheel` handler prevents the browser's default scrolling behavior.
 
 ### Recognize gestures
 
@@ -139,6 +141,23 @@ The following recognizers are available for use:
 - [Rotate](./rotate.md)
 - [Swipe](./swipe.md)
 - [Tap](./tap.md)
+
+### Trackpad gestures
+
+`Pan` and `Pinch` can optionally recognize trackpad gestures. Trackpad recognition is disabled by default and does not change existing pointer or touch handling.
+
+```ts
+import {EventManager, Pan, Pinch} from 'mjolnir.js';
+
+const eventManager = new EventManager(target, {
+  recognizers: [
+    new Pan({event: 'trackpadpan', pointers: 2, trackpad: true}),
+    new Pinch({trackpad: true})
+  ]
+});
+```
+
+Two-finger scrolling can drive a two-pointer [Pan](./pan.md#trackpad-pan), while a trackpad pinch can drive [Pinch](./pinch.md#trackpad-pinch). Generated gesture events have `pointerType: 'trackpad'`.
 
 ## Source
 
