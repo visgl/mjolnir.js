@@ -116,6 +116,7 @@ function renderEventLogEntry(evt: MjolnirEvent, index: number) {
         {
           // @ts-ignore
           evt.key ||
+            evt.device ||
             (evt.leftButton && 'left button') ||
             (evt.middleButton && 'middle button') ||
             (evt.rightButton && 'right button')

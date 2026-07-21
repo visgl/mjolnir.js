@@ -13,7 +13,13 @@ test('eventManager#constructor', (t) => {
   let eventManager = new EventManager(root);
   t.ok(eventManager, 'EventManager created');
   t.ok(eventManager.manager, 'Hammer.Manager created');
+  t.ok(eventManager.wheelSession, 'WheelGestureSession created');
   t.ok(eventManager.wheelInput, 'WheelInput created');
+  t.is(
+    eventManager.wheelInput.options.wheelSession,
+    eventManager.wheelSession,
+    'WheelInput uses the shared WheelGestureSession'
+  );
   t.ok(eventManager.moveInput, 'MoveInput created');
   t.ok(eventManager.keyInput, 'MoveInput created');
   t.notOk(eventManager.events.size, 'No events are registered');
@@ -43,17 +49,19 @@ test('eventManager#constructor', (t) => {
 test('eventManager#destroy', (t) => {
   const root = createEventTarget();
   const eventManager = new EventManager(root);
-  const {manager, moveInput, wheelInput, keyInput} = eventManager;
+  const {manager, moveInput, wheelInput, wheelSession, keyInput} = eventManager;
 
   spy(manager, 'destroy');
   spy(moveInput, 'destroy');
   spy(wheelInput, 'destroy');
+  spy(wheelSession, 'destroy');
   spy(keyInput, 'destroy');
   eventManager.destroy();
 
   t.equal(manager.destroy.callCount, 1, 'Manager.destroy() should be called once');
   t.equal(moveInput.destroy.callCount, 1, 'MoveInput.destroy() should be called once');
   t.equal(wheelInput.destroy.callCount, 1, 'WheelInput.destroy() should be called once');
+  t.equal(wheelSession.destroy.callCount, 1, 'WheelGestureSession.destroy() should be called once');
   t.equal(keyInput.destroy.callCount, 1, 'KeyInput.destroy() should be called once');
 
   t.doesNotThrow(
@@ -285,10 +293,16 @@ test('eventManager#propagation', (t) => {
   // Should not be called (propagation stopped)
   eventManager.on('foo', fooHandler('foo@root'), {srcElement: rootNode});
   // Should be called
-  eventManager.on('foo', fooHandler('foo@child-0', true), {srcElement: childNode});
-  eventManager.on('foo', fooHandler('foo@grandchild-00'), {srcElement: grandchildNodes[0]});
+  eventManager.on('foo', fooHandler('foo@child-0', true), {
+    srcElement: childNode
+  });
+  eventManager.on('foo', fooHandler('foo@grandchild-00'), {
+    srcElement: grandchildNodes[0]
+  });
   // Should not be called (not on propagation path)
-  eventManager.on('foo', fooHandler('foo@grandchild-01'), {srcElement: grandchildNodes[1]});
+  eventManager.on('foo', fooHandler('foo@grandchild-01'), {
+    srcElement: grandchildNodes[1]
+  });
 
   eventManager.on(
     {

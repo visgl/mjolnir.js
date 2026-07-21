@@ -9,6 +9,8 @@ export type Point = {
   y: number;
 };
 
+export type WheelDevice = 'mouse' | 'trackpad' | 'unknown';
+
 /* mjolnir.js */
 
 export interface MjolnirEventRaw {
@@ -47,6 +49,7 @@ export type MjolnirPointerEventRaw = MjolnirEventRaw & {
 export type MjolnirWheelEventRaw = MjolnirEventRaw & {
   type: 'wheel';
   pointerType: 'mouse';
+  device: WheelDevice;
   center: Point;
   srcEvent: WheelEvent;
   delta: number;

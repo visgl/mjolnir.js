@@ -4,6 +4,7 @@
 
 import type {MjolnirWheelEventRaw} from '../types';
 import {Input, InputOptions} from './input';
+import {WheelGestureSession} from './wheel-gesture-session';
 
 import {userAgent} from '../utils/globals';
 
@@ -14,22 +15,31 @@ const WHEEL_DELTA_PER_LINE = 40;
 // Slow down zoom if shift key is held for more precise zooming
 const SHIFT_MULTIPLIER = 0.25;
 
-export class WheelInput extends Input<MjolnirWheelEventRaw, InputOptions> {
+type WheelInputOptions = InputOptions & {
+  wheelSession?: WheelGestureSession;
+};
+
+export class WheelInput extends Input<MjolnirWheelEventRaw, WheelInputOptions> {
+  private wheelSessionUnsubscribe: (() => void) | undefined;
+
   constructor(
     element: HTMLElement,
     callback: (event: MjolnirWheelEventRaw) => void,
-    options: InputOptions
+    options: WheelInputOptions
   ) {
     options.enable = options.enable ?? false;
     super(element, callback, options);
 
     if (options.enable) {
+      this.wheelSessionUnsubscribe = this.options.wheelSession?.on(() => {});
       this.listen('wheel', true);
     }
   }
 
   destroy() {
     this.listen('wheel', false);
+    this.wheelSessionUnsubscribe?.();
+    this.wheelSessionUnsubscribe = undefined;
   }
 
   /**
@@ -39,7 +49,14 @@ export class WheelInput extends Input<MjolnirWheelEventRaw, InputOptions> {
   enableEventType(eventType: string, enabled: boolean) {
     if (eventType === 'wheel' && this.options.enable !== enabled) {
       this.options.enable = enabled;
+      if (enabled && !this.wheelSessionUnsubscribe) {
+        this.wheelSessionUnsubscribe = this.options.wheelSession?.on(() => {});
+      }
       this.listen('wheel', enabled);
+      if (!enabled) {
+        this.wheelSessionUnsubscribe?.();
+        this.wheelSessionUnsubscribe = undefined;
+      }
     }
   }
 
@@ -71,6 +88,7 @@ export class WheelInput extends Input<MjolnirWheelEventRaw, InputOptions> {
         y: event.clientY
       },
       delta: -value,
+      device: this.options.wheelSession?.device ?? 'unknown',
       srcEvent: event,
       pointerType: 'mouse',
       target: event.target as HTMLElement
