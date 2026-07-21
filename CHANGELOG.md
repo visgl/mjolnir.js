@@ -1,6 +1,6 @@
 # Change Log
 
-#### v3.1.0-beta.2 - July 21, 2026
+#### v3.1.0-beta.3 - July 21, 2026
 
 - Added opt-in trackpad gesture support to two-pointer `Pan` and `Pinch` recognizers.
 - Added wheel device classification through `MjolnirWheelEvent.device`.
