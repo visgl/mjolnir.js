@@ -22,7 +22,7 @@ export abstract class Input<EventType extends MjolnirEventRaw, Options extends I
 
   listen(eventType: string, enabled: boolean): void {
     if (enabled) {
-      this.element.addEventListener(eventType, this.handleEvent);
+      this.element.addEventListener(eventType, this.handleEvent, {passive: false});
     } else {
       this.element.removeEventListener(eventType, this.handleEvent);
     }
