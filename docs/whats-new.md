@@ -1,5 +1,11 @@
 # What's New
 
+## v3.1
+
+- `DoubleClickDrag` recognizer
+- Added opt-in trackpad gesture support to two-pointer `Pan` and `Pinch` recognizers.
+- Added wheel device classification through `MjolnirWheelEvent.device`.
+
 ## v3.0
 
 - ES module

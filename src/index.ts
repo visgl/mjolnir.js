@@ -23,7 +23,8 @@ export type {
   MjolnirGestureEvent,
   MjolnirKeyEvent,
   MjolnirWheelEvent,
-  MjolnirPointerEvent
+  MjolnirPointerEvent,
+  WheelDevice
 } from './types';
 
 export type {

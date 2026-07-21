@@ -1,8 +1,9 @@
-import {AttrRecognizer} from './attribute';
+import {TrackpadRecognizer} from './trackpad';
 import {InputDirection} from '../input/input-consts';
 import {RecognizerState} from '../recognizer/recognizer-state';
 import {TOUCH_ACTION_PAN_X, TOUCH_ACTION_PAN_Y} from '../touchaction/touchaction-Consts';
 import type {HammerInput} from '../input/types';
+import type {WheelGestureSessionEvent} from '../../inputs/wheel-gesture-session';
 
 export type PanRecognizerOptions = {
   /** Name of the event.
@@ -25,6 +26,11 @@ export type PanRecognizerOptions = {
    * @default 10
    */
   threshold?: number;
+  /** Recognize two-finger trackpad pan gestures from wheel events.
+   * Only applies when pointers is 2.
+   * @default false
+   */
+  trackpad?: boolean;
 };
 
 const EVENT_NAMES = ['', 'start', 'move', 'end', 'cancel', 'up', 'down', 'left', 'right'] as const;
@@ -33,9 +39,10 @@ const EVENT_NAMES = ['', 'start', 'move', 'end', 'cancel', 'up', 'down', 'left',
  * Pan
  * Recognized when the pointer is down and moved in the allowed direction.
  */
-export class PanRecognizer extends AttrRecognizer<Required<PanRecognizerOptions>> {
+export class PanRecognizer extends TrackpadRecognizer<Required<PanRecognizerOptions>> {
   pX: number | null;
   pY: number | null;
+  private trackpadGesture = false;
 
   constructor(options: PanRecognizerOptions = {}) {
     super({
@@ -44,6 +51,7 @@ export class PanRecognizer extends AttrRecognizer<Required<PanRecognizerOptions>
       event: 'pan',
       threshold: 10,
       direction: InputDirection.All,
+      trackpad: false,
       ...options
     });
     this.pX = null;
@@ -111,5 +119,30 @@ export class PanRecognizer extends AttrRecognizer<Required<PanRecognizerOptions>
       input.additionalEvent = this.options.event + direction;
     }
     super.emit(input);
+  }
+
+  protected handleTrackpadEvent(event: WheelGestureSessionEvent): void {
+    if (event.isFirst) {
+      this.trackpadGesture = !event.srcEvent.ctrlKey;
+    }
+    if (!this.trackpadGesture) {
+      return;
+    }
+
+    this.recognize(
+      this.getTrackpadInput(event, {
+        deltaX: -event.deltaX,
+        deltaY: -event.deltaY,
+        velocity: -event.velocity,
+        velocityX: -event.velocityX,
+        velocityY: -event.velocityY,
+        overallVelocity: -event.overallVelocity,
+        overallVelocityX: -event.overallVelocityX,
+        overallVelocityY: -event.overallVelocityY
+      })
+    );
+    if (event.isFinal) {
+      this.trackpadGesture = false;
+    }
   }
 }

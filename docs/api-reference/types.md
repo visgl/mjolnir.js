@@ -66,6 +66,9 @@ Emitted by recognizers (`Pan`, `Rotate` etc.). Extends `MjolnirEvent` with the f
 Emitted by the `wheel` event. Extends `MjolnirEvent` with the following fields:
 
 - `delta` (number) - The scroll magnitude/distance of a wheel event
+- `device` (`'mouse' | 'trackpad' | 'unknown'`) - The inferred source of the wheel event. The value may be `'unknown'` at the beginning of a wheel sequence while there is not enough information to classify it.
+
+Device classification is heuristic and does not delay raw `wheel` events. Wheel events remain cancellable with `event.preventDefault()`.
 
 ### MjolnirKeyEvent
 
