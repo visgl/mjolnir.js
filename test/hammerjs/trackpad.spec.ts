@@ -53,6 +53,7 @@ test('PinchRecognizer#trackpad', (t) => {
   });
   const events = [];
   eventManager.on('pinchstart', (event) => events.push(event));
+  eventManager.on('pinchmove', (event) => events.push(event));
 
   const WheelEvent = element.ownerDocument.defaultView!.WheelEvent;
   element.dispatchEvent(
@@ -62,10 +63,18 @@ test('PinchRecognizer#trackpad', (t) => {
       deltaY: -10
     })
   );
+  element.dispatchEvent(
+    new WheelEvent('wheel', {
+      ctrlKey: true,
+      deltaMode: 0,
+      deltaY: -5
+    })
+  );
 
-  t.equal(events.length, 1, 'recognizes a trackpad pinch');
+  t.equal(events.length, 2, 'recognizes a continuous trackpad pinch');
   t.equal(events[0].pointerType, 'trackpad', 'identifies the pointer type');
-  t.ok(events[0].scale > 1, 'converts negative wheel delta to zoom-in scale');
+  t.equal(events[0].scale, Math.exp(0.1), 'converts wheel delta to zoom-in scale');
+  t.equal(events[1].scale, Math.exp(0.15), 'reports scale from cumulative wheel delta');
 
   eventManager.destroy();
   element.remove();

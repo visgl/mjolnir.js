@@ -90,7 +90,10 @@ export class PinchRecognizer extends TrackpadRecognizer<Required<PinchRecognizer
         overallVelocity: 0,
         overallVelocityX: 0,
         overallVelocityY: 0,
-        scale: 2 ** (-event.deltaY / 100)
+        // Chromium encodes pinch scale as deltaY = -100 * ln(scale), making
+        // this its exact inverse. Firefox and Safari use approximately
+        // -100 * magnification, for which this is a close small-delta approximation.
+        scale: Math.exp(-event.deltaY / 100)
       })
     );
     if (event.isFinal) {
