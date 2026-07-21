@@ -18,7 +18,7 @@ const eventManager = new EventManager(target, options);
   - `recognizers` (RecognizerTuple[]) - Gesture recognizers. See [Recognize Gestures](#recognize-gestures) section below for usage.
   - `touchAction` (string) - Allow browser default touch actions. See [touch-action CSS property](https://developer.mozilla.org/en-US/docs/Web/CSS/touch-action). Use 'compute' to automatically set as the least restrictive value to support the recognizers. Default `'compute'`.
   - `tabIndex` (number) - The [tabindex](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/tabindex) of the root element. Default `0`.
-  - `cssProps` (object) - Optional CSS properties to apply to the tarfet element. Default `{userSelect: 'none', touchCallout: 'none'}`.
+  - `cssProps` (object) - Optional CSS properties to apply to the target element. Default `{userSelect: 'none', touchCallout: 'none'}`.
 
 ## Methods
 
