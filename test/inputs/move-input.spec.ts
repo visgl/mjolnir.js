@@ -9,7 +9,7 @@ import {createEventTarget} from '../test-utils/dom';
 
 test('moveInput#constructor', (t) => {
   const element = createEventTarget();
-  const numMouseEvents = 6; // MOUSE_EVENTS.length
+  const numMouseEvents = 7; // MOUSE_EVENTS.length
   const addELSpy = spy(element, 'addEventListener');
   const moveInput = new MoveInput(element, () => {}, {});
   t.ok(moveInput, 'MoveInput created without optional params');
@@ -23,7 +23,7 @@ test('moveInput#constructor', (t) => {
 
 test('moveInput#destroy', (t) => {
   const element = createEventTarget();
-  const numMouseEvents = 6; // MOUSE_EVENTS.length
+  const numMouseEvents = 7; // MOUSE_EVENTS.length
   const removeELSpy = spy(element, 'removeEventListener');
   const moveInput = new MoveInput(element, () => {}, {});
   moveInput.destroy();
@@ -33,6 +33,33 @@ test('moveInput#destroy', (t) => {
     'should call removeEventListener once for each passed event:handler pair'
   );
 
+  element.remove();
+  t.end();
+});
+
+test('moveInput#only listens while enabled', (t) => {
+  const element = createEventTarget();
+  const addELSpy = spy(element, 'addEventListener');
+  const removeELSpy = spy(element, 'removeEventListener');
+  const moveInput = new MoveInput(element, () => {}, {enable: false});
+
+  t.equal(addELSpy.callCount, 0, 'does not add listeners when disabled');
+
+  moveInput.enableEventType('pointermove', true);
+  t.equal(addELSpy.callCount, 3, 'adds mouse state listeners for pointermove');
+  moveInput.enableEventType('pointermove', true);
+  t.equal(addELSpy.callCount, 3, 'does not add pointermove listeners again');
+
+  removeELSpy.reset();
+  moveInput.enableEventType('pointermove', false);
+  t.equal(removeELSpy.callCount, 3, 'removes mouse state listeners for pointermove');
+  moveInput.enableEventType('pointermove', false);
+  t.equal(removeELSpy.callCount, 3, 'does not remove pointermove listeners again');
+
+  moveInput.enableEventType('pointerover', true);
+  t.equal(addELSpy.callCount, 4, 'adds the enabled pointerover listener');
+
+  moveInput.destroy();
   element.remove();
   t.end();
 });

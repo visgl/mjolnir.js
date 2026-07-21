@@ -40,6 +40,30 @@ test('keyInput#destroy', (t) => {
   t.end();
 });
 
+test('keyInput#only listens while enabled', (t) => {
+  const element = createEventTarget();
+  const addELSpy = spy(element, 'addEventListener');
+  const removeELSpy = spy(element, 'removeEventListener');
+  const keyInput = new KeyInput(element, () => {}, {enable: false});
+
+  t.equal(addELSpy.callCount, 0, 'does not add listeners when disabled');
+
+  keyInput.enableEventType('keydown', true);
+  t.equal(addELSpy.callCount, 1, 'adds the enabled key listener');
+  keyInput.enableEventType('keydown', true);
+  t.equal(addELSpy.callCount, 1, 'does not add an already enabled key listener');
+
+  removeELSpy.reset();
+  keyInput.enableEventType('keydown', false);
+  t.equal(removeELSpy.callCount, 1, 'removes the disabled key listener');
+  keyInput.enableEventType('keydown', false);
+  t.equal(removeELSpy.callCount, 1, 'does not remove an already disabled key listener');
+
+  keyInput.destroy();
+  element.remove();
+  t.end();
+});
+
 /* eslint-disable max-statements */
 test('keyInput#enableEventType', (t) => {
   const element = createEventTarget();
