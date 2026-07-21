@@ -224,6 +224,19 @@ export class EventManager {
     this._removeEventHandler(event, handler);
   }
 
+  /**
+   * Emit a custom event into the event pipeline.
+   * This allows external input sources (hand tracking, game controllers,
+   * voice commands, etc.) to inject events that flow through the standard
+   * EventRegistrar dispatch system.
+   *
+   * @param event - The event to emit. Must have a `type` field matching
+   *   a recognized event name (e.g., 'panmove', 'wheel', 'custom-event').
+   */
+  emit(event: MjolnirEventRaw): void {
+    this.manager?.emit(event.type, event as any);
+  }
+
   /*
    * Enable/disable recognizer for the given event
    */
