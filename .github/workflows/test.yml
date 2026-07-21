@@ -23,6 +23,9 @@ jobs:
         env:
           YARN_ENABLE_IMMUTABLE_INSTALLS: false 
 
+      - name: Install Puppeteer browser
+        run: npx puppeteer browsers install chrome
+
       - name: Build code
         run: |
           yarn build
