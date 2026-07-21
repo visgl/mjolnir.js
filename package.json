@@ -1,7 +1,7 @@
 {
   "name": "mjolnir.js",
   "description": "An Event Manager",
-  "version": "3.1.0-beta.1",
+  "version": "3.1.0-beta.2",
   "type": "module",
   "keywords": [
     "hammerjs",
@@ -53,7 +53,7 @@
   },
   "volta": {
     "node": "20.15.1",
-    "yarn": "4.3.1"
+    "yarn": "4.17.1"
   },
   "packageManager": "yarn@4.17.1+sha512.ccbfabf7d7b6b32075088be9386fb9a2e00bb6887ef07fa56effabc890a56d53da1ccc4128d62db245fcbd3961b236d75335bdf7d5320ed6eafb7588b7ad4697"
 }
