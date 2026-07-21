@@ -11,6 +11,7 @@ const MOUSE_EVENTS = [
   'mouseup',
   'mouseover',
   'mouseout',
+  'mouseenter',
   'mouseleave'
 ] as const;
 
@@ -40,19 +41,21 @@ export class MoveInput extends Input<MjolnirPointerEventRaw, Required<InputOptio
     super(element, callback, {enable: true, ...options});
 
     this.pressed = false;
-    const {enable} = this.options;
 
+    const {enable = false} = this.options;
     this.enableMoveEvent = enable;
     this.enableLeaveEvent = enable;
     this.enableEnterEvent = enable;
     this.enableOutEvent = enable;
     this.enableOverEvent = enable;
 
-    MOUSE_EVENTS.forEach((event) => element.addEventListener(event, this.handleEvent));
+    if (enable) {
+      MOUSE_EVENTS.forEach((event) => this.listen(event, true));
+    }
   }
 
   destroy() {
-    MOUSE_EVENTS.forEach((event) => this.element.removeEventListener(event, this.handleEvent));
+    MOUSE_EVENTS.forEach((event) => this.listen(event, false));
   }
 
   /**
@@ -62,19 +65,36 @@ export class MoveInput extends Input<MjolnirPointerEventRaw, Required<InputOptio
   enableEventType(eventType: string, enabled: boolean) {
     switch (eventType) {
       case 'pointermove':
-        this.enableMoveEvent = enabled;
+        if (this.enableMoveEvent !== enabled) {
+          this.enableMoveEvent = enabled;
+          this.listen('mousedown', enabled);
+          this.listen('mousemove', enabled);
+          this.listen('mouseup', enabled);
+        }
         break;
       case 'pointerover':
-        this.enableOverEvent = enabled;
+        if (this.enableOverEvent !== enabled) {
+          this.enableOverEvent = enabled;
+          this.listen('mouseover', enabled);
+        }
         break;
       case 'pointerout':
-        this.enableOutEvent = enabled;
+        if (this.enableOutEvent !== enabled) {
+          this.enableOutEvent = enabled;
+          this.listen('mouseout', enabled);
+        }
         break;
       case 'pointerenter':
-        this.enableEnterEvent = enabled;
+        if (this.enableEnterEvent !== enabled) {
+          this.enableEnterEvent = enabled;
+          this.listen('mouseenter', enabled);
+        }
         break;
       case 'pointerleave':
-        this.enableLeaveEvent = enabled;
+        if (this.enableLeaveEvent !== enabled) {
+          this.enableLeaveEvent = enabled;
+          this.listen('mouseleave', enabled);
+        }
         break;
       default:
       // ignore

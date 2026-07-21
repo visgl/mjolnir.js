@@ -3,7 +3,7 @@ import {RecognizerState} from '../recognizer/recognizer-state';
 import {InputEvent} from '../input/input-consts';
 import type {HammerInput} from '../input/types';
 
-type AttrRecognizerOptions = RecognizerOptions & {
+export type AttrRecognizerOptions = RecognizerOptions & {
   pointers: number;
 };
 

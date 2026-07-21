@@ -4,30 +4,42 @@
 
 import type {MjolnirWheelEventRaw} from '../types';
 import {Input, InputOptions} from './input';
+import {WheelGestureSession} from './wheel-gesture-session';
 
 import {userAgent} from '../utils/globals';
 
 const firefox = userAgent.indexOf('firefox') !== -1;
 
 // Constants for normalizing input delta
-const WHEEL_DELTA_MAGIC_SCALER = 4.000244140625;
 const WHEEL_DELTA_PER_LINE = 40;
 // Slow down zoom if shift key is held for more precise zooming
 const SHIFT_MULTIPLIER = 0.25;
 
-export class WheelInput extends Input<MjolnirWheelEventRaw, Required<InputOptions>> {
+type WheelInputOptions = InputOptions & {
+  wheelSession?: WheelGestureSession;
+};
+
+export class WheelInput extends Input<MjolnirWheelEventRaw, WheelInputOptions> {
+  private wheelSessionUnsubscribe: (() => void) | undefined;
+
   constructor(
     element: HTMLElement,
     callback: (event: MjolnirWheelEventRaw) => void,
-    options: InputOptions
+    options: WheelInputOptions
   ) {
-    super(element, callback, {enable: true, ...options});
+    options.enable = options.enable ?? false;
+    super(element, callback, options);
 
-    element.addEventListener('wheel', this.handleEvent, {passive: false});
+    if (options.enable) {
+      this.wheelSessionUnsubscribe = this.options.wheelSession?.on(() => {});
+      this.listen('wheel', true);
+    }
   }
 
   destroy() {
-    this.element.removeEventListener('wheel', this.handleEvent);
+    this.listen('wheel', false);
+    this.wheelSessionUnsubscribe?.();
+    this.wheelSessionUnsubscribe = undefined;
   }
 
   /**
@@ -35,8 +47,16 @@ export class WheelInput extends Input<MjolnirWheelEventRaw, Required<InputOption
    * if the specified event type is among those handled by this input.
    */
   enableEventType(eventType: string, enabled: boolean) {
-    if (eventType === 'wheel') {
+    if (eventType === 'wheel' && this.options.enable !== enabled) {
       this.options.enable = enabled;
+      if (enabled && !this.wheelSessionUnsubscribe) {
+        this.wheelSessionUnsubscribe = this.options.wheelSession?.on(() => {});
+      }
+      this.listen('wheel', enabled);
+      if (!enabled) {
+        this.wheelSessionUnsubscribe?.();
+        this.wheelSessionUnsubscribe = undefined;
+      }
     }
   }
 
@@ -57,12 +77,6 @@ export class WheelInput extends Input<MjolnirWheelEventRaw, Required<InputOption
       }
     }
 
-    if (value !== 0 && value % WHEEL_DELTA_MAGIC_SCALER === 0) {
-      // This one is definitely a mouse wheel event.
-      // Normalize this value to match trackpad.
-      value = Math.floor(value / WHEEL_DELTA_MAGIC_SCALER);
-    }
-
     if (event.shiftKey && value) {
       value = value * SHIFT_MULTIPLIER;
     }
@@ -74,6 +88,7 @@ export class WheelInput extends Input<MjolnirWheelEventRaw, Required<InputOption
         y: event.clientY
       },
       delta: -value,
+      device: this.options.wheelSession?.device ?? 'unknown',
       srcEvent: event,
       pointerType: 'mouse',
       target: event.target as HTMLElement

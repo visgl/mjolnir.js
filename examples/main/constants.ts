@@ -21,9 +21,10 @@ import {Pan, Rotate, Pinch, Swipe, Press, Tap, DoubleClickDrag, RecognizerTuple}
 
 export const RECOGNIZERS: RecognizerTuple[] = [
   [Rotate, {enable: false}],
-  [Pinch, {enable: false}, ['rotate']],
+  [Pinch, {enable: false, trackpad: true}, ['rotate']],
   [Swipe, {enable: false}],
   [Pan, {threshold: 1, enable: false}, ['pinch'], ['swipe']],
+  [Pan, {event: 'multipan', pointers: 2, enable: false, trackpad: true}, ['pinch'], ['swipe']],
   [Press, {enable: false}],
   [DoubleClickDrag, {event: 'dblclickdrag', enable: false}],
   [Tap, {event: 'dblclick', taps: 2, enable: false}],
@@ -58,6 +59,9 @@ export const EVENTS = [
   'panstart',
   'panmove',
   'panend',
+  'multipanstart',
+  'multipanmove',
+  'multipanend',
   'pancancel',
   'panup',
   'pandown',

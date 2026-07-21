@@ -22,16 +22,19 @@ export class KeyInput extends Input<MjolnirKeyEventRaw, Required<KeyInputOptions
   ) {
     super(element, callback, {enable: true, tabIndex: 0, ...options});
 
-    this.enableDownEvent = this.options.enable;
-    this.enableUpEvent = this.options.enable;
+    const {enable = false} = this.options;
+    this.enableDownEvent = enable;
+    this.enableUpEvent = enable;
 
     element.tabIndex = this.options.tabIndex;
     element.style.outline = 'none';
-    KEY_EVENTS.forEach((event) => element.addEventListener(event, this.handleEvent));
+    if (enable) {
+      KEY_EVENTS.forEach((event) => this.listen(event, true));
+    }
   }
 
   destroy() {
-    KEY_EVENTS.forEach((event) => this.element.removeEventListener(event, this.handleEvent));
+    KEY_EVENTS.forEach((event) => this.listen(event, false));
   }
 
   /**
@@ -39,11 +42,13 @@ export class KeyInput extends Input<MjolnirKeyEventRaw, Required<KeyInputOptions
    * if the specified event type is among those handled by this input.
    */
   enableEventType(eventType: string, enabled: boolean) {
-    if (eventType === 'keydown') {
+    if (eventType === 'keydown' && this.enableDownEvent !== enabled) {
       this.enableDownEvent = enabled;
+      this.listen(eventType, enabled);
     }
-    if (eventType === 'keyup') {
+    if (eventType === 'keyup' && this.enableUpEvent !== enabled) {
       this.enableUpEvent = enabled;
+      this.listen(eventType, enabled);
     }
   }
 

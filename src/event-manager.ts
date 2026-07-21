@@ -11,6 +11,7 @@ import type {
 } from './types';
 
 import {WheelInput} from './inputs/wheel-input';
+import {WheelGestureSession} from './inputs/wheel-gesture-session';
 import {MoveInput} from './inputs/move-input';
 import {KeyInput} from './inputs/key-input';
 import {ContextmenuInput} from './inputs/contextmenu-input';
@@ -91,15 +92,16 @@ function normalizeRecognizer(item: RecognizerTuple): RecognizerTupleNormalized {
 // Delegates gesture related event registration and handling to Hammer.js.
 export class EventManager {
   private element: HTMLElement | null;
-  private manager: HammerManager;
+  private manager!: HammerManager;
   private options: Required<EventManagerOptions>;
   private events: Map<string, EventRegistrar>;
 
   // Custom handlers
-  private wheelInput: WheelInput;
-  private moveInput: MoveInput;
-  private contextmenuInput: ContextmenuInput;
-  private keyInput: KeyInput;
+  private wheelSession: WheelGestureSession;
+  private wheelInput!: WheelInput;
+  private moveInput!: MoveInput;
+  private contextmenuInput!: ContextmenuInput;
+  private keyInput!: KeyInput;
 
   constructor(element: HTMLElement | null = null, options: EventManagerOptions = {}) {
     this.options = {
@@ -112,6 +114,7 @@ export class EventManager {
     };
     this.events = new Map();
     this.element = element;
+    this.wheelSession = new WheelGestureSession(element);
 
     if (!element) return;
 
@@ -133,7 +136,8 @@ export class EventManager {
     // - mouse wheel
     // - pointer/touch/mouse move
     this.wheelInput = new WheelInput(element, this._onOtherEvent, {
-      enable: false
+      enable: false,
+      wheelSession: this.wheelSession
     });
     this.moveInput = new MoveInput(element, this._onOtherEvent, {
       enable: false
@@ -157,9 +161,13 @@ export class EventManager {
   // Tear down internal event management implementations.
   destroy(): void {
     // manager etc. cannot exist if there is no element
-    if (!this.element) return;
+    if (!this.element) {
+      this.wheelSession.destroy();
+      return;
+    }
 
     this.wheelInput.destroy();
+    this.wheelSession.destroy();
     this.moveInput.destroy();
     this.keyInput.destroy();
     this.contextmenuInput.destroy();
@@ -239,7 +247,10 @@ export class EventManager {
     }
     const recognizer = manager.get(name);
     if (recognizer) {
-      recognizer.set({enable: enabled});
+      recognizer.set({
+        enable: enabled,
+        wheelSession: this.wheelSession
+      });
       manager.touchAction.update();
     }
     this.wheelInput?.enableEventType(name, enabled);

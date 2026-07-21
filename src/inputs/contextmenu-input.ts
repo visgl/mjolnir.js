@@ -11,13 +11,16 @@ export class ContextmenuInput extends Input<MjolnirPointerEventRaw, InputOptions
     callback: (event: MjolnirPointerEventRaw) => void,
     options: InputOptions
   ) {
+    options.enable = options.enable ?? false;
     super(element, callback, options);
 
-    element.addEventListener('contextmenu', this.handleEvent);
+    if (options.enable) {
+      this.listen('contextmenu', true);
+    }
   }
 
   destroy() {
-    this.element.removeEventListener('contextmenu', this.handleEvent);
+    this.listen('contextmenu', false);
   }
 
   /**
@@ -25,8 +28,9 @@ export class ContextmenuInput extends Input<MjolnirPointerEventRaw, InputOptions
    * if the specified event type is among those handled by this input.
    */
   enableEventType(eventType: string, enabled: boolean) {
-    if (eventType === 'contextmenu') {
+    if (eventType === 'contextmenu' && this.options.enable !== enabled) {
       this.options.enable = enabled;
+      this.listen('contextmenu', enabled);
     }
   }
 
