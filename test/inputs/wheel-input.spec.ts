@@ -2,76 +2,74 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) vis.gl contributors
 
-import test from '../test-utils/vitest-tape';
+import {expect, test, vi} from 'vitest';
 import {InputEvent} from 'mjolnir.js';
 import {WheelGestureSession} from 'mjolnir.js/inputs/wheel-gesture-session';
 import {WheelInput} from 'mjolnir.js/inputs/wheel-input';
-import {spy} from '../test-utils/spy';
 import {createEventTarget} from '../test-utils/dom';
 
-test('wheelInput#constructor', (t) => {
+test('wheelInput#constructor', () => {
   const element = createEventTarget();
-  const addELSpy = spy(element, 'addEventListener');
+  const addELSpy = vi.spyOn(element, 'addEventListener');
   const wheelSession = new WheelGestureSession(element);
   const wheelInput = new WheelInput(element, () => {}, {wheelSession});
-  t.ok(wheelInput, 'WheelInput created without optional params');
-  t.equal(addELSpy.callCount, 1, 'only the passive session listener is registered');
+  expect(wheelInput, 'WheelInput created without optional params').toBeTruthy();
+  expect(addELSpy, 'only the passive session listener is registered').toHaveBeenCalledTimes(1);
 
   wheelInput.destroy();
   wheelSession.destroy();
   element.remove();
-  t.end();
 });
 
-test('wheelInput#destroy', (t) => {
+test('wheelInput#destroy', () => {
   const element = createEventTarget();
   const numWheelEvents = 1;
-  const removeELSpy = spy(element, 'removeEventListener');
+  const removeELSpy = vi.spyOn(element, 'removeEventListener');
   const wheelSession = new WheelGestureSession(element);
   const wheelInput = new WheelInput(element, () => {}, {wheelSession});
   wheelInput.destroy();
-  t.equal(
-    removeELSpy.callCount,
-    numWheelEvents,
+  expect(
+    removeELSpy,
     'should call removeEventListener once for each passed event:handler pair'
-  );
+  ).toHaveBeenCalledTimes(numWheelEvents);
 
   wheelSession.destroy();
   element.remove();
-  t.end();
 });
 
-test('wheelInput#enableEventType', (t) => {
+test('wheelInput#enableEventType', () => {
   const element = createEventTarget();
-  const addELSpy = spy(element, 'addEventListener');
-  const removeELSpy = spy(element, 'removeEventListener');
+  const addELSpy = vi.spyOn(element, 'addEventListener');
+  const removeELSpy = vi.spyOn(element, 'removeEventListener');
   const wheelSession = new WheelGestureSession(element);
   const wheelInput = new WheelInput(element, null, {
     enable: false,
     wheelSession
   });
   wheelInput.enableEventType('foo', true);
-  t.notOk(wheelInput.options.enable, 'should not enable for unsupported event');
+  expect(wheelInput.options.enable, 'should not enable for unsupported event').toBeFalsy();
 
   wheelInput.enableEventType('wheel', true);
-  t.ok(wheelInput.options.enable, 'should enable for supported event');
-  t.equal(addELSpy.callCount, 2, 'adds the passive session and raw wheel listeners');
+  expect(wheelInput.options.enable, 'should enable for supported event').toBeTruthy();
+  expect(addELSpy, 'adds the passive session and raw wheel listeners').toHaveBeenCalledTimes(2);
   wheelInput.enableEventType('wheel', true);
-  t.equal(addELSpy.callCount, 2, 'does not add listeners again when already enabled');
+  expect(addELSpy, 'does not add listeners again when already enabled').toHaveBeenCalledTimes(2);
 
-  removeELSpy.reset();
+  removeELSpy.mockClear();
   wheelInput.enableEventType('wheel', false);
-  t.equal(removeELSpy.callCount, 1, 'removes the raw wheel listener');
+  expect(removeELSpy, 'removes the raw wheel listener').toHaveBeenCalledTimes(1);
   wheelInput.enableEventType('wheel', false);
-  t.equal(removeELSpy.callCount, 1, 'does not remove listeners again when already disabled');
+  expect(
+    removeELSpy,
+    'does not remove listeners again when already disabled'
+  ).toHaveBeenCalledTimes(1);
 
   wheelInput.destroy();
   wheelSession.destroy();
   element.remove();
-  t.end();
 });
 
-test('wheelInput#handleEvent', (t) => {
+test('wheelInput#handleEvent', () => {
   const element = createEventTarget();
 
   const wheelEventMock = {
@@ -98,31 +96,34 @@ test('wheelInput#handleEvent', (t) => {
   });
 
   wheelInput.handleEvent(wheelEventMock);
-  t.notOk(callbackParams, 'callback should not be called when disabled');
+  expect(callbackParams, 'callback should not be called when disabled').toBeFalsy();
 
   wheelInput.enableEventType('wheel', true);
   wheelSession.handleEvent(wheelEventMock);
   wheelInput.handleEvent(wheelEventMock);
-  t.ok(callbackParams, 'callback should be called on wheel event when enabled');
-  t.is(callbackParams.delta, -1, 'callback contains the correct delta');
-  t.is(callbackParams.device, 'unknown', 'callback contains the current device classification');
-  t.deepEquals(callbackParams.center, {x: 123, y: 456}, 'callback contains the correct position');
+  expect(callbackParams, 'callback should be called on wheel event when enabled').toBeTruthy();
+  expect(callbackParams.delta, 'callback contains the correct delta').toBe(-1);
+  expect(callbackParams.device, 'callback contains the current device classification').toBe(
+    'unknown'
+  );
+  expect(callbackParams.center, 'callback contains the correct position').toEqual({x: 123, y: 456});
 
   callbackParams = null;
   wheelEventMock.deltaY = 4.000244140625;
   wheelEventMock.shiftKey = true;
   wheelSession.handleEvent(wheelEventMock);
   wheelInput.handleEvent(wheelEventMock);
-  t.is(callbackParams.delta, -1.00006103515625, 'callback contains the unscaled delta');
-  t.is(callbackParams.device, 'mouse', 'callback contains the resolved device classification');
+  expect(callbackParams.delta, 'callback contains the unscaled delta').toBe(-1.00006103515625);
+  expect(callbackParams.device, 'callback contains the resolved device classification').toBe(
+    'mouse'
+  );
 
   wheelInput.destroy();
   wheelSession.destroy();
   element.remove();
-  t.end();
 });
 
-test('wheelInput#handleEvent feeds subscribed wheel sessions while disabled', (t) => {
+test('wheelInput#handleEvent feeds subscribed wheel sessions while disabled', () => {
   const element = createEventTarget();
   const sessionEvents = [];
   let callbackParams = null;
@@ -149,20 +150,18 @@ test('wheelInput#handleEvent feeds subscribed wheel sessions while disabled', (t
     })
   );
 
-  t.notOk(callbackParams, 'raw wheel callback remains disabled');
-  t.deepEquals(
+  expect(callbackParams, 'raw wheel callback remains disabled').toBeFalsy();
+  expect(
     sessionEvents.map((event) => event.eventType),
-    [InputEvent.Start, InputEvent.Move],
     'subscribed session still receives the wheel event'
-  );
-  t.ok(
+  ).toEqual([InputEvent.Start, InputEvent.Move]);
+  expect(
     sessionEvents.every((event) => event.device === 'trackpad'),
     'session events contain the classified device'
-  );
+  ).toBeTruthy();
 
   unsubscribe();
   wheelInput.destroy();
   wheelSession.destroy();
   element.remove();
-  t.end();
 });

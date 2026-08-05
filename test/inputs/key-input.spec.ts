@@ -2,70 +2,64 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) vis.gl contributors
 
-import test from '../test-utils/vitest-tape';
+import {expect, test, vi} from 'vitest';
 import {KeyInput} from 'mjolnir.js/inputs/key-input';
-import {spy} from '../test-utils/spy';
 import {createEventTarget} from '../test-utils/dom';
 
-test('keyInput#constructor', (t) => {
+test('keyInput#constructor', () => {
   const element = createEventTarget();
 
   const numKeyEvents = 2; // KEY_EVENTS.length
-  const addELSpy = spy(element, 'addEventListener');
+  const addELSpy = vi.spyOn(element, 'addEventListener');
   const keyInput = new KeyInput(element, () => {}, {});
-  t.ok(keyInput, 'KeyInput created without optional params');
-  t.equal(
-    addELSpy.callCount,
-    numKeyEvents,
+  expect(keyInput, 'KeyInput created without optional params').toBeTruthy();
+  expect(
+    addELSpy,
     'should call addEventListener once for each passed event:handler pair'
-  );
+  ).toHaveBeenCalledTimes(numKeyEvents);
 
   element.remove();
-  t.end();
 });
 
-test('keyInput#destroy', (t) => {
+test('keyInput#destroy', () => {
   const element = createEventTarget();
   const numKeyEvents = 2; // KEY_EVENTS.length
-  const removeELSpy = spy(element, 'removeEventListener');
+  const removeELSpy = vi.spyOn(element, 'removeEventListener');
   const keyInput = new KeyInput(element, () => {}, {});
   keyInput.destroy();
-  t.equal(
-    removeELSpy.callCount,
-    numKeyEvents,
+  expect(
+    removeELSpy,
     'should call removeEventListener once for each passed event:handler pair'
-  );
+  ).toHaveBeenCalledTimes(numKeyEvents);
 
   element.remove();
-  t.end();
 });
 
-test('keyInput#only listens while enabled', (t) => {
+test('keyInput#only listens while enabled', () => {
   const element = createEventTarget();
-  const addELSpy = spy(element, 'addEventListener');
-  const removeELSpy = spy(element, 'removeEventListener');
+  const addELSpy = vi.spyOn(element, 'addEventListener');
+  const removeELSpy = vi.spyOn(element, 'removeEventListener');
   const keyInput = new KeyInput(element, () => {}, {enable: false});
 
-  t.equal(addELSpy.callCount, 0, 'does not add listeners when disabled');
+  expect(addELSpy, 'does not add listeners when disabled').toHaveBeenCalledTimes(0);
 
   keyInput.enableEventType('keydown', true);
-  t.equal(addELSpy.callCount, 1, 'adds the enabled key listener');
+  expect(addELSpy, 'adds the enabled key listener').toHaveBeenCalledTimes(1);
   keyInput.enableEventType('keydown', true);
-  t.equal(addELSpy.callCount, 1, 'does not add an already enabled key listener');
+  expect(addELSpy, 'does not add an already enabled key listener').toHaveBeenCalledTimes(1);
 
-  removeELSpy.reset();
+  removeELSpy.mockClear();
   keyInput.enableEventType('keydown', false);
-  t.equal(removeELSpy.callCount, 1, 'removes the disabled key listener');
+  expect(removeELSpy, 'removes the disabled key listener').toHaveBeenCalledTimes(1);
   keyInput.enableEventType('keydown', false);
-  t.equal(removeELSpy.callCount, 1, 'does not remove an already disabled key listener');
+  expect(removeELSpy, 'does not remove an already disabled key listener').toHaveBeenCalledTimes(1);
 
   keyInput.destroy();
   element.remove();
-  t.end();
 });
 
 /* eslint-disable max-statements */
-test('keyInput#enableEventType', (t) => {
+test('keyInput#enableEventType', () => {
   const element = createEventTarget();
   const keyDownMock = {
     type: 'keydown',
@@ -82,42 +76,47 @@ test('keyInput#enableEventType', (t) => {
     key: 'a'
   };
 
-  let callbackSpy = spy();
+  let callbackSpy = vi.fn();
   let keyInput = new KeyInput(element, callbackSpy, {enable: true});
 
   keyInput.enableEventType('keydown', false);
   keyInput.handleEvent(keyDownMock);
-  t.notOk(callbackSpy.called, 'callback should not be called when disabled');
+  expect(callbackSpy, 'callback should not be called when disabled').not.toHaveBeenCalled();
 
   keyInput.enableEventType('keydown', true);
   keyInput.handleEvent(keyDownMock);
-  t.ok(callbackSpy.called, 'callback should be called on key down when enabled...');
+  expect(callbackSpy, 'callback should be called on key down when enabled...').toHaveBeenCalled();
 
-  callbackSpy = spy();
+  callbackSpy = vi.fn();
   keyInput = new KeyInput(element, callbackSpy, {enable: true});
 
   keyInput.enableEventType('keyup', false);
   keyInput.handleEvent(keyUpMock);
-  t.notOk(callbackSpy.called, 'callback should not be called when disabled');
+  expect(callbackSpy, 'callback should not be called when disabled').not.toHaveBeenCalled();
 
   keyInput.enableEventType('keyup', true);
   keyInput.handleEvent(keyUpMock);
-  t.ok(callbackSpy.called, 'callback should be called on key up when enabled...');
+  expect(callbackSpy, 'callback should be called on key up when enabled...').toHaveBeenCalled();
 
-  callbackSpy.reset();
+  callbackSpy.mockClear();
   keyUpMock2.srcElement = {
     tagName: 'TEXTAREA'
   };
   keyInput.handleEvent(keyUpMock2);
-  t.notOk(callbackSpy.called, 'callback should not be called when typing into a text box');
+  expect(
+    callbackSpy,
+    'callback should not be called when typing into a text box'
+  ).not.toHaveBeenCalled();
 
   keyUpMock2.srcElement = {
     tagName: 'INPUT',
     type: 'text'
   };
   keyInput.handleEvent(keyUpMock2);
-  t.notOk(callbackSpy.called, 'callback should not be called when typing into a text box');
+  expect(
+    callbackSpy,
+    'callback should not be called when typing into a text box'
+  ).not.toHaveBeenCalled();
 
   element.remove();
-  t.end();
 });

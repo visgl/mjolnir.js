@@ -2,13 +2,12 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) vis.gl contributors
 
-import test from '../test-utils/vitest-tape';
+import {expect, test, vi} from 'vitest';
 import {InputEvent} from 'mjolnir.js';
 import {
   WheelGestureSession,
   type WheelGestureSessionEvent
 } from 'mjolnir.js/inputs/wheel-gesture-session';
-import {spy} from '../test-utils/spy';
 import {createEventTarget} from '../test-utils/dom';
 
 const TEST_CLASSIFICATION_DELAY = 5;
@@ -62,37 +61,38 @@ function createWheelEvent(
   return event as WheelEventMock;
 }
 
-test('WheelGestureSession#passive listener lifecycle', (t) => {
+test('WheelGestureSession#passive listener lifecycle', () => {
   const element = createEventTarget();
-  const addELSpy = spy(element, 'addEventListener');
-  const removeELSpy = spy(element, 'removeEventListener');
+  const addELSpy = vi.spyOn(element, 'addEventListener');
+  const removeELSpy = vi.spyOn(element, 'removeEventListener');
   const session = new WheelGestureSession(element);
 
-  t.equal(addELSpy.callCount, 1, 'registers the passive wheel listener immediately');
+  expect(addELSpy, 'registers the passive wheel listener immediately').toHaveBeenCalledTimes(1);
 
   const unsubscribe = session.on(() => {});
   unsubscribe();
-  t.equal(removeELSpy.callCount, 0, 'keeps the passive wheel listener without subscribers');
+  expect(removeELSpy, 'keeps the passive wheel listener without subscribers').toHaveBeenCalledTimes(
+    0
+  );
 
   session.destroy();
-  t.equal(removeELSpy.callCount, 1, 'removes the passive wheel listener when destroyed');
+  expect(removeELSpy, 'removes the passive wheel listener when destroyed').toHaveBeenCalledTimes(1);
 
   element.remove();
-  t.end();
 });
 
-test('WheelGestureSession#disabled without subscribers', async (t) => {
+test('WheelGestureSession#disabled without subscribers', async () => {
   const session = createSession();
   const event = createWheelEvent({deltaY: 1});
 
-  t.equal(session.handleEvent(event), 'unknown', 'does not classify without subscribers');
-  t.equal(event.preventDefaultCallCount, 0, 'does not prevent the default behavior');
+  expect(session.handleEvent(event), 'does not classify without subscribers').toBe('unknown');
+  expect(event.preventDefaultCallCount, 'does not prevent the default behavior').toBe(0);
 
   await wait(TEST_END_DELAY + 5);
-  t.equal(session.device, 'unknown', 'does not start a session');
+  expect(session.device, 'does not start a session').toBe('unknown');
 });
 
-test('WheelGestureSession#trackpad pinch lifecycle', async (t) => {
+test('WheelGestureSession#trackpad pinch lifecycle', async () => {
   const events: WheelGestureSessionEvent[] = [];
   const session = createSession();
   session.on((event) => events.push(event));
@@ -102,28 +102,26 @@ test('WheelGestureSession#trackpad pinch lifecycle', async (t) => {
     deltaY: -2,
     timeStamp: 10
   });
-  t.equal(session.handleEvent(wheelEvent), 'trackpad', 'classifies pinch immediately');
-  t.deepEquals(
+  expect(session.handleEvent(wheelEvent), 'classifies pinch immediately').toBe('trackpad');
+  expect(
     events.map((event) => event.eventType),
-    [InputEvent.Start, InputEvent.Move],
     'starts a continuous session'
-  );
-  t.equal(events[0].deltaY, 0, 'start has no accumulated movement');
-  t.equal(events[0].isFirst, true, 'marks start as the first input');
-  t.equal(events[1].deltaY, -2, 'reports accumulated movement');
-  t.equal(wheelEvent.preventDefaultCallCount, 0, 'does not prevent default');
+  ).toEqual([InputEvent.Start, InputEvent.Move]);
+  expect(events[0].deltaY, 'start has no accumulated movement').toBe(0);
+  expect(events[0].isFirst, 'marks start as the first input').toBe(true);
+  expect(events[1].deltaY, 'reports accumulated movement').toBe(-2);
+  expect(wheelEvent.preventDefaultCallCount, 'does not prevent default').toBe(0);
 
   await wait(TEST_END_DELAY + 5);
-  t.deepEquals(
+  expect(
     events.map((event) => event.eventType),
-    [InputEvent.Start, InputEvent.Move, InputEvent.End],
     'ends after inactivity'
-  );
-  t.equal(events[2].isFinal, true, 'marks end as the final input');
-  t.equal(session.device, 'unknown', 'resets classification after ending');
+  ).toEqual([InputEvent.Start, InputEvent.Move, InputEvent.End]);
+  expect(events[2].isFinal, 'marks end as the final input').toBe(true);
+  expect(session.device, 'resets classification after ending').toBe('unknown');
 });
 
-test('WheelGestureSession#physical Control key', async (t) => {
+test('WheelGestureSession#physical Control key', async () => {
   const events: WheelGestureSessionEvent[] = [];
   const session = createSession();
   const unsubscribe = session.on((event) => events.push(event));
@@ -132,14 +130,13 @@ test('WheelGestureSession#physical Control key', async (t) => {
   eventWindow.dispatchEvent(
     new eventWindow.KeyboardEvent('keydown', {code: 'ControlLeft', key: 'Control'})
   );
-  t.equal(
+  expect(
     session.handleEvent(createWheelEvent({ctrlKey: true, deltaY: -2, timeStamp: 10})),
-    'unknown',
     'does not treat physical Control+wheel as an immediate pinch'
-  );
+  ).toBe('unknown');
 
   await wait(TEST_CLASSIFICATION_DELAY + 5);
-  t.equal(events[0].device, 'mouse', 'classifies physical Control+wheel as mouse');
+  expect(events[0].device, 'classifies physical Control+wheel as mouse').toBe('mouse');
 
   eventWindow.dispatchEvent(
     new eventWindow.KeyboardEvent('keyup', {code: 'ControlLeft', key: 'Control'})
@@ -147,34 +144,30 @@ test('WheelGestureSession#physical Control key', async (t) => {
   unsubscribe();
 });
 
-test('WheelGestureSession#rapid vertical trackpad sequence', (t) => {
+test('WheelGestureSession#rapid vertical trackpad sequence', () => {
   const events: WheelGestureSessionEvent[] = [];
   const session = createSession();
   session.on((event) => events.push(event));
 
-  t.equal(
+  expect(
     session.handleEvent(createWheelEvent({deltaY: 2, timeStamp: 10})),
-    'unknown',
     'first ambiguous event remains unknown'
-  );
-  t.equal(
+  ).toBe('unknown');
+  expect(
     session.handleEvent(createWheelEvent({deltaY: 3, timeStamp: 20})),
-    'trackpad',
     'classifies a rapid sequence of small deltas as trackpad'
-  );
-  t.deepEquals(
+  ).toBe('trackpad');
+  expect(
     events.map((event) => event.eventType),
-    [InputEvent.Start, InputEvent.Move],
     'replays buffered movement as one move'
-  );
-  t.equal(events[1].deltaY, 5, 'aggregates buffered deltas');
-  t.equal(events[1].velocityY, 0.5, 'calculates interval velocity');
-  t.equal(events[1].overallVelocityY, 0.5, 'calculates overall velocity');
+  ).toEqual([InputEvent.Start, InputEvent.Move]);
+  expect(events[1].deltaY, 'aggregates buffered deltas').toBe(5);
+  expect(events[1].velocityY, 'calculates interval velocity').toBe(0.5);
+  expect(events[1].overallVelocityY, 'calculates overall velocity').toBe(0.5);
   session.destroy();
-  t.end();
 });
 
-test('WheelGestureSession#mouse classification', (t) => {
+test('WheelGestureSession#mouse classification', () => {
   const events: WheelGestureSessionEvent[] = [];
   const session = createSession();
   session.on((event) => events.push(event));
@@ -184,23 +177,22 @@ test('WheelGestureSession#mouse classification', (t) => {
     deltaY: 3,
     timeStamp: 10
   });
-  t.equal(session.handleEvent(wheelEvent), 'mouse', 'classifies line deltas as mouse');
-  t.equal(wheelEvent.preventDefaultCallCount, 0, 'does not prevent default');
-  t.equal(events[1].deltaY, 120, 'normalizes line deltas');
+  expect(session.handleEvent(wheelEvent), 'classifies line deltas as mouse').toBe('mouse');
+  expect(wheelEvent.preventDefaultCallCount, 'does not prevent default').toBe(0);
+  expect(events[1].deltaY, 'normalizes line deltas').toBe(120);
   session.destroy();
-  t.end();
 });
 
-test('WheelGestureSession#unsubscribe', async (t) => {
+test('WheelGestureSession#unsubscribe', async () => {
   const events: WheelGestureSessionEvent[] = [];
   const session = createSession();
   const unsubscribe = session.on((event) => events.push(event));
 
   session.handleEvent(createWheelEvent({deltaY: 1}));
   unsubscribe();
-  t.notOk(session.hasSubscribers, 'removes subscriber');
+  expect(session.hasSubscribers, 'removes subscriber').toBeFalsy();
 
   await wait(TEST_END_DELAY + 5);
-  t.deepEquals(events, [], 'discards pending classification');
-  t.equal(session.device, 'unknown', 'resets pending state');
+  expect(events, 'discards pending classification').toEqual([]);
+  expect(session.device, 'resets pending state').toBe('unknown');
 });

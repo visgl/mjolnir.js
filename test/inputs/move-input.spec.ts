@@ -2,71 +2,65 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) vis.gl contributors
 
-import test from '../test-utils/vitest-tape';
+import {afterEach, beforeEach, describe, expect, test, vi} from 'vitest';
 import {MoveInput} from 'mjolnir.js/inputs/move-input';
-import {spy} from '../test-utils/spy';
 import {createEventTarget} from '../test-utils/dom';
 
-test('moveInput#constructor', (t) => {
+test('moveInput#constructor', () => {
   const element = createEventTarget();
   const numMouseEvents = 7; // MOUSE_EVENTS.length
-  const addELSpy = spy(element, 'addEventListener');
+  const addELSpy = vi.spyOn(element, 'addEventListener');
   const moveInput = new MoveInput(element, () => {}, {});
-  t.ok(moveInput, 'MoveInput created without optional params');
-  t.equal(
-    addELSpy.callCount,
-    numMouseEvents,
+  expect(moveInput, 'MoveInput created without optional params').toBeTruthy();
+  expect(
+    addELSpy,
     'should call addEventListener once for each passed event:handler pair'
-  );
-  t.end();
+  ).toHaveBeenCalledTimes(numMouseEvents);
 });
 
-test('moveInput#destroy', (t) => {
+test('moveInput#destroy', () => {
   const element = createEventTarget();
   const numMouseEvents = 7; // MOUSE_EVENTS.length
-  const removeELSpy = spy(element, 'removeEventListener');
+  const removeELSpy = vi.spyOn(element, 'removeEventListener');
   const moveInput = new MoveInput(element, () => {}, {});
   moveInput.destroy();
-  t.equal(
-    removeELSpy.callCount,
-    numMouseEvents,
+  expect(
+    removeELSpy,
     'should call removeEventListener once for each passed event:handler pair'
-  );
+  ).toHaveBeenCalledTimes(numMouseEvents);
 
   element.remove();
-  t.end();
 });
 
-test('moveInput#only listens while enabled', (t) => {
+test('moveInput#only listens while enabled', () => {
   const element = createEventTarget();
-  const addELSpy = spy(element, 'addEventListener');
-  const removeELSpy = spy(element, 'removeEventListener');
+  const addELSpy = vi.spyOn(element, 'addEventListener');
+  const removeELSpy = vi.spyOn(element, 'removeEventListener');
   const moveInput = new MoveInput(element, () => {}, {enable: false});
 
-  t.equal(addELSpy.callCount, 0, 'does not add listeners when disabled');
+  expect(addELSpy, 'does not add listeners when disabled').toHaveBeenCalledTimes(0);
 
   moveInput.enableEventType('pointermove', true);
-  t.equal(addELSpy.callCount, 3, 'adds mouse state listeners for pointermove');
+  expect(addELSpy, 'adds mouse state listeners for pointermove').toHaveBeenCalledTimes(3);
   moveInput.enableEventType('pointermove', true);
-  t.equal(addELSpy.callCount, 3, 'does not add pointermove listeners again');
+  expect(addELSpy, 'does not add pointermove listeners again').toHaveBeenCalledTimes(3);
 
-  removeELSpy.reset();
+  removeELSpy.mockClear();
   moveInput.enableEventType('pointermove', false);
-  t.equal(removeELSpy.callCount, 3, 'removes mouse state listeners for pointermove');
+  expect(removeELSpy, 'removes mouse state listeners for pointermove').toHaveBeenCalledTimes(3);
   moveInput.enableEventType('pointermove', false);
-  t.equal(removeELSpy.callCount, 3, 'does not remove pointermove listeners again');
+  expect(removeELSpy, 'does not remove pointermove listeners again').toHaveBeenCalledTimes(3);
 
   moveInput.enableEventType('pointerover', true);
-  t.equal(addELSpy.callCount, 4, 'adds the enabled pointerover listener');
+  expect(addELSpy, 'adds the enabled pointerover listener').toHaveBeenCalledTimes(4);
 
   moveInput.destroy();
   element.remove();
-  t.end();
 });
 
-test('moveInput#handleEvent', (t) => {
+test('moveInput#handleEvent', () => {
   const element = createEventTarget();
-  const callbackSpy = spy();
+  const callbackSpy = vi.fn();
   const mouseDownMock = {
     type: 'mousedown',
     button: 0,
@@ -93,25 +87,32 @@ test('moveInput#handleEvent', (t) => {
   });
 
   moveInput.handleEvent(mouseDownMock);
-  t.notOk(callbackSpy.called, 'callback should not be called on mouse down');
+  expect(callbackSpy, 'callback should not be called on mouse down').not.toHaveBeenCalled();
   moveInput.handleEvent(mouseDragMock);
-  t.notOk(callbackSpy.called, 'callback should not be called on mouse drag');
+  expect(callbackSpy, 'callback should not be called on mouse drag').not.toHaveBeenCalled();
   moveInput.handleEvent(mouseUpMock);
-  t.notOk(callbackSpy.called, 'callback should not be called on mouse up');
+  expect(callbackSpy, 'callback should not be called on mouse up').not.toHaveBeenCalled();
   moveInput.handleEvent(mouseHoverMock);
-  t.ok(callbackSpy.called, 'callback should be called on mouse hover');
+  expect(callbackSpy, 'callback should be called on mouse hover').toHaveBeenCalled();
 
   element.remove();
-  t.end();
 });
 
-test('moveInput#enableEventType', (t) => {
-  const element = createEventTarget();
-
+describe('moveInput#enableEventType', () => {
+  let element: HTMLDivElement;
   let callbackSpy;
-  let moveInput;
+  let moveInput: MoveInput;
 
-  t.test('pointermove', (assert) => {
+  beforeEach(() => {
+    element = createEventTarget();
+  });
+
+  afterEach(() => {
+    moveInput.destroy();
+    element.remove();
+  });
+
+  test('pointermove', () => {
     const mouseHoverMock = {
       type: 'mousemove',
       button: 0,
@@ -119,80 +120,81 @@ test('moveInput#enableEventType', (t) => {
       target: element
     };
 
-    callbackSpy = spy();
+    callbackSpy = vi.fn();
     moveInput = new MoveInput(element, callbackSpy, {enable: true});
 
     moveInput.enableEventType('pointermove', false);
     moveInput.handleEvent(mouseHoverMock);
-    assert.notOk(callbackSpy.called, 'callback should not be called when disabled');
+    expect(callbackSpy, 'callback should not be called when disabled').not.toHaveBeenCalled();
 
     moveInput.enableEventType('pointermove', true);
     moveInput.handleEvent(mouseHoverMock);
-    assert.ok(callbackSpy.called, 'callback should be called on mouse hover when enabled...');
-
-    assert.end();
+    expect(
+      callbackSpy,
+      'callback should be called on mouse hover when enabled...'
+    ).toHaveBeenCalled();
   });
 
-  t.test('pointerleave', (assert) => {
+  test('pointerleave', () => {
     const mouseLeaveMock = {
       type: 'mouseleave',
       target: element
     };
 
-    callbackSpy = spy();
+    callbackSpy = vi.fn();
     moveInput = new MoveInput(element, callbackSpy, {enable: true});
 
     moveInput.enableEventType('pointerleave', false);
     moveInput.handleEvent(mouseLeaveMock);
-    assert.notOk(callbackSpy.called, 'callback should not be called when disabled');
+    expect(callbackSpy, 'callback should not be called when disabled').not.toHaveBeenCalled();
 
     moveInput.enableEventType('pointerleave', true);
     moveInput.handleEvent(mouseLeaveMock);
-    assert.ok(callbackSpy.called, 'callback should be called on mouse leave when enabled...');
-
-    assert.end();
+    expect(
+      callbackSpy,
+      'callback should be called on mouse leave when enabled...'
+    ).toHaveBeenCalled();
   });
 
-  t.test('pointerover', (assert) => {
+  test('pointerover', () => {
     const mouseOverMock = {
       type: 'mouseover',
       target: element
     };
 
-    callbackSpy = spy();
+    callbackSpy = vi.fn();
     moveInput = new MoveInput(element, callbackSpy, {enable: true});
 
     moveInput.enableEventType('pointerover', false);
     moveInput.handleEvent(mouseOverMock);
-    assert.notOk(callbackSpy.called, 'callback should not be called when disabled');
+    expect(callbackSpy, 'callback should not be called when disabled').not.toHaveBeenCalled();
 
     moveInput.enableEventType('pointerover', true);
     moveInput.handleEvent(mouseOverMock);
-    assert.ok(callbackSpy.called, 'callback should be called on mouse over when enabled...');
-
-    assert.end();
+    expect(
+      callbackSpy,
+      'callback should be called on mouse over when enabled...'
+    ).toHaveBeenCalled();
   });
 
-  t.test('pointerout', (assert) => {
+  test('pointerout', () => {
     const mouseOutMock = {
       type: 'mouseout',
       target: element
     };
 
-    callbackSpy = spy();
+    callbackSpy = vi.fn();
     moveInput = new MoveInput(element, callbackSpy, {enable: true});
 
     moveInput.enableEventType('pointerout', false);
     moveInput.handleEvent(mouseOutMock);
-    assert.notOk(callbackSpy.called, 'callback should not be called when disabled');
+    expect(callbackSpy, 'callback should not be called when disabled').not.toHaveBeenCalled();
 
     moveInput.enableEventType('pointerout', true);
     moveInput.handleEvent(mouseOutMock);
-    assert.ok(callbackSpy.called, 'callback should be called on mouse out when enabled...');
-
-    assert.end();
+    expect(
+      callbackSpy,
+      'callback should be called on mouse out when enabled...'
+    ).toHaveBeenCalled();
   });
-
-  element.remove();
-  t.end();
 });

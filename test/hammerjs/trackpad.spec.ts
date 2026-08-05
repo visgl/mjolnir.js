@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) vis.gl contributors
 
-import test from '../test-utils/vitest-tape';
+import {expect, test} from 'vitest';
 import {EventManager, InputDirection, Pan, Pinch} from 'mjolnir.js';
 import {createEventTarget} from '../test-utils/dom';
 
-test('PanRecognizer#trackpad', async (t) => {
+test('PanRecognizer#trackpad', async () => {
   const element = createEventTarget();
   const eventManager = new EventManager(element, {
     recognizers: [new Pan({pointers: 2, threshold: 0, trackpad: true})]
@@ -31,22 +31,20 @@ test('PanRecognizer#trackpad', async (t) => {
   );
   await new Promise((resolve) => globalThis.setTimeout(resolve, 100));
 
-  t.deepEquals(
+  expect(
     events.map((event) => event.type),
-    ['panstart', 'panmove', 'panend'],
     'emits a continuous two-finger trackpad pan'
-  );
-  t.equal(events[0].pointerType, 'trackpad', 'identifies the pointer type');
-  t.equal(events[0].deltaX, -10, 'converts scroll delta to pointer movement');
-  t.equal(events[0].direction, InputDirection.Left, 'reports pointer movement direction');
-  t.equal(events[1].deltaX, -15, 'reports accumulated movement');
+  ).toEqual(['panstart', 'panmove', 'panend']);
+  expect(events[0].pointerType, 'identifies the pointer type').toBe('trackpad');
+  expect(events[0].deltaX, 'converts scroll delta to pointer movement').toBe(-10);
+  expect(events[0].direction, 'reports pointer movement direction').toBe(InputDirection.Left);
+  expect(events[1].deltaX, 'reports accumulated movement').toBe(-15);
 
   eventManager.destroy();
   element.remove();
-  t.end();
 });
 
-test('PinchRecognizer#trackpad', (t) => {
+test('PinchRecognizer#trackpad', () => {
   const element = createEventTarget();
   const eventManager = new EventManager(element, {
     recognizers: [new Pinch({trackpad: true})]
@@ -71,17 +69,16 @@ test('PinchRecognizer#trackpad', (t) => {
     })
   );
 
-  t.equal(events.length, 2, 'recognizes a continuous trackpad pinch');
-  t.equal(events[0].pointerType, 'trackpad', 'identifies the pointer type');
-  t.equal(events[0].scale, Math.exp(0.1), 'converts wheel delta to zoom-in scale');
-  t.equal(events[1].scale, Math.exp(0.15), 'reports scale from cumulative wheel delta');
+  expect(events.length, 'recognizes a continuous trackpad pinch').toBe(2);
+  expect(events[0].pointerType, 'identifies the pointer type').toBe('trackpad');
+  expect(events[0].scale, 'converts wheel delta to zoom-in scale').toBe(Math.exp(0.1));
+  expect(events[1].scale, 'reports scale from cumulative wheel delta').toBe(Math.exp(0.15));
 
   eventManager.destroy();
   element.remove();
-  t.end();
 });
 
-test('trackpad recognizers require opt-in and two pointers', (t) => {
+test('trackpad recognizers require opt-in and two pointers', () => {
   const element = createEventTarget();
   const panHandler = () => {};
   const eventManager = new EventManager(element, {
@@ -89,34 +86,36 @@ test('trackpad recognizers require opt-in and two pointers', (t) => {
   });
 
   eventManager.on('panstart', panHandler);
-  t.notOk(eventManager.wheelSession.hasSubscribers, 'does not subscribe without trackpad opt-in');
+  expect(
+    eventManager.wheelSession.hasSubscribers,
+    'does not subscribe without trackpad opt-in'
+  ).toBeFalsy();
   eventManager.destroy();
 
   const onePointerManager = new EventManager(element, {
     recognizers: [new Pan({pointers: 1, trackpad: true})]
   });
   onePointerManager.on('panstart', panHandler);
-  t.notOk(
+  expect(
     onePointerManager.wheelSession.hasSubscribers,
     'does not subscribe for a one-pointer recognizer'
-  );
+  ).toBeFalsy();
   onePointerManager.destroy();
 
   const trackpadManager = new EventManager(element, {
     recognizers: [new Pan({pointers: 2, trackpad: true})]
   });
   trackpadManager.on('panstart', panHandler);
-  t.ok(
+  expect(
     trackpadManager.wheelSession.hasSubscribers,
     'subscribes when trackpad recognition is enabled'
-  );
+  ).toBeTruthy();
   trackpadManager.off('panstart', panHandler);
-  t.notOk(
+  expect(
     trackpadManager.wheelSession.hasSubscribers,
     'unsubscribes when the recognizer is disabled'
-  );
+  ).toBeFalsy();
   trackpadManager.destroy();
 
   element.remove();
-  t.end();
 });
