@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) vis.gl contributors
 
-import test from 'tape-promise/tape';
+import test from '../test-utils/vitest-tape';
 import {MoveInput} from 'mjolnir.js/inputs/move-input';
 import {spy} from '../test-utils/spy';
 import {createEventTarget} from '../test-utils/dom';

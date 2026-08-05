@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) vis.gl contributors
 
-import test from 'tape-promise/tape';
+import test from '../test-utils/vitest-tape';
 import {global, window, document, userAgent} from 'mjolnir.js/utils/globals';
 
 test('globals', (t) => {
