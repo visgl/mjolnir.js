@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) vis.gl contributors
 
-import test from '../test-utils/vitest-tape';
+import {expect, test} from 'vitest';
 import {DoubleClickDrag} from 'mjolnir.js';
 import {InputEvent, RecognizerState} from '../../src/hammerjs/index';
 
@@ -80,7 +80,7 @@ function createInput({
   };
 }
 
-test('DoubleClickDrag emits start/move/end after a valid second-tap drag', (t) => {
+test('DoubleClickDrag emits start/move/end after a valid second-tap drag', () => {
   const {recognizer, events} = createRecognizer();
 
   recognizer.recognize(
@@ -108,7 +108,7 @@ test('DoubleClickDrag emits start/move/end after a valid second-tap drag', (t) =
       distance: 0.5
     })
   );
-  t.deepEqual(events, [], 'drag remains silent until the threshold is crossed');
+  expect(events, 'drag remains silent until the threshold is crossed').toEqual([]);
 
   recognizer.recognize(
     createInput({
@@ -141,24 +141,22 @@ test('DoubleClickDrag emits start/move/end after a valid second-tap drag', (t) =
     })
   );
 
-  t.deepEqual(
+  expect(
     events.map((event) => event.name),
-    [
-      'doubleclickdragstart',
-      'doubleclickdrag',
-      'doubleclickdragmove',
-      'doubleclickdrag',
-      'doubleclickdrag',
-      'doubleclickdragend'
-    ],
     'drag emits the full lifecycle once active'
-  );
-  t.equal(recognizer.state, RecognizerState.Ended, 'recognizer ends after pointer up');
-  t.ok(events[0].input.scale > 1, 'emitted event includes the computed zoom scale');
-  t.end();
+  ).toEqual([
+    'doubleclickdragstart',
+    'doubleclickdrag',
+    'doubleclickdragmove',
+    'doubleclickdrag',
+    'doubleclickdrag',
+    'doubleclickdragend'
+  ]);
+  expect(recognizer.state, 'recognizer ends after pointer up').toBe(RecognizerState.Ended);
+  expect(events[0].input.scale > 1, 'emitted event includes the computed zoom scale').toBeTruthy();
 });
 
-test('DoubleClickDrag fails if the second tap is released before dragging starts', (t) => {
+test('DoubleClickDrag fails if the second tap is released before dragging starts', () => {
   const {recognizer, events} = createRecognizer();
 
   recognizer.recognize(
@@ -174,12 +172,11 @@ test('DoubleClickDrag fails if the second tap is released before dragging starts
     createInput({eventType: InputEvent.End, center: {x: 1, y: 1}, timeStamp: 220, deltaTime: 60})
   );
 
-  t.deepEqual(events, [], 'no gesture events are emitted without an active drag');
-  t.equal(recognizer.state, RecognizerState.Failed, 'recognizer fails cleanly');
-  t.end();
+  expect(events, 'no gesture events are emitted without an active drag').toEqual([]);
+  expect(recognizer.state, 'recognizer fails cleanly').toBe(RecognizerState.Failed);
 });
 
-test('DoubleClickDrag ignores taps that are outside the recognition interval', (t) => {
+test('DoubleClickDrag ignores taps that are outside the recognition interval', () => {
   const {recognizer, events} = createRecognizer();
 
   recognizer.recognize(
@@ -202,7 +199,6 @@ test('DoubleClickDrag ignores taps that are outside the recognition interval', (
     })
   );
 
-  t.deepEqual(events, [], 'late taps do not activate the drag recognizer');
-  t.equal(recognizer.state, RecognizerState.Failed, 'recognizer remains failed');
-  t.end();
+  expect(events, 'late taps do not activate the drag recognizer').toEqual([]);
+  expect(recognizer.state, 'recognizer remains failed').toBe(RecognizerState.Failed);
 });

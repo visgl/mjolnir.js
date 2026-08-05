@@ -2,162 +2,160 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) vis.gl contributors
 
-import test from './test-utils/vitest-tape';
+import {expect, test, vi} from 'vitest';
 import {EventManager, Tap, Pan} from 'mjolnir.js';
-import {spy} from './test-utils/spy';
 import {createEventTarget} from './test-utils/dom';
 
-test('eventManager#constructor', (t) => {
+test('eventManager#constructor', () => {
   const root = createEventTarget();
 
   let eventManager = new EventManager(root);
-  t.ok(eventManager, 'EventManager created');
-  t.ok(eventManager.manager, 'Hammer.Manager created');
-  t.ok(eventManager.wheelSession, 'WheelGestureSession created');
-  t.ok(eventManager.wheelInput, 'WheelInput created');
-  t.is(
+  expect(eventManager, 'EventManager created').toBeTruthy();
+  expect(eventManager.manager, 'Hammer.Manager created').toBeTruthy();
+  expect(eventManager.wheelSession, 'WheelGestureSession created').toBeTruthy();
+  expect(eventManager.wheelInput, 'WheelInput created').toBeTruthy();
+  expect(
     eventManager.wheelInput.options.wheelSession,
-    eventManager.wheelSession,
     'WheelInput uses the shared WheelGestureSession'
-  );
-  t.ok(eventManager.moveInput, 'MoveInput created');
-  t.ok(eventManager.keyInput, 'MoveInput created');
-  t.notOk(eventManager.events.size, 'No events are registered');
+  ).toBe(eventManager.wheelSession);
+  expect(eventManager.moveInput, 'MoveInput created').toBeTruthy();
+  expect(eventManager.keyInput, 'MoveInput created').toBeTruthy();
+  expect(eventManager.events.size, 'No events are registered').toBeFalsy();
   eventManager.destroy();
 
   eventManager = new EventManager(root, {
     events: {foo: () => {}},
     recognizers: [new Tap()]
   });
-  t.ok(eventManager.events.size, 'No events are registered');
+  expect(eventManager.events.size, 'No events are registered').toBeTruthy();
   eventManager.destroy();
 
   // construct without element
   eventManager = new EventManager(null, {
     recognizers: [new Tap()]
   });
-  t.ok(eventManager, 'EventManager created');
-  t.notOk(eventManager.manager, 'Hammer.Manager should not be created');
-  t.doesNotThrow(() => eventManager.on('tap', () => {}), 'eventManager.on() does not throw');
-  t.doesNotThrow(() => eventManager.off('tap', () => {}), 'eventManager.off() does not throw');
+  expect(eventManager, 'EventManager created').toBeTruthy();
+  expect(eventManager.manager, 'Hammer.Manager should not be created').toBeFalsy();
+  expect(() => eventManager.on('tap', () => {}), 'eventManager.on() does not throw').not.toThrow();
+  expect(
+    () => eventManager.off('tap', () => {}),
+    'eventManager.off() does not throw'
+  ).not.toThrow();
   eventManager.destroy();
 
   root.remove();
-  t.end();
 });
 
-test('eventManager#destroy', (t) => {
+test('eventManager#destroy', () => {
   const root = createEventTarget();
   const eventManager = new EventManager(root);
   const {manager, moveInput, wheelInput, wheelSession, keyInput} = eventManager;
 
-  spy(manager, 'destroy');
-  spy(moveInput, 'destroy');
-  spy(wheelInput, 'destroy');
-  spy(wheelSession, 'destroy');
-  spy(keyInput, 'destroy');
+  vi.spyOn(manager, 'destroy');
+  vi.spyOn(moveInput, 'destroy');
+  vi.spyOn(wheelInput, 'destroy');
+  vi.spyOn(wheelSession, 'destroy');
+  vi.spyOn(keyInput, 'destroy');
   eventManager.destroy();
 
-  t.equal(manager.destroy.callCount, 1, 'Manager.destroy() should be called once');
-  t.equal(moveInput.destroy.callCount, 1, 'MoveInput.destroy() should be called once');
-  t.equal(wheelInput.destroy.callCount, 1, 'WheelInput.destroy() should be called once');
-  t.equal(wheelSession.destroy.callCount, 1, 'WheelGestureSession.destroy() should be called once');
-  t.equal(keyInput.destroy.callCount, 1, 'KeyInput.destroy() should be called once');
+  expect(manager.destroy, 'Manager.destroy() should be called once').toHaveBeenCalledTimes(1);
+  expect(moveInput.destroy, 'MoveInput.destroy() should be called once').toHaveBeenCalledTimes(1);
+  expect(wheelInput.destroy, 'WheelInput.destroy() should be called once').toHaveBeenCalledTimes(1);
+  expect(
+    wheelSession.destroy,
+    'WheelGestureSession.destroy() should be called once'
+  ).toHaveBeenCalledTimes(1);
+  expect(keyInput.destroy, 'KeyInput.destroy() should be called once').toHaveBeenCalledTimes(1);
 
-  t.doesNotThrow(
+  expect(
     () => eventManager.destroy(),
     'EventManager does not throw error on destroyed twice'
-  );
+  ).not.toThrow();
 
   const emptyEventManager = new EventManager();
   emptyEventManager.destroy();
-  t.doesNotThrow(
+  expect(
     () => emptyEventManager.destroy(),
     'EventManager without elements can be destroyed'
-  );
+  ).not.toThrow();
 
   root.remove();
-  t.end();
 });
 
-test('eventManager#on', (t) => {
+test('eventManager#on', () => {
   const root = createEventTarget();
   const eventManager = new EventManager(root, {
     recognizers: [new Tap({event: 'click'}), new Tap({event: 'dblclick', taps: 2})]
   });
-  const toggleRecSpy = spy(eventManager, '_toggleRecognizer');
+  const toggleRecSpy = vi.spyOn(eventManager, '_toggleRecognizer');
 
   eventManager.on('dblclick', () => {});
-  t.ok(eventManager.events.get('dblclick'), 'event dblclick is registered');
-  t.equal(
-    toggleRecSpy.callCount,
-    1,
+  expect(eventManager.events.get('dblclick'), 'event dblclick is registered').toBeTruthy();
+  expect(
+    toggleRecSpy,
     '_toggleRecognizer should be called once when passing a single event and handler'
-  );
+  ).toHaveBeenCalledTimes(1);
 
-  toggleRecSpy.reset();
+  toggleRecSpy.mockClear();
   eventManager.on({
     click: () => {},
     dblclick: () => {}
   });
-  t.equal(
-    toggleRecSpy.callCount,
-    2,
+  expect(
+    toggleRecSpy,
     '_toggleRecognizer should be called once for each entry in an event:handler map'
-  );
+  ).toHaveBeenCalledTimes(2);
 
   eventManager.destroy();
   root.remove();
-  t.end();
 });
 
-test('eventManager#watch', (t) => {
+test('eventManager#watch', () => {
   const root = createEventTarget();
   const eventManager = new EventManager(root, {
     recognizers: [new Tap({event: 'click'}), new Tap({event: 'dblclick', taps: 2})]
   });
-  const toggleRecSpy = spy(eventManager, '_toggleRecognizer');
+  const toggleRecSpy = vi.spyOn(eventManager, '_toggleRecognizer');
 
   eventManager.watch('dblclick', () => {});
-  t.equal(toggleRecSpy.callCount, 0, '_toggleRecognizer should not be called for passive handler');
+  expect(
+    toggleRecSpy,
+    '_toggleRecognizer should not be called for passive handler'
+  ).toHaveBeenCalledTimes(0);
 
   eventManager.destroy();
   root.remove();
-  t.end();
 });
 
-test('eventManager#once', (t) => {
+test('eventManager#once', () => {
   const root = createEventTarget();
   const eventManager = new EventManager(root, {
     recognizers: [new Tap({event: 'click'}), new Tap({event: 'dblclick', taps: 2})]
   });
-  const toggleRecSpy = spy(eventManager, '_toggleRecognizer');
+  const toggleRecSpy = vi.spyOn(eventManager, '_toggleRecognizer');
 
   eventManager.once('dblclick', () => {});
-  t.ok(eventManager.events.get('dblclick'), 'event doubletap is registered');
-  t.equal(
-    toggleRecSpy.callCount,
-    1,
+  expect(eventManager.events.get('dblclick'), 'event doubletap is registered').toBeTruthy();
+  expect(
+    toggleRecSpy,
     '_toggleRecognizer should be called once when passing a single event and handler'
-  );
+  ).toHaveBeenCalledTimes(1);
 
-  toggleRecSpy.reset();
+  toggleRecSpy.mockClear();
   eventManager.once({
     click: () => {},
     dblclick: () => {}
   });
-  t.equal(
-    toggleRecSpy.callCount,
-    2,
+  expect(
+    toggleRecSpy,
     '_toggleRecognizer should be called once for each entry in an event:handler map'
-  );
+  ).toHaveBeenCalledTimes(2);
 
   eventManager.destroy();
   root.remove();
-  t.end();
 });
 
-test('eventManager#off', (t) => {
+test('eventManager#off', () => {
   const root = createEventTarget();
   const eventManager = new EventManager(root, {
     recognizers: [new Tap({event: 'click'}), new Tap({event: 'dblclick', taps: 2}), new Pan()]
@@ -172,68 +170,61 @@ test('eventManager#off', (t) => {
   eventManager.on('panstart', handler1);
   eventManager.on('panmove', handler2);
 
-  const toggleRecSpy = spy(eventManager, '_toggleRecognizer');
+  const toggleRecSpy = vi.spyOn(eventManager, '_toggleRecognizer');
 
   eventManager.off('foo', handler1);
-  t.equal(
-    toggleRecSpy.callCount,
-    0,
+  expect(
+    toggleRecSpy,
     '_toggleRecognizer should not be called on an unrecognized event'
-  );
+  ).toHaveBeenCalledTimes(0);
 
   eventManager.off('panstart', handler1);
-  t.equal(
-    toggleRecSpy.callCount,
-    0,
+  expect(
+    toggleRecSpy,
     '_toggleRecognizer should not be called on an event that still has handlers'
-  );
+  ).toHaveBeenCalledTimes(0);
   eventManager.off('panmove', handler2);
-  t.equal(
-    toggleRecSpy.callCount,
-    1,
+  expect(
+    toggleRecSpy,
     '_toggleRecognizer should be called on an event that no longer has handlers'
-  );
+  ).toHaveBeenCalledTimes(1);
 
-  toggleRecSpy.reset();
+  toggleRecSpy.mockClear();
   eventManager.off({
     click: handler1,
     dblclick: handler1
   });
-  t.equal(
-    toggleRecSpy.callCount,
-    1,
+  expect(
+    toggleRecSpy,
     '_toggleRecognizer should be called once for each event that has no more handlers'
-  );
-  toggleRecSpy.reset();
+  ).toHaveBeenCalledTimes(1);
+  toggleRecSpy.mockClear();
   eventManager.off({
     click: handler2
   });
-  t.equal(
-    toggleRecSpy.callCount,
-    1,
+  expect(
+    toggleRecSpy,
     '_toggleRecognizer should be called once for each event that has no more handlers'
-  );
+  ).toHaveBeenCalledTimes(1);
 
   eventManager.destroy();
   root.remove();
-  t.end();
 });
 
-test('eventManager#eventHandling', (t) => {
+test('eventManager#eventHandling', () => {
   const root = createEventTarget();
   const eventMock = {type: 'foo'};
   const eventManager = new EventManager(root);
-  const emitSpy = spy(eventManager.manager, 'emit');
+  const emitSpy = vi.spyOn(eventManager.manager, 'emit');
 
   eventManager._onOtherEvent(eventMock);
-  t.ok(emitSpy.called, 'manager.emit() should be called from _onOtherEvent()...');
+  expect(emitSpy, 'manager.emit() should be called from _onOtherEvent()...').toHaveBeenCalled();
 
   eventManager.destroy();
   root.remove();
-  t.end();
 });
 
-test('eventManager#normalizeEvent', (t) => {
+test('eventManager#normalizeEvent', () => {
   const root = createEventTarget();
   const eventMock = {
     type: 'foo',
@@ -254,17 +245,16 @@ test('eventManager#normalizeEvent', (t) => {
 
   eventManager._onOtherEvent(eventMock);
 
-  t.is(normalizedEvent.rootElement, root, 'rootElement is set');
-  t.ok(normalizedEvent.center, 'center is populated');
-  t.ok(normalizedEvent.offsetCenter, 'offsetCenter is populated');
-  t.is(normalizedEvent.handled, false, 'event marked as not handled');
+  expect(normalizedEvent.rootElement, 'rootElement is set').toBe(root);
+  expect(normalizedEvent.center, 'center is populated').toBeTruthy();
+  expect(normalizedEvent.offsetCenter, 'offsetCenter is populated').toBeTruthy();
+  expect(normalizedEvent.handled, 'event marked as not handled').toBe(false);
 
   eventManager.destroy();
   root.remove();
-  t.end();
 });
 
-test('eventManager#propagation', (t) => {
+test('eventManager#propagation', () => {
   const rootNode = createEventTarget({
     id: 'root',
     children: [
@@ -322,10 +312,9 @@ test('eventManager#propagation', (t) => {
   };
   eventManager._onOtherEvent(eventMock);
 
-  t.deepEquals(
-    handlerCalls,
-    ['foo@grandchild-00', 'foo@child-0', 'foo@child-0:2'],
-    'propagated correctly'
-  );
-  t.end();
+  expect(handlerCalls, 'propagated correctly').toEqual([
+    'foo@grandchild-00',
+    'foo@child-0',
+    'foo@child-0:2'
+  ]);
 });

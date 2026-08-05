@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) vis.gl contributors
 
-import test from '../test-utils/vitest-tape';
+import {expect, test} from 'vitest';
 import {whichButtons} from 'mjolnir.js/utils/event-utils';
 
-test('EventUtils#whichButtons', (t) => {
+test('EventUtils#whichButtons', () => {
   const TESTS = [
     {
       srcEvent: {
@@ -56,10 +56,14 @@ test('EventUtils#whichButtons', (t) => {
   ];
 
   for (const testCase of TESTS) {
-    t.is(whichButtons(testCase)?.leftButton, testCase.leftButton, 'returns left button flag');
-    t.is(whichButtons(testCase)?.middleButton, testCase.middleButton, 'returns middle button flag');
-    t.is(whichButtons(testCase)?.rightButton, testCase.rightButton, 'returns right button flag');
+    expect(whichButtons(testCase)?.leftButton, 'returns left button flag').toBe(
+      testCase.leftButton
+    );
+    expect(whichButtons(testCase)?.middleButton, 'returns middle button flag').toBe(
+      testCase.middleButton
+    );
+    expect(whichButtons(testCase)?.rightButton, 'returns right button flag').toBe(
+      testCase.rightButton
+    );
   }
-
-  t.end();
 });

@@ -2,14 +2,12 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) vis.gl contributors
 
-import test from '../test-utils/vitest-tape';
+import {expect, test} from 'vitest';
 import {global, window, document, userAgent} from 'mjolnir.js/utils/globals';
 
-test('globals', (t) => {
-  t.ok(global, 'global is an object');
-  t.ok(window, 'window is an object');
-  t.ok(document, 'document is an object');
-  t.is(typeof userAgent, 'string', 'userAgent is a string');
-
-  t.end();
+test('globals', () => {
+  expect(global, 'global is an object').toBeTruthy();
+  expect(window, 'window is an object').toBeTruthy();
+  expect(document, 'document is an object').toBeTruthy();
+  expect(typeof userAgent, 'userAgent is a string').toBe('string');
 });
