@@ -14,7 +14,7 @@
     "strictNullChecks": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "paths": {
       "mjolnir.js": ["./src"]
     }

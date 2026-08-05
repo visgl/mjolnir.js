@@ -1,0 +1,49 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.8/schema.json",
+  "extends": ["@vis.gl/dev-tools/biome.jsonc"],
+  "files": {
+    "includes": [
+      "src/**/*.{js,mjs,jsx,ts,tsx}",
+      "test/**/*.{js,mjs,jsx,ts,tsx}",
+      "examples/**/*.{js,mjs,jsx,ts,tsx}",
+      "!**/dist/**",
+      "!**/*.min.js"
+    ]
+  },
+  "formatter": {
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100,
+    "bracketSpacing": false
+  },
+  "javascript": {
+    "formatter": {
+      "arrowParentheses": "always",
+      "bracketSpacing": false,
+      "jsxQuoteStyle": "double",
+      "quoteStyle": "single",
+      "semicolons": "always",
+      "trailingCommas": "none"
+    }
+  },
+  "linter": {
+    "includes": ["src/**/*.{js,mjs,jsx,ts,tsx}", "test/**/*.{js,mjs,jsx,ts,tsx}"],
+    "rules": {
+      "recommended": false,
+      "correctness": {
+        "noInvalidUseBeforeDeclaration": "error",
+        "noUnreachable": "error",
+        "noUnusedImports": "error",
+        "noUnusedVariables": "error"
+      },
+      "suspicious": {
+        "noAsyncPromiseExecutor": "error",
+        "noConsole": "error",
+        "noDebugger": "error",
+        "noDoubleEquals": "error",
+        "noRedeclare": "error",
+        "noShadow": "error"
+      }
+    }
+  }
+}

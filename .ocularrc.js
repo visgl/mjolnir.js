@@ -23,8 +23,6 @@ export default {
   },
 
   entry: {
-    test: 'test/node.ts',
-    'test-browser': 'test/index.html',
     size: ['test/size.js']
   }
 };

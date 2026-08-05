@@ -9,7 +9,7 @@ import type {HammerEvent} from '../hammerjs/index';
 const DOWN_EVENT = 1;
 const MOVE_EVENT = 2;
 const UP_EVENT = 4;
-const MOUSE_EVENTS = {
+const MOUSE_EVENTS: Record<string, number> = {
   pointerdown: DOWN_EVENT,
   pointermove: MOVE_EVENT,
   pointerup: UP_EVENT,
