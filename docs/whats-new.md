@@ -1,5 +1,10 @@
 # What's New
 
+## Unreleased
+
+- Added opt-in `TwoFingerPan` and `TwoFingerPinch` recognizers that distinguish coherent touch
+  translation from pinch and rotation gestures.
+
 ## v3.1
 
 - `DoubleClickDrag` recognizer

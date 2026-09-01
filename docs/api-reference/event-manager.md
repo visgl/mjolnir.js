@@ -159,6 +159,32 @@ const eventManager = new EventManager(target, {
 
 Two-finger scrolling can drive a two-pointer [Pan](./pan.md#trackpad-pan), while a trackpad pinch can drive [Pinch](./pinch.md#trackpad-pinch). Generated gesture events have `pointerType: 'trackpad'`.
 
+### Coherent two-finger gestures
+
+`TwoFingerPan` and `TwoFingerPinch` are opt-in recognizers for applications that need to
+distinguish two-finger translation from scale and rotation. They wait for a coherent update from
+both touch pointers before claiming a gesture, while still accepting a deliberately anchored pinch
+after a short delay.
+
+```ts
+import {EventManager, TwoFingerPan, TwoFingerPinch} from 'mjolnir.js';
+
+const eventManager = new EventManager(target, {
+  recognizers: [
+    new TwoFingerPan({event: 'multipan'}),
+    {
+      recognizer: new TwoFingerPinch(),
+      requireFailure: ['multipan']
+    }
+  ]
+});
+```
+
+The two recognizers should be paired with the pinch recognizer requiring the pan recognizer to
+fail, as shown above. `TwoFingerPan` defaults to two pointers, and `TwoFingerPinch` defaults to a
+`0.03` scale threshold to filter touch noise. Pointer and trackpad behavior from the base `Pan` and
+`Pinch` recognizers is otherwise preserved.
+
 ## Source
 
 https://github.com/visgl/mjolnir.js/blob/master/src/event-manager.ts

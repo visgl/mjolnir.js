@@ -14,6 +14,10 @@ export {TapRecognizer as Tap} from './recognizers/tap';
 export {PanRecognizer as Pan} from './recognizers/pan';
 export {SwipeRecognizer as Swipe} from './recognizers/swipe';
 export {PinchRecognizer as Pinch} from './recognizers/pinch';
+export {
+  TwoFingerPanRecognizer as TwoFingerPan,
+  TwoFingerPinchRecognizer as TwoFingerPinch
+} from './recognizers/two-finger';
 export {RotateRecognizer as Rotate} from './recognizers/rotate';
 export {PressRecognizer as Press} from './recognizers/press';
 
