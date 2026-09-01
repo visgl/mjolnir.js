@@ -141,6 +141,7 @@ The following recognizers are available for use:
 - [Rotate](./rotate.md)
 - [Swipe](./swipe.md)
 - [Tap](./tap.md)
+- [`TwoFingerPan` and `TwoFingerPinch`](#coherent-two-finger-gestures)
 
 ### Trackpad gestures
 
