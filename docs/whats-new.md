@@ -2,8 +2,8 @@
 
 ## Unreleased
 
-- Added opt-in `TwoFingerPan` and `TwoFingerPinch` recognizers that distinguish coherent touch
-  translation from pinch and rotation gestures.
+- Added opt-in `coherent` conditions to `Pan` and `Pinch` for distinguishing two-finger
+  translation from pinch and rotation gestures without custom recognizer classes.
 
 ## v3.1
 

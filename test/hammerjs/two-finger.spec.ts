@@ -3,8 +3,18 @@
 // Copyright (c) vis.gl contributors
 
 import {afterEach, expect, test, vi} from 'vitest';
-import {EventManager, TwoFingerPan, TwoFingerPinch} from 'mjolnir.js';
+import {EventManager, Pan, Pinch} from 'mjolnir.js';
+import type {InputCoherenceCondition, MjolnirGestureEvent} from 'mjolnir.js';
 import {createEventTarget} from '../test-utils/dom';
+
+const PINCH_COHERENCE: InputCoherenceCondition[] = [
+  {movementDeltaTime: 40, distance: 2, scale: 0.03},
+  {movementDeltaTime: 40, distance: 2, rotation: 3},
+  {distancePerPointer: 1, scale: 0.03},
+  {distancePerPointer: 1, rotation: 3}
+];
+
+const PAN_COHERENCE: InputCoherenceCondition[] = [{distancePerPointer: 1}];
 
 function dispatchPointerEvent(
   target: EventTarget,
@@ -20,6 +30,8 @@ function dispatchPointerEvent(
     buttons: type === 'pointerup' ? 0 : 1
   });
   Object.defineProperties(event, {
+    clientX: {value: x},
+    clientY: {value: y},
     pointerId: {value: pointerId},
     pointerType: {value: 'touch'},
     isPrimary: {value: pointerId === 1}
@@ -27,14 +39,26 @@ function dispatchPointerEvent(
   target.dispatchEvent(event);
 }
 
-function createTwoFingerManager() {
+function createCoherentManager({
+  trackpad = false,
+  panThreshold = 10
+}: {
+  trackpad?: boolean;
+  panThreshold?: number;
+} = {}) {
   const root = createEventTarget();
   const eventManager = new EventManager(root, {
     recognizers: [
-      new TwoFingerPan({event: 'multipan', threshold: 10}),
+      new Pinch({coherent: PINCH_COHERENCE, trackpad}),
       {
-        recognizer: new TwoFingerPinch(),
-        requireFailure: ['multipan']
+        recognizer: new Pan({
+          event: 'multipan',
+          pointers: 2,
+          threshold: panThreshold,
+          coherent: PAN_COHERENCE,
+          trackpad
+        }),
+        requireFailure: ['pinch']
       }
     ]
   });
@@ -49,14 +73,6 @@ function createTwoFingerManager() {
   ]) {
     eventManager.on(eventName, () => events.push(eventName));
   }
-  expect(
-    eventManager.manager.get('multipan')?.options.pointers,
-    'TwoFingerPan defaults to two pointers'
-  ).toBe(2);
-  expect(
-    eventManager.manager.get('pinch')?.options.threshold,
-    'TwoFingerPinch defaults to a noise-resistant scale threshold'
-  ).toBe(0.03);
   return {root, eventManager, events};
 }
 
@@ -80,10 +96,10 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-test('TwoFinger recognizers distinguish translation, pinch, and rotation', () => {
+test('coherent Pan and Pinch distinguish translation, pinch, and rotation', () => {
   vi.useFakeTimers();
   vi.setSystemTime(0);
-  const {root, eventManager, events} = createTwoFingerManager();
+  const {root, eventManager, events} = createCoherentManager();
 
   dispatchPointerEvent(root, 'pointerdown', {pointerId: 1, x: 350, y: 250});
   dispatchPointerEvent(root, 'pointerdown', {pointerId: 2, x: 450, y: 250});
@@ -169,10 +185,10 @@ test('TwoFinger recognizers distinguish translation, pinch, and rotation', () =>
   root.remove();
 });
 
-test('TwoFinger recognizers ignore staggered translation scale', () => {
+test('coherent Pan and Pinch ignore staggered translation scale', () => {
   vi.useFakeTimers();
   vi.setSystemTime(0);
-  const {root, eventManager, events} = createTwoFingerManager();
+  const {root, eventManager, events} = createCoherentManager();
 
   dispatchPointerEvent(root, 'pointerdown', {pointerId: 1, x: 350, y: 250});
   dispatchPointerEvent(root, 'pointerdown', {pointerId: 2, x: 450, y: 250});
@@ -196,10 +212,45 @@ test('TwoFinger recognizers ignore staggered translation scale', () => {
   root.remove();
 });
 
-test('TwoFingerPinch recognizes a deliberately anchored pinch after a short delay', () => {
+test('coherent Pinch ignores a staggered update before Pan crosses its threshold', () => {
   vi.useFakeTimers();
   vi.setSystemTime(0);
-  const {root, eventManager, events} = createTwoFingerManager();
+  const {root, eventManager, events} = createCoherentManager();
+
+  dispatchPointerEvent(root, 'pointerdown', {pointerId: 1, x: 350, y: 250});
+  dispatchPointerEvent(root, 'pointerdown', {pointerId: 2, x: 450, y: 250});
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 350, y: 245});
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 2, x: 450, y: 245});
+
+  expect(events, 'sub-threshold translation remains pending').toEqual([]);
+
+  vi.advanceTimersByTime(30);
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 350, y: 239});
+
+  expect(events, 'one staggered update does not claim pinch').not.toContain('pinchstart');
+
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 2, x: 450, y: 239});
+
+  expect(events, 'coherent translation claims pan after crossing its threshold').toContain(
+    'multipanstart'
+  );
+  expect(events, 'translation never claims pinch').not.toContain('pinchstart');
+
+  finishGesture(
+    [1, 2],
+    [
+      [350, 239],
+      [450, 239]
+    ]
+  );
+  eventManager.destroy();
+  root.remove();
+});
+
+test('coherent Pinch recognizes a deliberately anchored pinch after a short delay', () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(0);
+  const {root, eventManager, events} = createCoherentManager();
 
   dispatchPointerEvent(root, 'pointerdown', {pointerId: 1, x: 350, y: 250});
   dispatchPointerEvent(root, 'pointerdown', {pointerId: 2, x: 450, y: 250});
@@ -233,10 +284,29 @@ test('TwoFingerPinch recognizes a deliberately anchored pinch after a short dela
   root.remove();
 });
 
-test('TwoFingerPinch ignores touch transform noise until an intent threshold is crossed', () => {
+test('coherent Pinch does not begin when a delayed condition matures on pointerup', () => {
   vi.useFakeTimers();
   vi.setSystemTime(0);
-  const {root, eventManager, events} = createTwoFingerManager();
+  const {root, eventManager, events} = createCoherentManager();
+  eventManager.on('pinch', () => events.push('pinch'));
+
+  dispatchPointerEvent(root, 'pointerdown', {pointerId: 1, x: 350, y: 250});
+  dispatchPointerEvent(root, 'pointerdown', {pointerId: 2, x: 450, y: 250});
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 326, y: 250});
+  vi.advanceTimersByTime(50);
+  dispatchPointerEvent(document.defaultView!, 'pointerup', {pointerId: 1, x: 326, y: 250});
+
+  expect(events, 'pointerup cannot begin a coherent pinch lifecycle').toEqual([]);
+
+  dispatchPointerEvent(document.defaultView!, 'pointerup', {pointerId: 2, x: 450, y: 250});
+  eventManager.destroy();
+  root.remove();
+});
+
+test('coherent Pinch ignores touch transform noise until an intent threshold is crossed', () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(0);
+  const {root, eventManager, events} = createCoherentManager();
 
   dispatchPointerEvent(root, 'pointerdown', {pointerId: 1, x: 350, y: 250});
   dispatchPointerEvent(root, 'pointerdown', {pointerId: 2, x: 450, y: 250});
@@ -265,10 +335,10 @@ test('TwoFingerPinch ignores touch transform noise until an intent threshold is 
   root.remove();
 });
 
-test('TwoFinger recognizers recover across pinch and pan gestures with reused pointers', () => {
+test('coherent Pan and Pinch recover across gestures with reused pointers', () => {
   vi.useFakeTimers();
   vi.setSystemTime(0);
-  const {root, eventManager, events} = createTwoFingerManager();
+  const {root, eventManager, events} = createCoherentManager();
 
   dispatchPointerEvent(root, 'pointerdown', {pointerId: 1, x: 350, y: 250});
   dispatchPointerEvent(root, 'pointerdown', {pointerId: 2, x: 450, y: 250});
@@ -332,18 +402,12 @@ test('TwoFinger recognizers recover across pinch and pan gestures with reused po
   root.remove();
 });
 
-test('TwoFinger recognizers preserve trackpad pan and pinch', () => {
+test('coherent Pan and Pinch preserve trackpad pan and pinch', () => {
   vi.useFakeTimers();
-  const root = createEventTarget();
-  const eventManager = new EventManager(root, {
-    recognizers: [
-      new TwoFingerPan({event: 'multipan', pointers: 2, threshold: 0, trackpad: true}),
-      new TwoFingerPinch({trackpad: true})
-    ]
+  const {root, eventManager, events} = createCoherentManager({
+    trackpad: true,
+    panThreshold: 0
   });
-  const events: string[] = [];
-  eventManager.on('multipanstart', () => events.push('multipanstart'));
-  eventManager.on('pinchstart', () => events.push('pinchstart'));
 
   const WheelEvent = root.ownerDocument.defaultView!.WheelEvent;
   root.dispatchEvent(new WheelEvent('wheel', {deltaMode: 0, deltaX: 10}));
@@ -353,6 +417,162 @@ test('TwoFinger recognizers preserve trackpad pan and pinch', () => {
   expect(events, 'trackpad pan is inherited').toContain('multipanstart');
   expect(events, 'trackpad pinch is inherited').toContain('pinchstart');
 
+  eventManager.destroy();
+  root.remove();
+});
+
+test('an ignored trackpad gesture does not reset an active pointer gesture', () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(0);
+  const {root, eventManager, events} = createCoherentManager({trackpad: true});
+
+  dispatchPointerEvent(root, 'pointerdown', {pointerId: 1, x: 350, y: 250});
+  dispatchPointerEvent(root, 'pointerdown', {pointerId: 2, x: 450, y: 250});
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 350, y: 240});
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 2, x: 450, y: 240});
+  vi.advanceTimersByTime(30);
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 350, y: 230});
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 2, x: 450, y: 230});
+
+  expect(events, 'pointer translation starts pan').toContain('multipanstart');
+
+  const WheelEvent = root.ownerDocument.defaultView!.WheelEvent;
+  root.dispatchEvent(new WheelEvent('wheel', {ctrlKey: true, deltaMode: 0, deltaY: -10}));
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 350, y: 220});
+
+  expect(events, 'the active pointer pan continues').toContain('multipanmove');
+  expect(events, 'the overlapping trackpad pinch remains blocked').not.toContain('pinchstart');
+
+  finishGesture(
+    [1, 2],
+    [
+      [350, 220],
+      [450, 230]
+    ]
+  );
+  eventManager.destroy();
+  root.remove();
+});
+
+test('pointer input reports cumulative per-pointer movement and movement time', () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(100);
+  const root = createEventTarget();
+  const eventManager = new EventManager(root);
+  const inputs: MjolnirGestureEvent[] = [];
+  eventManager.on('pointermove', (event) => inputs.push(event as MjolnirGestureEvent));
+
+  dispatchPointerEvent(root, 'pointerdown', {pointerId: 1, x: 350, y: 250});
+  dispatchPointerEvent(root, 'pointerdown', {pointerId: 2, x: 450, y: 250});
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 355, y: 250});
+  let lastInput = inputs[inputs.length - 1];
+
+  expect(
+    lastInput?.distancePerPointer,
+    'tracks each pointer from the movement sequence origin'
+  ).toEqual([5, 0]);
+  expect(lastInput?.movementDeltaTime, 'starts timing on the first movement').toBe(0);
+
+  vi.advanceTimersByTime(40);
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 2, x: 455, y: 250});
+  lastInput = inputs[inputs.length - 1];
+
+  expect(lastInput?.distancePerPointer, 'movement remains cumulative').toEqual([5, 5]);
+  expect(lastInput?.movementDeltaTime, 'reports time since movement began').toBe(40);
+
+  vi.advanceTimersByTime(10);
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 360, y: 250});
+  lastInput = inputs[inputs.length - 1];
+
+  expect(lastInput?.distancePerPointer, 'a new sequence starts after every pointer moved').toEqual([
+    5, 0
+  ]);
+  expect(lastInput?.movementDeltaTime, 'the new movement sequence resets its timer').toBe(0);
+
+  finishGesture(
+    [1, 2],
+    [
+      [360, 250],
+      [455, 250]
+    ]
+  );
+  eventManager.destroy();
+  root.remove();
+});
+
+test('Pan and Pinch retain their default recognition without coherence conditions', () => {
+  const root = createEventTarget();
+  const eventManager = new EventManager(root, {
+    recognizers: [new Pan({event: 'multipan', pointers: 2, threshold: 10}), new Pinch()]
+  });
+  const events: string[] = [];
+  eventManager.on('pinchstart', () => events.push('pinchstart'));
+
+  dispatchPointerEvent(root, 'pointerdown', {pointerId: 1, x: 350, y: 250});
+  dispatchPointerEvent(root, 'pointerdown', {pointerId: 2, x: 450, y: 250});
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 340, y: 250});
+
+  expect(events, 'an unconfigured pinch keeps its existing immediate recognition').toContain(
+    'pinchstart'
+  );
+
+  finishGesture(
+    [1, 2],
+    [
+      [340, 250],
+      [450, 250]
+    ]
+  );
+  eventManager.destroy();
+  root.remove();
+});
+
+test('pointer movement metrics preserve fractional coordinates', () => {
+  const root = createEventTarget();
+  const eventManager = new EventManager(root);
+  const inputs: MjolnirGestureEvent[] = [];
+  eventManager.on('pointermove', (event) => inputs.push(event as MjolnirGestureEvent));
+
+  dispatchPointerEvent(root, 'pointerdown', {pointerId: 1, x: 350.49, y: 250});
+  dispatchPointerEvent(root, 'pointerdown', {pointerId: 2, x: 450.49, y: 250});
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 351.01, y: 250});
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 2, x: 451.01, y: 250});
+
+  let lastInput = inputs[inputs.length - 1];
+  expect(lastInput?.distancePerPointer[0], 'does not round the first pointer origin').toBeCloseTo(
+    0.52
+  );
+  expect(lastInput?.distancePerPointer[1], 'does not round the second pointer origin').toBeCloseTo(
+    0.52
+  );
+
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 351.53, y: 250});
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 2, x: 451.53, y: 250});
+  lastInput = inputs[inputs.length - 1];
+
+  expect(lastInput?.distancePerPointer[0], 'subpixel updates accumulate to one pixel').toBeCloseTo(
+    1.04
+  );
+  expect(lastInput?.distancePerPointer[1], 'both pointers complete the sequence').toBeCloseTo(1.04);
+
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 352.05, y: 250});
+  lastInput = inputs[inputs.length - 1];
+  expect(
+    lastInput?.distancePerPointer[0],
+    'the next sequence starts from the completed pair'
+  ).toBeCloseTo(0.52);
+  expect(
+    lastInput?.distancePerPointer[1],
+    'the other pointer has not moved in the new sequence'
+  ).toBe(0);
+
+  finishGesture(
+    [1, 2],
+    [
+      [352.05, 250],
+      [451.53, 250]
+    ]
+  );
   eventManager.destroy();
   root.remove();
 });

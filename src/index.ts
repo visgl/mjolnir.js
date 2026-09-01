@@ -7,10 +7,8 @@ export {
   Recognizer,
   DoubleClickDrag,
   Pan,
-  TwoFingerPan,
   Rotate,
   Pinch,
-  TwoFingerPinch,
   Swipe,
   Press,
   Tap,
@@ -32,6 +30,7 @@ export type {
 
 export type {
   DoubleClickDragRecognizerOptions,
+  InputCoherenceCondition,
   PanRecognizerOptions,
   RotateRecognizerOptions,
   PinchRecognizerOptions,

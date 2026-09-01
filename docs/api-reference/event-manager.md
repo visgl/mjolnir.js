@@ -141,7 +141,6 @@ The following recognizers are available for use:
 - [Rotate](./rotate.md)
 - [Swipe](./swipe.md)
 - [Tap](./tap.md)
-- [`TwoFingerPan` and `TwoFingerPinch`](#coherent-two-finger-gestures)
 
 ### Trackpad gestures
 
@@ -162,29 +161,44 @@ Two-finger scrolling can drive a two-pointer [Pan](./pan.md#trackpad-pan), while
 
 ### Coherent two-finger gestures
 
-`TwoFingerPan` and `TwoFingerPinch` are opt-in recognizers for applications that need to
-distinguish two-finger translation from scale and rotation. They wait for a coherent update from
-both touch pointers before claiming a gesture, while still accepting a deliberately anchored pinch
-after a short delay.
+The existing `Pan` and `Pinch` recognizers accept opt-in `coherent` conditions for applications
+that need to distinguish two-finger translation from scale and rotation. Each condition describes
+minimum input deltas that must all be met. Multiple conditions are alternatives, so any one may
+begin recognition. `distancePerPointer` and `movementDeltaTime` accumulate within the current
+movement sequence, which restarts after every active pointer has moved at least one pixel.
+The `distancePerPointer` condition accepts the literal value `1`, matching this sequence floor.
 
 ```ts
-import {EventManager, TwoFingerPan, TwoFingerPinch} from 'mjolnir.js';
+import {EventManager, Pan, Pinch} from 'mjolnir.js';
 
 const eventManager = new EventManager(target, {
   recognizers: [
-    new TwoFingerPan({event: 'multipan'}),
+    new Pinch({
+      pointers: 2,
+      coherent: [
+        {movementDeltaTime: 40, distance: 2, scale: 0.03},
+        {movementDeltaTime: 40, distance: 2, rotation: 3},
+        {distancePerPointer: 1, scale: 0.03},
+        {distancePerPointer: 1, rotation: 3}
+      ]
+    }),
     {
-      recognizer: new TwoFingerPinch(),
-      requireFailure: ['multipan']
+      recognizer: new Pan({
+        event: 'multipan',
+        pointers: 2,
+        threshold: 10,
+        coherent: [{distancePerPointer: 1}]
+      }),
+      requireFailure: ['pinch']
     }
   ]
 });
 ```
 
-The two recognizers should be paired with the pinch recognizer requiring the pan recognizer to
-fail, as shown above. `TwoFingerPan` defaults to two pointers, and `TwoFingerPinch` defaults to a
-`0.03` scale threshold to filter touch noise. Pointer and trackpad behavior from the base `Pan` and
-`Pinch` recognizers is otherwise preserved.
+The example lets `Pinch` claim clear scale or rotation intent first. `Pan` begins only after every
+pointer has moved and the pinch recognizer has failed. A delayed condition preserves deliberately
+anchored pinches where only one pointer moves. Omitting `coherent` preserves the existing `Pan` and
+`Pinch` behavior.
 
 ## Source
 

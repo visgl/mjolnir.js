@@ -1,8 +1,9 @@
 import {TrackpadRecognizer} from './trackpad';
-import {InputDirection} from '../input/input-consts';
+import {InputDirection, InputEvent} from '../input/input-consts';
 import {RecognizerState} from '../recognizer/recognizer-state';
 import {TOUCH_ACTION_PAN_X, TOUCH_ACTION_PAN_Y} from '../touchaction/touchaction-Consts';
 import type {HammerInput} from '../input/types';
+import type {InputCoherenceCondition} from './attribute';
 import type {WheelGestureSessionEvent} from '../../inputs/wheel-gesture-session';
 
 export type PanRecognizerOptions = {
@@ -31,6 +32,11 @@ export type PanRecognizerOptions = {
    * @default false
    */
   trackpad?: boolean;
+  /**
+   * Alternative minimum input deltas used to delay recognition until pointer movement is coherent.
+   * Conditions in one object are combined with AND. Multiple objects are combined with OR.
+   */
+  coherent?: InputCoherenceCondition[];
 };
 
 const EVENT_NAMES = ['', 'start', 'move', 'end', 'cancel', 'up', 'down', 'left', 'right'] as const;
@@ -52,6 +58,7 @@ export class PanRecognizer extends TrackpadRecognizer<Required<PanRecognizerOpti
       threshold: 10,
       direction: InputDirection.All,
       trackpad: false,
+      coherent: [],
       ...options
     });
     this.pX = null;
@@ -102,10 +109,13 @@ export class PanRecognizer extends TrackpadRecognizer<Required<PanRecognizerOpti
   }
 
   attrTest(input: HammerInput): boolean {
+    const isActive = Boolean(this.state & RecognizerState.Began);
+    const canBegin = !(
+      this.options.coherent?.length && input.eventType & (InputEvent.End | InputEvent.Cancel)
+    );
     return (
       super.attrTest(input) &&
-      (Boolean(this.state & RecognizerState.Began) ||
-        (!(this.state & RecognizerState.Began) && this.directionTest(input)))
+      (isActive || (canBegin && this.coherentTest(input) && this.directionTest(input)))
     );
   }
 
@@ -124,6 +134,13 @@ export class PanRecognizer extends TrackpadRecognizer<Required<PanRecognizerOpti
   protected handleTrackpadEvent(event: WheelGestureSessionEvent): void {
     if (event.isFirst) {
       this.trackpadGesture = !event.srcEvent.ctrlKey;
+      if (
+        !this.trackpadGesture &&
+        this.state &
+          (RecognizerState.Recognized | RecognizerState.Cancelled | RecognizerState.Failed)
+      ) {
+        this.state = RecognizerState.Possible;
+      }
     }
     if (!this.trackpadGesture) {
       return;

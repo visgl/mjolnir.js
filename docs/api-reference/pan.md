@@ -19,6 +19,7 @@ const eventManager = new EventManager(target, {
   - `threshold` (number) - Minimal pan distance required before recognizing. Default `10`.
   - `direction` (InputDirection) - Direction of the panning. Default `InputDirection.All`.
   - `trackpad` (boolean) - Recognize two-finger trackpad pan gestures from wheel events. This option is only used when `pointers` is `2`. Default `false`.
+  - `coherent` (object[], optional) - Alternative minimum input deltas that must be met before recognition starts. Fields within one object are combined with AND; multiple objects are combined with OR. Supported fields are `distance`, `distancePerPointer`, `movementDeltaTime`, `rotation`, and `scale`.
 
 ### Trackpad pan
 

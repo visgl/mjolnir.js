@@ -3,9 +3,47 @@ import {RecognizerState} from '../recognizer/recognizer-state';
 import {InputEvent} from '../input/input-consts';
 import type {HammerInput} from '../input/types';
 
+/**
+ * Minimum input deltas that must be reached before a recognizer can begin.
+ * Conditions in one object are combined with AND. Multiple objects are combined with OR.
+ */
+export type InputCoherenceCondition = {
+  /** Minimum movement of the gesture center, in pixels. */
+  distance?: number;
+  /** Require every active pointer to move at least one pixel in the current sequence. */
+  distancePerPointer?: 1;
+  /** Minimum time since the first active pointer moved, in milliseconds. */
+  movementDeltaTime?: number;
+  /** Minimum absolute rotation from the initial pointer orientation, in degrees. */
+  rotation?: number;
+  /** Minimum absolute scale change from 1. */
+  scale?: number;
+};
+
 export type AttrRecognizerOptions = RecognizerOptions & {
   pointers: number;
+  coherent?: InputCoherenceCondition[];
 };
+
+function getRotationDelta(rotation: number): number {
+  return Math.abs(((((rotation + 180) % 360) + 360) % 360) - 180);
+}
+
+function matchesCoherenceCondition(
+  input: HammerInput,
+  condition: InputCoherenceCondition
+): boolean {
+  return (
+    (condition.distance === undefined || input.distance >= condition.distance) &&
+    (condition.distancePerPointer === undefined ||
+      (input.distancePerPointer.length > 0 &&
+        input.distancePerPointer.every((distance) => distance >= condition.distancePerPointer!))) &&
+    (condition.movementDeltaTime === undefined ||
+      input.movementDeltaTime >= condition.movementDeltaTime) &&
+    (condition.rotation === undefined || getRotationDelta(input.rotation) >= condition.rotation) &&
+    (condition.scale === undefined || Math.abs(input.scale - 1) >= condition.scale)
+  );
+}
 
 /**
  * This recognizer is just used as a base for the simple attribute recognizers.
@@ -19,6 +57,15 @@ export abstract class AttrRecognizer<
   attrTest(input: HammerInput): boolean {
     const optionPointers = this.options.pointers;
     return optionPointers === 0 || input.pointers.length === optionPointers;
+  }
+
+  /** Test the configured input coherence conditions without retaining recognizer state. */
+  protected coherentTest(input: HammerInput): boolean {
+    const conditions = this.options.coherent;
+    return (
+      !conditions?.length ||
+      conditions.some((condition) => matchesCoherenceCondition(input, condition))
+    );
   }
 
   /**

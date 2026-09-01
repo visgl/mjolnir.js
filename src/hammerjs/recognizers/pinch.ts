@@ -1,7 +1,9 @@
 import {TrackpadRecognizer} from './trackpad';
 import {TOUCH_ACTION_NONE} from '../touchaction/touchaction-Consts';
 import {RecognizerState} from '../recognizer/recognizer-state';
+import {InputEvent} from '../input/input-consts';
 import type {HammerInput} from '../input/types';
+import type {InputCoherenceCondition} from './attribute';
 import type {WheelGestureSessionEvent} from '../../inputs/wheel-gesture-session';
 
 export type PinchRecognizerOptions = {
@@ -26,6 +28,11 @@ export type PinchRecognizerOptions = {
    * @default false
    */
   trackpad?: boolean;
+  /**
+   * Alternative minimum input deltas used to delay recognition until pointer movement is coherent.
+   * Conditions in one object are combined with AND. Multiple objects are combined with OR.
+   */
+  coherent?: InputCoherenceCondition[];
 };
 
 const EVENT_NAMES = ['', 'start', 'move', 'end', 'cancel', 'in', 'out'] as const;
@@ -44,6 +51,7 @@ export class PinchRecognizer extends TrackpadRecognizer<Required<PinchRecognizer
       threshold: 0,
       pointers: 2,
       trackpad: false,
+      coherent: [],
       ...options
     });
   }
@@ -57,10 +65,18 @@ export class PinchRecognizer extends TrackpadRecognizer<Required<PinchRecognizer
   }
 
   attrTest(input: HammerInput): boolean {
+    const hasCoherenceConditions = Boolean(this.options.coherent?.length);
+    const isActive = Boolean(this.state & RecognizerState.Began);
+    const canBegin = !(
+      hasCoherenceConditions && input.eventType & (InputEvent.End | InputEvent.Cancel)
+    );
     return (
       super.attrTest(input) &&
-      (Math.abs(input.scale - 1) > this.options.threshold ||
-        Boolean(this.state & RecognizerState.Began))
+      (isActive ||
+        (canBegin &&
+          (hasCoherenceConditions
+            ? this.coherentTest(input)
+            : Math.abs(input.scale - 1) > this.options.threshold)))
     );
   }
 
@@ -75,6 +91,13 @@ export class PinchRecognizer extends TrackpadRecognizer<Required<PinchRecognizer
   protected handleTrackpadEvent(event: WheelGestureSessionEvent): void {
     if (event.isFirst) {
       this.trackpadGesture = event.srcEvent.ctrlKey;
+      if (
+        !this.trackpadGesture &&
+        this.state &
+          (RecognizerState.Recognized | RecognizerState.Cancelled | RecognizerState.Failed)
+      ) {
+        this.state = RecognizerState.Possible;
+      }
     }
     if (!this.trackpadGesture) {
       return;

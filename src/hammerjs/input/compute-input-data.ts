@@ -1,7 +1,7 @@
 import hasParent from '../utils/has-parent';
 import {simpleCloneInputData} from './simple-clone-input-data';
 import {getCenter} from './get-center';
-import {getPointDistance} from './get-distance';
+import {getEventDistance, getPointDistance} from './get-distance';
 import {getPointAngle} from './get-angle';
 import {getDirection} from './get-direction';
 import {computeDeltaXY} from './get-delta-xy';
@@ -9,9 +9,62 @@ import {getVelocity} from './get-velocity';
 import {getScale} from './get-scale';
 import {getRotation} from './get-rotation';
 import {computeIntervalInputData} from './compute-interval-input-data';
+import {InputEvent} from './input-consts';
 
 import type {Manager} from '../manager';
-import type {RawInput, HammerInput} from './types';
+import type {RawInput, HammerInput, Session} from './types';
+
+const POINTER_MOVEMENT_THRESHOLD = 1;
+
+function getPointerId(pointer: RawInput['pointers'][number], index: number): number {
+  return 'pointerId' in pointer ? pointer.pointerId : index;
+}
+
+function computePointerMovementData(session: Session, input: RawInput): void {
+  const pointerIds = input.pointers.map(getPointerId);
+  const hasSamePointers =
+    session.movementPointerIds?.length === pointerIds.length &&
+    pointerIds.every((pointerId, index) => session.movementPointerIds![index] === pointerId);
+
+  if (!session.movementOrigin || !hasSamePointers) {
+    session.movementOrigin = input.pointers.map((pointer) => ({
+      clientX: pointer.clientX,
+      clientY: pointer.clientY
+    }));
+    session.movementPointerIds = pointerIds;
+    session.movedPointerIds = new Set();
+    session.firstMovementTime = undefined;
+  }
+
+  input.distancePerPointer = input.pointers.map((pointer, index) =>
+    getEventDistance(session.movementOrigin![index], pointer)
+  );
+
+  if (input.eventType & InputEvent.Move) {
+    for (const changedPointer of input.changedPointers) {
+      const changedPointerId = getPointerId(changedPointer, input.pointers.indexOf(changedPointer));
+      const pointerIndex = pointerIds.indexOf(changedPointerId);
+      if (input.distancePerPointer[pointerIndex] >= POINTER_MOVEMENT_THRESHOLD) {
+        session.movedPointerIds!.add(changedPointerId);
+        session.firstMovementTime ??= input.timeStamp;
+      }
+    }
+  }
+  input.movementDeltaTime =
+    session.firstMovementTime === undefined ? 0 : input.timeStamp! - session.firstMovementTime;
+
+  if (
+    pointerIds.length > 0 &&
+    pointerIds.every((pointerId) => session.movedPointerIds!.has(pointerId))
+  ) {
+    session.movementOrigin = input.pointers.map((pointer) => ({
+      clientX: pointer.clientX,
+      clientY: pointer.clientY
+    }));
+    session.movedPointerIds!.clear();
+    session.firstMovementTime = undefined;
+  }
+}
 
 /**
  * extend the data with some usable properties like scale, rotate, velocity etc
@@ -39,6 +92,7 @@ export function computeInputData(manager: Manager, input: RawInput): HammerInput
   const center = (input.center = getCenter(pointers));
   input.timeStamp = Date.now();
   input.deltaTime = input.timeStamp - firstInput.timeStamp;
+  computePointerMovementData(session, input);
 
   input.angle = getPointAngle(offsetCenter, center);
   input.distance = getPointDistance(offsetCenter, center);

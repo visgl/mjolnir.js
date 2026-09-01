@@ -18,6 +18,7 @@ const eventManager = new EventManager(target, {
   - `pointers` (number) - Required pointers, with a minimal of 2. Default `2`.
   - `threshold` (number) - Minimal scale before recognizing. Default `0`.
   - `trackpad` (boolean) - Recognize trackpad pinch gestures from wheel events. This option is only used when `pointers` is `2`. Default `false`.
+  - `coherent` (object[], optional) - Alternative minimum input deltas that replace `threshold` when deciding when recognition starts. Fields within one object are combined with AND; multiple objects are combined with OR. Supported fields are `distance`, `distancePerPointer`, `movementDeltaTime`, `rotation`, and `scale`.
 
 ### Trackpad pinch
 
