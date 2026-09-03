@@ -1,5 +1,10 @@
 # Change Log
 
+#### v3.1.1 - Sep 3, 2026
+
+- feat: add coherent gesture conditions to Pan and Pinch (#20)
+
+
 #### v3.1.0 - August 20, 2026
 
 - Added opt-in trackpad gesture support to two-pointer `Pan` and `Pinch` recognizers.
