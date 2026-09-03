@@ -164,9 +164,11 @@ Two-finger scrolling can drive a two-pointer [Pan](./pan.md#trackpad-pan), while
 The existing `Pan` and `Pinch` recognizers accept opt-in `coherent` conditions for applications
 that need to distinguish two-finger translation from scale and rotation. Each condition describes
 minimum input deltas that must all be met. Multiple conditions are alternatives, so any one may
-begin recognition. `distancePerPointer` and `movementDeltaTime` accumulate within the current
-movement sequence, which restarts after every active pointer has moved at least one pixel.
-The `distancePerPointer` condition accepts the literal value `1`, matching this sequence floor.
+begin recognition. `distancePerPointer` measures each pointer's displacement from its position
+when the current pointer set was established. `movementDeltaTime` measures time since the first
+movement within that set, including subpixel movement. Both reset only when a pointer is added,
+removed, or replaced, not after each pair of moves. The `distancePerPointer` condition accepts
+any numeric threshold in pixels, such as `0.5`, `1`, or `4`.
 
 ```ts
 import {EventManager, Pan, Pinch} from 'mjolnir.js';
@@ -195,10 +197,13 @@ const eventManager = new EventManager(target, {
 });
 ```
 
-The example lets `Pinch` claim clear scale or rotation intent first. `Pan` begins only after every
-pointer has moved and the pinch recognizer has failed. A delayed condition preserves deliberately
-anchored pinches where only one pointer moves. Omitting `coherent` preserves the existing `Pan` and
-`Pinch` behavior.
+In this example, `Pinch` wins when its scale or rotation condition succeeds first. `Pan` wins when
+every pointer has moved at least one pixel, its pan threshold is exceeded, and `Pinch` has not
+claimed the event. Passing only the pan coherence test does not block a subsequent pinch while
+pan remains below its threshold. Once either recognizer begins, the manager prevents the other
+from claiming later events, even if the input drops below the initial coherence threshold.
+A delayed condition preserves deliberately anchored pinches where only one pointer moves.
+Omitting `coherent` preserves the existing `Pan` and `Pinch` behavior.
 
 ## Source
 

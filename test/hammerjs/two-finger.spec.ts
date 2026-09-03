@@ -18,7 +18,7 @@ const PAN_COHERENCE: InputCoherenceCondition[] = [{distancePerPointer: 1}];
 
 function dispatchPointerEvent(
   target: EventTarget,
-  type: 'pointerdown' | 'pointermove' | 'pointerup',
+  type: 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel',
   {pointerId, x, y}: {pointerId: number; x: number; y: number}
 ): void {
   const event = new document.defaultView!.MouseEvent(type, {
@@ -27,7 +27,7 @@ function dispatchPointerEvent(
     bubbles: true,
     cancelable: true,
     button: 0,
-    buttons: type === 'pointerup' ? 0 : 1
+    buttons: type === 'pointerup' || type === 'pointercancel' ? 0 : 1
   });
   Object.defineProperties(event, {
     clientX: {value: x},
@@ -103,7 +103,8 @@ test('coherent Pan and Pinch distinguish translation, pinch, and rotation', () =
 
   dispatchPointerEvent(root, 'pointerdown', {pointerId: 1, x: 350, y: 250});
   dispatchPointerEvent(root, 'pointerdown', {pointerId: 2, x: 450, y: 250});
-  for (const offset of [10, 20, 30]) {
+  for (const offset of [11, 20, 30]) {
+    vi.advanceTimersByTime(30);
     dispatchPointerEvent(document.defaultView!, 'pointermove', {
       pointerId: 1,
       x: 350,
@@ -114,7 +115,6 @@ test('coherent Pan and Pinch distinguish translation, pinch, and rotation', () =
       x: 450,
       y: 250 - offset
     });
-    vi.advanceTimersByTime(30);
   }
   finishGesture(
     [1, 2],
@@ -185,34 +185,50 @@ test('coherent Pan and Pinch distinguish translation, pinch, and rotation', () =
   root.remove();
 });
 
-test('coherent Pan and Pinch ignore staggered translation scale', () => {
+test('coherent Pan claims translation first and blocks later pinch conditions', () => {
   vi.useFakeTimers();
   vi.setSystemTime(0);
   const {root, eventManager, events} = createCoherentManager();
 
   dispatchPointerEvent(root, 'pointerdown', {pointerId: 1, x: 350, y: 250});
   dispatchPointerEvent(root, 'pointerdown', {pointerId: 2, x: 450, y: 250});
+  vi.advanceTimersByTime(30);
   dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 350, y: 220});
+
+  expect(events, 'initial staggered movement remains pending').toEqual([]);
+
   dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 2, x: 450, y: 220});
+
+  expect(events, 'pan claims the first coherent threshold crossing').toEqual(['multipanstart']);
+
   vi.advanceTimersByTime(30);
   dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 350, y: 210});
   dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 2, x: 450, y: 210});
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 330, y: 210});
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 2, x: 470, y: 210});
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 350, y: 250});
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 2, x: 450, y: 250});
   finishGesture(
     [1, 2],
     [
-      [350, 210],
-      [450, 210]
+      [350, 250],
+      [450, 250]
     ]
   );
 
   expect(events, 'staggered translation claims pan').toContain('multipanstart');
-  expect(events, 'transient scale does not claim pinch').not.toContain('pinchstart');
+  expect(events, 'scale and rotation after pan recognition do not claim pinch').not.toContain(
+    'pinchstart'
+  );
+  expect(events, 'pan continues even after returning below its coherence threshold').toContain(
+    'multipanend'
+  );
 
   eventManager.destroy();
   root.remove();
 });
 
-test('coherent Pinch ignores a staggered update before Pan crosses its threshold', () => {
+test('coherent Pinch can claim later movement while Pan remains below its threshold', () => {
   vi.useFakeTimers();
   vi.setSystemTime(0);
   const {root, eventManager, events} = createCoherentManager();
@@ -227,14 +243,19 @@ test('coherent Pinch ignores a staggered update before Pan crosses its threshold
   vi.advanceTimersByTime(30);
   dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 350, y: 239});
 
-  expect(events, 'one staggered update does not claim pinch').not.toContain('pinchstart');
+  expect(events, 'established pointer coherence lets the next rotation claim pinch').toEqual([
+    'pinchstart'
+  ]);
 
   dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 2, x: 450, y: 239});
 
-  expect(events, 'coherent translation claims pan after crossing its threshold').toContain(
+  expect(
+    events,
+    'pinch continues when the rotation returns below its starting threshold'
+  ).toContain('pinchmove');
+  expect(events, 'pan cannot take over after crossing its threshold').not.toContain(
     'multipanstart'
   );
-  expect(events, 'translation never claims pinch').not.toContain('pinchstart');
 
   finishGesture(
     [1, 2],
@@ -358,7 +379,8 @@ test('coherent Pan and Pinch recover across gestures with reused pointers', () =
   events.length = 0;
   dispatchPointerEvent(root, 'pointerdown', {pointerId: 1, x: 350, y: 250});
   dispatchPointerEvent(root, 'pointerdown', {pointerId: 2, x: 450, y: 250});
-  for (const offset of [10, 20, 30]) {
+  for (const offset of [11, 20, 30]) {
+    vi.advanceTimersByTime(30);
     dispatchPointerEvent(document.defaultView!, 'pointermove', {
       pointerId: 1,
       x: 350,
@@ -369,7 +391,6 @@ test('coherent Pan and Pinch recover across gestures with reused pointers', () =
       x: 450,
       y: 250 - offset
     });
-    vi.advanceTimersByTime(30);
   }
   finishGesture(
     [1, 2],
@@ -428,8 +449,9 @@ test('an ignored trackpad gesture does not reset an active pointer gesture', () 
 
   dispatchPointerEvent(root, 'pointerdown', {pointerId: 1, x: 350, y: 250});
   dispatchPointerEvent(root, 'pointerdown', {pointerId: 2, x: 450, y: 250});
-  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 350, y: 240});
-  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 2, x: 450, y: 240});
+  vi.advanceTimersByTime(30);
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 350, y: 239});
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 2, x: 450, y: 239});
   vi.advanceTimersByTime(30);
   dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 350, y: 230});
   dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 2, x: 450, y: 230});
@@ -469,7 +491,7 @@ test('pointer input reports cumulative per-pointer movement and movement time', 
 
   expect(
     lastInput?.distancePerPointer,
-    'tracks each pointer from the movement sequence origin'
+    'tracks each pointer from where the pointer set was established'
   ).toEqual([5, 0]);
   expect(lastInput?.movementDeltaTime, 'starts timing on the first movement').toBe(0);
 
@@ -484,15 +506,23 @@ test('pointer input reports cumulative per-pointer movement and movement time', 
   dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 360, y: 250});
   lastInput = inputs[inputs.length - 1];
 
-  expect(lastInput?.distancePerPointer, 'a new sequence starts after every pointer moved').toEqual([
-    5, 0
+  expect(lastInput?.distancePerPointer, 'origins stay fixed after every pointer moved').toEqual([
+    10, 5
   ]);
-  expect(lastInput?.movementDeltaTime, 'the new movement sequence resets its timer').toBe(0);
+  expect(lastInput?.movementDeltaTime, 'the movement timer keeps running').toBe(50);
+
+  vi.advanceTimersByTime(10);
+  dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 350, y: 250});
+  lastInput = inputs[inputs.length - 1];
+  expect(lastInput?.distancePerPointer, 'distance is displacement, not total path length').toEqual([
+    0, 5
+  ]);
+  expect(lastInput?.movementDeltaTime, 'returning to the origin does not reset time').toBe(60);
 
   finishGesture(
     [1, 2],
     [
-      [360, 250],
+      [350, 250],
       [455, 250]
     ]
   );
@@ -528,6 +558,8 @@ test('Pan and Pinch retain their default recognition without coherence condition
 });
 
 test('pointer movement metrics preserve fractional coordinates', () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(0);
   const root = createEventTarget();
   const eventManager = new EventManager(root);
   const inputs: MjolnirGestureEvent[] = [];
@@ -536,6 +568,7 @@ test('pointer movement metrics preserve fractional coordinates', () => {
   dispatchPointerEvent(root, 'pointerdown', {pointerId: 1, x: 350.49, y: 250});
   dispatchPointerEvent(root, 'pointerdown', {pointerId: 2, x: 450.49, y: 250});
   dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 351.01, y: 250});
+  vi.advanceTimersByTime(10);
   dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 2, x: 451.01, y: 250});
 
   let lastInput = inputs[inputs.length - 1];
@@ -546,6 +579,9 @@ test('pointer movement metrics preserve fractional coordinates', () => {
     0.52
   );
 
+  expect(lastInput?.movementDeltaTime, 'subpixel movement starts the timer').toBe(10);
+
+  vi.advanceTimersByTime(10);
   dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 351.53, y: 250});
   dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 2, x: 451.53, y: 250});
   lastInput = inputs[inputs.length - 1];
@@ -553,18 +589,22 @@ test('pointer movement metrics preserve fractional coordinates', () => {
   expect(lastInput?.distancePerPointer[0], 'subpixel updates accumulate to one pixel').toBeCloseTo(
     1.04
   );
-  expect(lastInput?.distancePerPointer[1], 'both pointers complete the sequence').toBeCloseTo(1.04);
+  expect(lastInput?.distancePerPointer[1], 'both pointers accumulate displacement').toBeCloseTo(
+    1.04
+  );
 
+  vi.advanceTimersByTime(10);
   dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 352.05, y: 250});
   lastInput = inputs[inputs.length - 1];
   expect(
     lastInput?.distancePerPointer[0],
-    'the next sequence starts from the completed pair'
-  ).toBeCloseTo(0.52);
+    'later movement keeps the original fractional origin'
+  ).toBeCloseTo(1.56);
   expect(
     lastInput?.distancePerPointer[1],
-    'the other pointer has not moved in the new sequence'
-  ).toBe(0);
+    'the stationary pointer retains its displacement'
+  ).toBeCloseTo(1.04);
+  expect(lastInput?.movementDeltaTime, 'crossing one pixel does not reset time').toBe(30);
 
   finishGesture(
     [1, 2],
@@ -576,3 +616,128 @@ test('pointer movement metrics preserve fractional coordinates', () => {
   eventManager.destroy();
   root.remove();
 });
+
+test.each([0.25, 2, 4.5])('Pan and Pinch accept a %s pixel per-pointer threshold', (threshold) => {
+  for (const gesture of ['pan', 'pinch']) {
+    const root = createEventTarget();
+    const coherent: InputCoherenceCondition[] = [{distancePerPointer: threshold}];
+    const eventManager = new EventManager(root, {
+      recognizers: [
+        gesture === 'pan' ? new Pan({pointers: 2, threshold: 0, coherent}) : new Pinch({coherent})
+      ]
+    });
+    const events: string[] = [];
+    eventManager.on(`${gesture}start`, () => events.push('start'));
+
+    dispatchPointerEvent(root, 'pointerdown', {pointerId: 1, x: 350.25, y: 250});
+    dispatchPointerEvent(root, 'pointerdown', {pointerId: 2, x: 450.25, y: 250});
+    const direction = gesture === 'pan' ? 1 : -1;
+    dispatchPointerEvent(document.defaultView!, 'pointermove', {
+      pointerId: 1,
+      x: 350.25 + (direction * threshold) / 2,
+      y: 250
+    });
+    dispatchPointerEvent(document.defaultView!, 'pointermove', {
+      pointerId: 2,
+      x: 450.25 + threshold / 2,
+      y: 250
+    });
+    expect(events, `${gesture} waits below the configured threshold`).toEqual([]);
+
+    dispatchPointerEvent(document.defaultView!, 'pointermove', {
+      pointerId: 1,
+      x: 350.25 + direction * threshold,
+      y: 250
+    });
+    expect(events, `${gesture} waits for both pointers to reach the threshold`).toEqual([]);
+
+    dispatchPointerEvent(document.defaultView!, 'pointermove', {
+      pointerId: 2,
+      x: 450.25 + threshold,
+      y: 250
+    });
+    expect(events, `${gesture} starts at the configured threshold`).toEqual(['start']);
+
+    finishGesture(
+      [1, 2],
+      [
+        [350.25 + direction * threshold, 250],
+        [450.25 + threshold, 250]
+      ]
+    );
+    eventManager.destroy();
+    root.remove();
+  }
+});
+
+test.each(['pointerup', 'pointercancel'] as const)(
+  'pointer movement resets on addition, %s, and replacement',
+  (terminalEvent) => {
+    vi.useFakeTimers();
+    vi.setSystemTime(0);
+    const root = createEventTarget();
+    const eventManager = new EventManager(root);
+    const inputs: MjolnirGestureEvent[] = [];
+    for (const eventName of ['pointerdown', 'pointermove', 'pointerup', 'pointercancel']) {
+      eventManager.on(eventName, (event) => inputs.push(event as MjolnirGestureEvent));
+    }
+    const expectMetrics = (distances: number[], time: number) => {
+      const lastInput = inputs[inputs.length - 1];
+      expect(lastInput?.distancePerPointer).toEqual(distances);
+      expect(lastInput?.movementDeltaTime).toBe(time);
+    };
+
+    dispatchPointerEvent(root, 'pointerdown', {pointerId: 1, x: 350, y: 250});
+    vi.advanceTimersByTime(20);
+    dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 350, y: 250});
+    expectMetrics([0], 0);
+    vi.advanceTimersByTime(20);
+    dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 351, y: 250});
+    expectMetrics([1], 0);
+    vi.advanceTimersByTime(20);
+    dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 354, y: 250});
+    expectMetrics([4], 20);
+
+    dispatchPointerEvent(root, 'pointerdown', {pointerId: 2, x: 450, y: 250});
+    expectMetrics([0, 0], 0);
+    vi.advanceTimersByTime(20);
+    dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 355, y: 250});
+    expectMetrics([1, 0], 0);
+    vi.advanceTimersByTime(20);
+    dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 2, x: 452, y: 250});
+    expectMetrics([1, 2], 20);
+
+    dispatchPointerEvent(document.defaultView!, terminalEvent, {pointerId: 2, x: 452, y: 250});
+    expectMetrics([1, 2], 20);
+    vi.advanceTimersByTime(20);
+    dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 358, y: 250});
+    expectMetrics([3], 0);
+    vi.advanceTimersByTime(20);
+    dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 359, y: 250});
+    expectMetrics([4], 20);
+
+    dispatchPointerEvent(root, 'pointerdown', {pointerId: 2, x: 460, y: 250});
+    expectMetrics([0, 0], 0);
+    dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 2, x: 462, y: 250});
+    vi.advanceTimersByTime(20);
+    dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 1, x: 361, y: 250});
+    expectMetrics([2, 2], 20);
+
+    dispatchPointerEvent(document.defaultView!, terminalEvent, {pointerId: 2, x: 462, y: 250});
+    dispatchPointerEvent(root, 'pointerdown', {pointerId: 3, x: 470, y: 250});
+    expectMetrics([0, 0], 0);
+    vi.advanceTimersByTime(20);
+    dispatchPointerEvent(document.defaultView!, 'pointermove', {pointerId: 3, x: 473, y: 250});
+    expectMetrics([0, 3], 0);
+
+    finishGesture(
+      [1, 3],
+      [
+        [361, 250],
+        [473, 250]
+      ]
+    );
+    eventManager.destroy();
+    root.remove();
+  }
+);

@@ -50,8 +50,8 @@ Emitted by recognizers (`Pan`, `Rotate` etc.). Extends `MjolnirEvent` with the f
 - `deltaY` (number) - Movement along the Y axis
 - `angle` (number) - Angle moved, in degrees
 - `distance` (number) - Distance moved
-- `distancePerPointer` (number[]) - Cumulative distance moved by each active pointer in the current movement sequence, in pixels. The sequence restarts after every active pointer has moved at least one pixel.
-- `movementDeltaTime` (number) - Time since the first active pointer moved in the current movement sequence, in milliseconds.
+- `distancePerPointer` (number[]) - Displacement of each pointer from its position when the current pointer set was established, in pixels and in the same order as `pointers`. This is displacement from the origin, not total path length.
+- `movementDeltaTime` (number) - Time since the first movement within the current pointer set, in milliseconds. Zero until movement begins. Both movement fields reset only when a pointer is added, removed, or replaced. End/cancel events retain the outgoing set's metrics; subsequent events use the remaining pointers' positions at removal as their origins.
 - `scale` (number) - Scaling that has been done with multi-touch. 1 on a single touch.
 - `rotation` (number) - Rotation (in degrees) that has been done with multi-touch. 0 on a single touch.
 - `direction` (InputDirection) - Direction moved.

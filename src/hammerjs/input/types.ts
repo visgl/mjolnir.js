@@ -33,11 +33,14 @@ export type RawInput = {
   /** Distance moved */
   distance?: number;
   /**
-   * Cumulative distance moved by each active pointer in the current movement sequence.
-   * The sequence restarts after every active pointer has moved at least one pixel.
+   * Displacement of each pointer from its position when the current pointer set was established,
+   * in pixels and in the same order as pointers. Resets when a pointer is added, removed, or replaced.
    */
   distancePerPointer?: number[];
-  /** Time since the first active pointer moved in the current sequence, in milliseconds. */
+  /**
+   * Time since the first movement within the current pointer set, in milliseconds.
+   * Zero until movement begins. Resets when a pointer is added, removed, or replaced.
+   */
   movementDeltaTime?: number;
   /** Scaling that has been done with multi-touch. 1 on a single touch. */
   scale?: number;
@@ -100,9 +103,7 @@ export type Session = {
 
   firstInput?: SimpleInput;
   firstMultiple?: SimpleInput | false;
-  movementOrigin?: PointerEventLike[];
-  movementPointerIds?: number[];
-  movedPointerIds?: Set<number>;
+  movementOrigin?: Map<number, PointerEventLike>;
   firstMovementTime?: number;
 
   prevInput?: HammerInput;

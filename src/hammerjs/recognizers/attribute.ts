@@ -10,9 +10,9 @@ import type {HammerInput} from '../input/types';
 export type InputCoherenceCondition = {
   /** Minimum movement of the gesture center, in pixels. */
   distance?: number;
-  /** Require every active pointer to move at least one pixel in the current sequence. */
-  distancePerPointer?: 1;
-  /** Minimum time since the first active pointer moved, in milliseconds. */
+  /** Minimum displacement of every pointer from where the current pointer set began, in pixels. */
+  distancePerPointer?: number;
+  /** Minimum time since the first movement within the current pointer set, in milliseconds. */
   movementDeltaTime?: number;
   /** Minimum absolute rotation from the initial pointer orientation, in degrees. */
   rotation?: number;

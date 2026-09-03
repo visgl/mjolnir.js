@@ -14,55 +14,53 @@ import {InputEvent} from './input-consts';
 import type {Manager} from '../manager';
 import type {RawInput, HammerInput, Session} from './types';
 
-const POINTER_MOVEMENT_THRESHOLD = 1;
-
 function getPointerId(pointer: RawInput['pointers'][number], index: number): number {
   return 'pointerId' in pointer ? pointer.pointerId : index;
+}
+
+function resetPointerMovementData(session: Session, pointers: RawInput['pointers']): void {
+  session.movementOrigin = new Map(
+    pointers.map((pointer, index) => [
+      getPointerId(pointer, index),
+      {clientX: pointer.clientX, clientY: pointer.clientY}
+    ])
+  );
+  session.firstMovementTime = undefined;
 }
 
 function computePointerMovementData(session: Session, input: RawInput): void {
   const pointerIds = input.pointers.map(getPointerId);
   const hasSamePointers =
-    session.movementPointerIds?.length === pointerIds.length &&
-    pointerIds.every((pointerId, index) => session.movementPointerIds![index] === pointerId);
+    session.movementOrigin?.size === pointerIds.length &&
+    pointerIds.every((pointerId) => session.movementOrigin!.has(pointerId));
 
-  if (!session.movementOrigin || !hasSamePointers) {
-    session.movementOrigin = input.pointers.map((pointer) => ({
-      clientX: pointer.clientX,
-      clientY: pointer.clientY
-    }));
-    session.movementPointerIds = pointerIds;
-    session.movedPointerIds = new Set();
-    session.firstMovementTime = undefined;
+  if (!hasSamePointers) {
+    resetPointerMovementData(session, input.pointers);
   }
 
   input.distancePerPointer = input.pointers.map((pointer, index) =>
-    getEventDistance(session.movementOrigin![index], pointer)
+    getEventDistance(session.movementOrigin!.get(pointerIds[index])!, pointer)
   );
 
-  if (input.eventType & InputEvent.Move) {
-    for (const changedPointer of input.changedPointers) {
-      const changedPointerId = getPointerId(changedPointer, input.pointers.indexOf(changedPointer));
-      const pointerIndex = pointerIds.indexOf(changedPointerId);
-      if (input.distancePerPointer[pointerIndex] >= POINTER_MOVEMENT_THRESHOLD) {
-        session.movedPointerIds!.add(changedPointerId);
-        session.firstMovementTime ??= input.timeStamp;
-      }
-    }
+  if (
+    input.eventType & InputEvent.Move &&
+    input.distancePerPointer.some((distance) => distance > 0)
+  ) {
+    session.firstMovementTime ??= input.timeStamp;
   }
   input.movementDeltaTime =
     session.firstMovementTime === undefined ? 0 : input.timeStamp! - session.firstMovementTime;
 
-  if (
-    pointerIds.length > 0 &&
-    pointerIds.every((pointerId) => session.movedPointerIds!.has(pointerId))
-  ) {
-    session.movementOrigin = input.pointers.map((pointer) => ({
-      clientX: pointer.clientX,
-      clientY: pointer.clientY
-    }));
-    session.movedPointerIds!.clear();
-    session.firstMovementTime = undefined;
+  if (input.eventType & (InputEvent.End | InputEvent.Cancel)) {
+    // Ending pointers still belong to this input. Establish the remaining set's
+    // origin now, before its next move, without changing the ending event's metrics.
+    const removedPointerIds = input.changedPointers.map((pointer) =>
+      getPointerId(pointer, input.pointers.indexOf(pointer))
+    );
+    resetPointerMovementData(
+      session,
+      input.pointers.filter((pointer, index) => !removedPointerIds.includes(pointerIds[index]))
+    );
   }
 }
 
