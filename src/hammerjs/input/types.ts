@@ -32,6 +32,16 @@ export type RawInput = {
   angle?: number;
   /** Distance moved */
   distance?: number;
+  /**
+   * Displacement of each pointer from its position when the current pointer set was established,
+   * in pixels and in the same order as pointers. Resets when a pointer is added, removed, or replaced.
+   */
+  distancePerPointer?: number[];
+  /**
+   * Time since the first movement within the current pointer set, in milliseconds.
+   * Zero until movement begins. Resets when a pointer is added, removed, or replaced.
+   */
+  movementDeltaTime?: number;
   /** Scaling that has been done with multi-touch. 1 on a single touch. */
   scale?: number;
   /** Rotation (in degrees) that has been done with multi-touch. 0 on a single touch. */
@@ -93,6 +103,8 @@ export type Session = {
 
   firstInput?: SimpleInput;
   firstMultiple?: SimpleInput | false;
+  movementOrigin?: Map<number, PointerEventLike>;
+  firstMovementTime?: number;
 
   prevInput?: HammerInput;
   lastInterval?: HammerInput;

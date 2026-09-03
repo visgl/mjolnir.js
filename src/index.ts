@@ -30,6 +30,7 @@ export type {
 
 export type {
   DoubleClickDragRecognizerOptions,
+  InputCoherenceCondition,
   PanRecognizerOptions,
   RotateRecognizerOptions,
   PinchRecognizerOptions,

@@ -64,6 +64,8 @@ function createInput({
     deltaY,
     angle: 0,
     distance,
+    distancePerPointer: [distance],
+    movementDeltaTime: deltaTime,
     scale: 1,
     rotation: 0,
     direction: 0,

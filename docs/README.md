@@ -10,6 +10,7 @@ On top of the pointer gestures that Hammer.js offers, mjolnir.js adds support fo
 - Generic mouse events such as `pointermove`, `pointerover`, `pointerout`, and `pointerleave` without requiring button down
 - Mouse wheel events
 - Trackpad pan and pinch gestures
+- Configurable coherent gesture arbitration for pan, pinch, and rotation
 - Keyboard events
 - Event propagation without firing [DOM events](http://hammerjs.github.io/api/#domevents-false).
 

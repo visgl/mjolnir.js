@@ -159,6 +159,52 @@ const eventManager = new EventManager(target, {
 
 Two-finger scrolling can drive a two-pointer [Pan](./pan.md#trackpad-pan), while a trackpad pinch can drive [Pinch](./pinch.md#trackpad-pinch). Generated gesture events have `pointerType: 'trackpad'`.
 
+### Coherent two-finger gestures
+
+The existing `Pan` and `Pinch` recognizers accept opt-in `coherent` conditions for applications
+that need to distinguish two-finger translation from scale and rotation. Each condition describes
+minimum input deltas that must all be met. Multiple conditions are alternatives, so any one may
+begin recognition. `distancePerPointer` measures each pointer's displacement from its position
+when the current pointer set was established. `movementDeltaTime` measures time since the first
+movement within that set, including subpixel movement. Both reset only when a pointer is added,
+removed, or replaced, not after each pair of moves. The `distancePerPointer` condition accepts
+any numeric threshold in pixels, such as `0.5`, `1`, or `4`.
+
+```ts
+import {EventManager, Pan, Pinch} from 'mjolnir.js';
+
+const eventManager = new EventManager(target, {
+  recognizers: [
+    new Pinch({
+      pointers: 2,
+      coherent: [
+        {movementDeltaTime: 40, distance: 2, scale: 0.03},
+        {movementDeltaTime: 40, distance: 2, rotation: 3},
+        {distancePerPointer: 1, scale: 0.03},
+        {distancePerPointer: 1, rotation: 3}
+      ]
+    }),
+    {
+      recognizer: new Pan({
+        event: 'multipan',
+        pointers: 2,
+        threshold: 10,
+        coherent: [{distancePerPointer: 1}]
+      }),
+      requireFailure: ['pinch']
+    }
+  ]
+});
+```
+
+In this example, `Pinch` wins when its scale or rotation condition succeeds first. `Pan` wins when
+every pointer has moved at least one pixel, its pan threshold is exceeded, and `Pinch` has not
+claimed the event. Passing only the pan coherence test does not block a subsequent pinch while
+pan remains below its threshold. Once either recognizer begins, the manager prevents the other
+from claiming later events, even if the input drops below the initial coherence threshold.
+A delayed condition preserves deliberately anchored pinches where only one pointer moves.
+Omitting `coherent` preserves the existing `Pan` and `Pinch` behavior.
+
 ## Source
 
 https://github.com/visgl/mjolnir.js/blob/master/src/event-manager.ts

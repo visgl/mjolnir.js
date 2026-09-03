@@ -23,5 +23,6 @@ export type {TapRecognizerOptions} from './recognizers/tap';
 export type {PanRecognizerOptions} from './recognizers/pan';
 export type {SwipeRecognizerOptions} from './recognizers/swipe';
 export type {PinchRecognizerOptions} from './recognizers/pinch';
+export type {InputCoherenceCondition} from './recognizers/attribute';
 export type {RotateRecognizerOptions} from './recognizers/rotate';
 export type {PressRecognizerOptions} from './recognizers/press';

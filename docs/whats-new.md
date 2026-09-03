@@ -1,5 +1,10 @@
 # What's New
 
+## Unreleased
+
+- Added opt-in `coherent` conditions to `Pan` and `Pinch` for distinguishing two-finger
+  translation from pinch and rotation gestures without custom recognizer classes.
+
 ## v3.1
 
 - `DoubleClickDrag` recognizer

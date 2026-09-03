@@ -47,6 +47,7 @@ export abstract class TrackpadRecognizer<
     const deltaX = overrides.deltaX ?? event.deltaX;
     const deltaY = overrides.deltaY ?? event.deltaY;
     const direction = getDirection(deltaX, deltaY);
+    const pointerDistance = Math.sqrt(event.deltaX * event.deltaX + event.deltaY * event.deltaY);
     const pointer = srcEvent as unknown as HammerInput['srcEvent'];
 
     return {
@@ -62,6 +63,8 @@ export abstract class TrackpadRecognizer<
       deltaY,
       angle: (Math.atan2(deltaY, deltaX) * 180) / Math.PI,
       distance: Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+      distancePerPointer: [pointerDistance, pointerDistance],
+      movementDeltaTime: event.deltaTime,
       scale: 1,
       rotation: 0,
       direction,
